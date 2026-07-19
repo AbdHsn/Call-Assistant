@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.4" type="partial_results">
+    <map id="UnsafeIntentLaunch">
+            <map id="unprotected">
+                <entry
+                    name="com.callassistant.SmsActivity"
+                    boolean="true"/>
+                <entry
+                    name="com.callassistant.MainActivity"
+                    boolean="true"/>
+            </map>
+    </map>
+    <map id="UnusedResources">
+        <location id="R.color.black"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="8"
+            column="12"
+            startOffset="293"
+            endLine="8"
+            endColumn="24"
+            endOffset="305"/>
+        <location id="R.color.teal_700"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="7"
+            column="12"
+            startOffset="248"
+            endLine="7"
+            endColumn="27"
+            endOffset="263"/>
+        <location id="R.color.purple_700"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="5"
+            column="12"
+            startOffset="156"
+            endLine="5"
+            endColumn="29"
+            endOffset="173"/>
+        <location id="R.color.purple_200"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="3"
+            column="12"
+            startOffset="62"
+            endLine="3"
+            endColumn="29"
+            endOffset="79"/>
+        <entry
+            name="model"
+            string="color[purple_200(D),black(D),teal_200(D),white(U),teal_700(D),purple_700(D),purple_500(U)],id[keyboard_background(U),key_s(D),key_r(D),key_q(D),key_p(D),key_w(D),key_v(D),key_u(D),key_t(D),key_z(D),key_y(D),key_x(D),key_space(U),key_c(D),key_b(D),key_a(D),key_g(D),key_f(D),key_e(D),key_d(D),key_k(D),key_j(D),key_i(D),key_enter(U),keyboard_container(U),key_h(D),key_o(D),key_n(D),key_m(D),key_l(D),key_backspace(U)],layout[keyboard(U)],mipmap[ic_launcher_round(U),ic_launcher(U)],string[app_name(U)],style[KeyboardKey(U),Theme_CallAssistant(U)],xml[method(U)];26^29^2a,27^6^3,28^6^3,2c^29;;;"/>
+        <location id="R.color.teal_200"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="6"
+            column="12"
+            startOffset="203"
+            endLine="6"
+            endColumn="27"
+            endOffset="218"/>
+    </map>
+
+</incidents>

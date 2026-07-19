@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.callassistant.app-mergeDebugResources-49:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/home/abdullahbinhasan/.gradle/caches/transforms-3/7f47e2d3f4ae0ebf05bb4554028ce1f3/transformed/core-1.12.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                }
+            ]
+        }
+    ]
+}
