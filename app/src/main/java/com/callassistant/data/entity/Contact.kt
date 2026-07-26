@@ -13,7 +13,11 @@ data class Contact(
     val id: Long = 0,
     val name: String,
     val phoneNumber: String,
-    val source: ContactSource = ContactSource.LOCAL
+    val source: ContactSource = ContactSource.LOCAL,
+    val photoUri: String? = null,
+    val address: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )
 
 enum class ContactSource { LOCAL, IMPORTED }

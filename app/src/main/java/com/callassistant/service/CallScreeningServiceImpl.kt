@@ -3,7 +3,6 @@ package com.callassistant.service
 import android.telecom.Call
 import android.telecom.CallScreeningService
 import com.callassistant.CallAssistantApplication
-import com.callassistant.data.entity.BlockedNumber
 import com.callassistant.data.repository.SpamRuleRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,25 +18,23 @@ class CallScreeningServiceImpl : CallScreeningService() {
         val app = application as CallAssistantApplication
         val repo: SpamRuleRepository = app.spamRuleRepository
 
-        val matchedRule = runBlocking(Dispatchers.IO) {
-            repo.matchesAny(number)
+        val isBlocked = runBlocking(Dispatchers.IO) {
+            repo.isNumberBlocked(number)
         }
 
         val response = CallResponse.Builder()
-            .setDisallowCall(matchedRule != null)
-            .setRejectCall(matchedRule != null)
+            .setDisallowCall(isBlocked)
+            .setRejectCall(isBlocked)
             .setSkipCallLog(false)
             .setSkipNotification(false)
             .build()
 
         respondToCall(callDetails, response)
 
-        if (matchedRule != null) {
+        if (isBlocked) {
             CoroutineScope(Dispatchers.IO).launch {
-                app.database.blockedNumberDao().insert(
-                    BlockedNumber(number = number, reason = matchedRule.label)
-                )
                 app.database.callLogDao().markBlocked(number)
+                repo.recordBlockedAttempt(number)
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import com.callassistant.data.entity.Contact;
 import com.callassistant.data.entity.ContactSource;
 import java.lang.Class;
+import java.lang.Double;
 import java.lang.Exception;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public final class ContactDao_Impl implements ContactDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `contacts` (`id`,`name`,`phoneNumber`,`source`) VALUES (nullif(?, 0),?,?,?)";
+        return "INSERT OR REPLACE INTO `contacts` (`id`,`name`,`phoneNumber`,`source`,`photoUri`,`address`,`latitude`,`longitude`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -55,6 +56,26 @@ public final class ContactDao_Impl implements ContactDao {
         statement.bindString(2, entity.getName());
         statement.bindString(3, entity.getPhoneNumber());
         statement.bindString(4, __ContactSource_enumToString(entity.getSource()));
+        if (entity.getPhotoUri() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getPhotoUri());
+        }
+        if (entity.getAddress() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getAddress());
+        }
+        if (entity.getLatitude() == null) {
+          statement.bindNull(7);
+        } else {
+          statement.bindDouble(7, entity.getLatitude());
+        }
+        if (entity.getLongitude() == null) {
+          statement.bindNull(8);
+        } else {
+          statement.bindDouble(8, entity.getLongitude());
+        }
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
@@ -123,6 +144,10 @@ public final class ContactDao_Impl implements ContactDao {
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfPhoneNumber = CursorUtil.getColumnIndexOrThrow(_cursor, "phoneNumber");
           final int _cursorIndexOfSource = CursorUtil.getColumnIndexOrThrow(_cursor, "source");
+          final int _cursorIndexOfPhotoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "photoUri");
+          final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
+          final int _cursorIndexOfLatitude = CursorUtil.getColumnIndexOrThrow(_cursor, "latitude");
+          final int _cursorIndexOfLongitude = CursorUtil.getColumnIndexOrThrow(_cursor, "longitude");
           final List<Contact> _result = new ArrayList<Contact>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Contact _item;
@@ -134,7 +159,31 @@ public final class ContactDao_Impl implements ContactDao {
             _tmpPhoneNumber = _cursor.getString(_cursorIndexOfPhoneNumber);
             final ContactSource _tmpSource;
             _tmpSource = __ContactSource_stringToEnum(_cursor.getString(_cursorIndexOfSource));
-            _item = new Contact(_tmpId,_tmpName,_tmpPhoneNumber,_tmpSource);
+            final String _tmpPhotoUri;
+            if (_cursor.isNull(_cursorIndexOfPhotoUri)) {
+              _tmpPhotoUri = null;
+            } else {
+              _tmpPhotoUri = _cursor.getString(_cursorIndexOfPhotoUri);
+            }
+            final String _tmpAddress;
+            if (_cursor.isNull(_cursorIndexOfAddress)) {
+              _tmpAddress = null;
+            } else {
+              _tmpAddress = _cursor.getString(_cursorIndexOfAddress);
+            }
+            final Double _tmpLatitude;
+            if (_cursor.isNull(_cursorIndexOfLatitude)) {
+              _tmpLatitude = null;
+            } else {
+              _tmpLatitude = _cursor.getDouble(_cursorIndexOfLatitude);
+            }
+            final Double _tmpLongitude;
+            if (_cursor.isNull(_cursorIndexOfLongitude)) {
+              _tmpLongitude = null;
+            } else {
+              _tmpLongitude = _cursor.getDouble(_cursorIndexOfLongitude);
+            }
+            _item = new Contact(_tmpId,_tmpName,_tmpPhoneNumber,_tmpSource,_tmpPhotoUri,_tmpAddress,_tmpLatitude,_tmpLongitude);
             _result.add(_item);
           }
           return _result;
@@ -167,6 +216,10 @@ public final class ContactDao_Impl implements ContactDao {
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfPhoneNumber = CursorUtil.getColumnIndexOrThrow(_cursor, "phoneNumber");
           final int _cursorIndexOfSource = CursorUtil.getColumnIndexOrThrow(_cursor, "source");
+          final int _cursorIndexOfPhotoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "photoUri");
+          final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
+          final int _cursorIndexOfLatitude = CursorUtil.getColumnIndexOrThrow(_cursor, "latitude");
+          final int _cursorIndexOfLongitude = CursorUtil.getColumnIndexOrThrow(_cursor, "longitude");
           final Contact _result;
           if (_cursor.moveToFirst()) {
             final long _tmpId;
@@ -177,7 +230,31 @@ public final class ContactDao_Impl implements ContactDao {
             _tmpPhoneNumber = _cursor.getString(_cursorIndexOfPhoneNumber);
             final ContactSource _tmpSource;
             _tmpSource = __ContactSource_stringToEnum(_cursor.getString(_cursorIndexOfSource));
-            _result = new Contact(_tmpId,_tmpName,_tmpPhoneNumber,_tmpSource);
+            final String _tmpPhotoUri;
+            if (_cursor.isNull(_cursorIndexOfPhotoUri)) {
+              _tmpPhotoUri = null;
+            } else {
+              _tmpPhotoUri = _cursor.getString(_cursorIndexOfPhotoUri);
+            }
+            final String _tmpAddress;
+            if (_cursor.isNull(_cursorIndexOfAddress)) {
+              _tmpAddress = null;
+            } else {
+              _tmpAddress = _cursor.getString(_cursorIndexOfAddress);
+            }
+            final Double _tmpLatitude;
+            if (_cursor.isNull(_cursorIndexOfLatitude)) {
+              _tmpLatitude = null;
+            } else {
+              _tmpLatitude = _cursor.getDouble(_cursorIndexOfLatitude);
+            }
+            final Double _tmpLongitude;
+            if (_cursor.isNull(_cursorIndexOfLongitude)) {
+              _tmpLongitude = null;
+            } else {
+              _tmpLongitude = _cursor.getDouble(_cursorIndexOfLongitude);
+            }
+            _result = new Contact(_tmpId,_tmpName,_tmpPhoneNumber,_tmpSource,_tmpPhotoUri,_tmpAddress,_tmpLatitude,_tmpLongitude);
           } else {
             _result = null;
           }

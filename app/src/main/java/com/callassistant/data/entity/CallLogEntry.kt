@@ -15,6 +15,7 @@ data class CallLogEntry(
     val name: String? = null,
     val type: CallType,
     val timestamp: Long,
+    val duration: Long = 0,
     val blocked: Boolean = false
 )
 

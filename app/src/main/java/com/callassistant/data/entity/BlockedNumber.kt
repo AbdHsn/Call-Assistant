@@ -12,6 +12,9 @@ data class BlockedNumber(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val number: String,
+    val name: String? = null,
     val reason: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val attemptCount: Int = 0,
+    val lastAttemptAt: Long? = null
 )

@@ -9,15 +9,18 @@ import androidx.room.RoomSQLiteQuery;
 import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
+import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.callassistant.data.entity.CallLogEntry;
 import com.callassistant.data.entity.CallType;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +48,7 @@ public final class CallLogDao_Impl implements CallLogDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `call_logs` (`id`,`number`,`name`,`type`,`timestamp`,`blocked`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `call_logs` (`id`,`number`,`name`,`type`,`timestamp`,`duration`,`blocked`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
       }
 
       @Override
@@ -60,8 +63,9 @@ public final class CallLogDao_Impl implements CallLogDao {
         }
         statement.bindString(4, __CallType_enumToString(entity.getType()));
         statement.bindLong(5, entity.getTimestamp());
+        statement.bindLong(6, entity.getDuration());
         final int _tmp = entity.getBlocked() ? 1 : 0;
-        statement.bindLong(6, _tmp);
+        statement.bindLong(7, _tmp);
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
@@ -164,6 +168,7 @@ public final class CallLogDao_Impl implements CallLogDao {
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
           final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfDuration = CursorUtil.getColumnIndexOrThrow(_cursor, "duration");
           final int _cursorIndexOfBlocked = CursorUtil.getColumnIndexOrThrow(_cursor, "blocked");
           final List<CallLogEntry> _result = new ArrayList<CallLogEntry>(_cursor.getCount());
           while (_cursor.moveToNext()) {
@@ -182,11 +187,13 @@ public final class CallLogDao_Impl implements CallLogDao {
             _tmpType = __CallType_stringToEnum(_cursor.getString(_cursorIndexOfType));
             final long _tmpTimestamp;
             _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final long _tmpDuration;
+            _tmpDuration = _cursor.getLong(_cursorIndexOfDuration);
             final boolean _tmpBlocked;
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfBlocked);
             _tmpBlocked = _tmp != 0;
-            _item = new CallLogEntry(_tmpId,_tmpNumber,_tmpName,_tmpType,_tmpTimestamp,_tmpBlocked);
+            _item = new CallLogEntry(_tmpId,_tmpNumber,_tmpName,_tmpType,_tmpTimestamp,_tmpDuration,_tmpBlocked);
             _result.add(_item);
           }
           return _result;
@@ -200,6 +207,36 @@ public final class CallLogDao_Impl implements CallLogDao {
         _statement.release();
       }
     });
+  }
+
+  @Override
+  public Object deleteByIds(final List<Long> ids, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        _stringBuilder.append("DELETE FROM call_logs WHERE id IN (");
+        final int _inputSize = ids.size();
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+        _stringBuilder.append(")");
+        final String _sql = _stringBuilder.toString();
+        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+        int _argIndex = 1;
+        for (long _item : ids) {
+          _stmt.bindLong(_argIndex, _item);
+          _argIndex++;
+        }
+        __db.beginTransaction();
+        try {
+          _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
   }
 
   @NonNull

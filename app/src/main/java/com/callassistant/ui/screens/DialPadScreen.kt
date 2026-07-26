@@ -9,52 +9,218 @@ import android.os.Build
 import android.telecom.TelecomManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material3.Card
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callassistant.data.entity.CallLogEntry
+import com.callassistant.ui.MainViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DialPadScreen(
+    viewModel: MainViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     DialPadContent(
+        viewModel = viewModel,
         hasPermission = hasPermission,
         requestPermissions = requestPermissions,
         modifier = modifier
     )
 }
 
+private val dialKeys = listOf(
+    Triple("1", "", ""),
+    Triple("2", "ABC", ""),
+    Triple("3", "DEF", ""),
+    Triple("4", "GHI", ""),
+    Triple("5", "JKL", ""),
+    Triple("6", "MNO", ""),
+    Triple("7", "PQRS", ""),
+    Triple("8", "TUV", ""),
+    Triple("9", "WXYZ", ""),
+    Triple("*", "", ""),
+    Triple("0", "+", ""),
+    Triple("#", "", "")
+)
+
+private fun Char.toT9Digit(): Char? = when (uppercaseChar()) {
+    in 'A'..'C' -> '2'
+    in 'D'..'F' -> '3'
+    in 'G'..'I' -> '4'
+    in 'J'..'L' -> '5'
+    in 'M'..'O' -> '6'
+    in 'P'..'S' -> '7'
+    in 'T'..'V' -> '8'
+    in 'W'..'Z' -> '9'
+    in '0'..'9' -> this
+    else -> null
+}
+
+private data class T9Contact(
+    val contact: com.callassistant.data.entity.Contact,
+    val normalizedNumber: String,
+    val wordT9s: List<Pair<String, IntRange>>,
+    val initialsT9: String,
+    val initialIndices: List<Int>,
+    val callCount: Int,
+    val lastCall: Long
+)
+
+private data class ContactMatch(
+    val contact: com.callassistant.data.entity.Contact,
+    val name: AnnotatedString,
+    val number: AnnotatedString,
+    val callCount: Int,
+    val lastCall: Long
+)
+
+private fun com.callassistant.data.entity.Contact.toT9Contact(score: Pair<Int, Long>): T9Contact {
+    val normalized = phoneNumber.filter { it.isDigit() }
+    val wordT9s = mutableListOf<Pair<String, IntRange>>()
+    val initialsT9 = StringBuilder()
+    val initialIndices = mutableListOf<Int>()
+    Regex("[A-Za-z0-9]+").findAll(name).forEach { match ->
+        val range = match.range
+        val t9 = match.value.mapNotNull { it.toT9Digit() }.joinToString("")
+        if (t9.isNotEmpty()) {
+            wordT9s.add(t9 to range)
+            initialsT9.append(t9[0])
+            initialIndices.add(range.first)
+        }
+    }
+    return T9Contact(
+        contact = this,
+        normalizedNumber = normalized,
+        wordT9s = wordT9s,
+        initialsT9 = initialsT9.toString(),
+        initialIndices = initialIndices,
+        callCount = score.first,
+        lastCall = score.second
+    )
+}
+
+private fun T9Contact.match(digits: String): ContactMatch? {
+    val nameHighlights = mutableListOf<IntRange>()
+    val numberHighlights = mutableListOf<IntRange>()
+    var matched = false
+
+    val phoneNumber = contact.phoneNumber
+    if (normalizedNumber.contains(digits)) {
+        matched = true
+        val digitToOriginal = mutableListOf<Int>()
+        phoneNumber.forEachIndexed { index, c ->
+            if (c.isDigit()) digitToOriginal.add(index)
+        }
+        var start = 0
+        while (true) {
+            val idx = normalizedNumber.indexOf(digits, start)
+            if (idx < 0) break
+            val originalStart = digitToOriginal[idx]
+            val originalEnd = digitToOriginal[idx + digits.length - 1] + 1
+            numberHighlights.add(originalStart until originalEnd)
+            start = idx + 1
+        }
+    }
+
+    if (initialsT9.startsWith(digits)) {
+        matched = true
+        for (i in digits.indices) {
+            val index = initialIndices[i]
+            nameHighlights.add(index..index)
+        }
+    } else {
+        for ((t9, range) in wordT9s) {
+            if (t9.startsWith(digits)) {
+                matched = true
+                for (i in digits.indices) {
+                    nameHighlights.add(range.first + i..range.first + i)
+                }
+                break
+            }
+        }
+    }
+
+    if (!matched) return null
+
+    val annotatedName = buildAnnotatedString {
+        append(contact.name)
+        nameHighlights.forEach {
+            addStyle(SpanStyle(fontWeight = FontWeight.Bold), it.first, it.last + 1)
+        }
+    }
+    val annotatedNumber = buildAnnotatedString {
+        append(phoneNumber)
+        numberHighlights.forEach {
+            addStyle(SpanStyle(fontWeight = FontWeight.Bold), it.first, it.last + 1)
+        }
+    }
+
+    return ContactMatch(contact, annotatedName, annotatedNumber, callCount, lastCall)
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DialPadContent(
+    viewModel: MainViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -62,6 +228,45 @@ private fun DialPadContent(
     val context = LocalContext.current
     var number by remember { mutableStateOf("") }
     var isDefaultDialer by remember { mutableStateOf(isDefaultDialerApp(context)) }
+    val contacts by viewModel.contacts.collectAsStateWithLifecycle()
+
+    val callLogs by viewModel.callLogs.collectAsStateWithLifecycle()
+
+    val scoreMap = remember(callLogs) {
+        callLogs.groupBy { it.number.filter { c -> c.isDigit() } }
+            .mapValues { (_, logs) ->
+                logs.size to (logs.maxOfOrNull { it.timestamp } ?: 0L)
+            }
+    }
+
+    val t9Contacts = remember(contacts, scoreMap) {
+        contacts.map { contact ->
+            val normalized = contact.phoneNumber.filter { it.isDigit() }
+            contact.toT9Contact(scoreMap[normalized] ?: (0 to 0L))
+        }
+    }
+
+    var debouncedInput by remember { mutableStateOf("") }
+    LaunchedEffect(number) {
+        if (number.isEmpty()) {
+            debouncedInput = ""
+        } else {
+            delay(150)
+            debouncedInput = number
+        }
+    }
+
+    val searchDigits = debouncedInput.filter { it.isDigit() }
+    val suggestions = remember(t9Contacts, searchDigits) {
+        if (searchDigits.isEmpty()) emptyList()
+        else t9Contacts.mapNotNull { it.match(searchDigits) }
+            .sortedWith(
+                compareByDescending<ContactMatch> { it.callCount }
+                    .thenByDescending { it.lastCall }
+                    .thenBy { it.contact.name.lowercase() }
+            )
+            .take(20)
+    }
 
     val roleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -69,108 +274,308 @@ private fun DialPadContent(
         isDefaultDialer = isDefaultDialerApp(context)
     }
 
+    fun placeCall(target: String = number) {
+        if (target.isBlank()) return
+        if (hasPermission(Manifest.permission.CALL_PHONE)) {
+            context.startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:$target")))
+        } else {
+            requestPermissions()
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (!isDefaultDialer) {
-            OutlinedButton(
-                onClick = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
-                        roleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER))
-                    }
-                },
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Text("Make Call Assistant the default dialer")
-            }
-        }
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Row(
+        AnimatedVisibility(visible = !isDefaultDialer) {
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = number.ifBlank { " " },
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
+                    .padding(top = 12.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
-                IconButton(
-                    onClick = { number = number.dropLast(1) },
-                    enabled = number.isNotEmpty()
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = "Backspace")
-                }
-                IconButton(
-                    onClick = { number = "" },
-                    enabled = number.isNotEmpty()
-                ) {
-                    Icon(Icons.Default.Clear, contentDescription = "Clear")
-                }
-            }
-        }
-
-        val keys = listOf(
-            listOf("1", "2", "3"),
-            listOf("4", "5", "6"),
-            listOf("7", "8", "9"),
-            listOf("*", "0", "#")
-        )
-
-        keys.forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                row.forEach { key ->
-                    androidx.compose.material3.FilledTonalButton(
-                        onClick = { number += key },
-                        shape = CircleShape,
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
-                            .padding(8.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Filled.PhoneAndroid,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "Set Call Assistant as your default dialer",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
+                                roleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER))
+                            }
+                        }
                     ) {
-                        Text(text = key, style = MaterialTheme.typography.headlineMedium)
+                        Text("Set", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
         }
 
+        if (suggestions.isNotEmpty()) {
+            Text(
+                text = "Suggested contacts",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 4.dp)
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(suggestions, key = { it.contact.id }) { match ->
+                    ContactSuggestionRow(
+                        match = match,
+                        onClick = { number = match.contact.phoneNumber },
+                        onCall = { placeCall(match.contact.phoneNumber) },
+                        onMessage = {
+                            context.startActivity(
+                                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${match.contact.phoneNumber}"))
+                            )
+                        },
+                        onWhatsApp = { openWhatsApp(context, match.contact.phoneNumber) },
+                        onImo = { openImo(context, match.contact.phoneNumber) }
+                    )
+                }
+            }
+        } else if (number.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No results",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+        // Number display row: call button on the left, number in the middle, delete on the right
+        Row(
+            modifier = Modifier
+                .widthIn(max = 340.dp)
+                .fillMaxWidth()
+                .padding(bottom = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                onClick = { placeCall() },
+                shape = CircleShape,
+                color = if (number.isNotBlank())
+                    MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.Call,
+                        contentDescription = "Call",
+                        tint = if (number.isNotBlank()) MaterialTheme.colorScheme.onPrimary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                if (number.isEmpty()) {
+                    Text(
+                        text = "Enter a number",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    Text(
+                        text = number,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                }
+            }
+
+            Surface(
+                shape = CircleShape,
+                color = Color.Transparent,
+                modifier = Modifier
+                    .size(48.dp)
+                    .combinedClickable(
+                        enabled = number.isNotEmpty(),
+                        onClick = { number = number.dropLast(1) },
+                        onLongClick = { number = "" }
+                    )
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (number.isNotEmpty()) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Backspace,
+                            contentDescription = "Delete (hold to clear)",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(bottom = 28.dp)
+        ) {
+            dialKeys.chunked(3).forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    row.forEach { (digit, letters, _) ->
+                        DialKey(
+                            digit = digit,
+                            letters = letters,
+                            onClick = { number += digit },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialKey(
+    digit: String,
+    letters: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        animationSpec = tween(durationMillis = 100),
+        label = "dialKeyScale"
+    )
+
+    Surface(
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onClick()
+        },
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        interactionSource = interactionSource,
+        modifier = modifier
+            .height(64.dp)
+            .scale(scale)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = digit,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (letters.isNotEmpty()) {
+                    Text(
+                        text = letters,
+                        fontSize = 9.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ContactSuggestionRow(
+    match: ContactMatch,
+    onClick: () -> Unit,
+    onCall: () -> Unit,
+    onMessage: () -> Unit,
+    onWhatsApp: () -> Unit,
+    onImo: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = onClick, onLongClick = {}),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.Center,
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
-                onClick = {
-                    if (number.isBlank()) return@Button
-                    if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                        context.startActivity(
-                            Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
-                        )
-                    } else {
-                        requestPermissions()
-                    }
-                },
-                shape = CircleShape,
-                enabled = number.isNotBlank()
+            ContactAvatar(name = match.contact.name, photoUri = match.contact.photoUri)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = match.name, style = MaterialTheme.typography.titleMedium)
+                Text(text = match.number, style = MaterialTheme.typography.bodyMedium)
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Call, contentDescription = "Call")
+                ActionIconButton(
+                    icon = Icons.Filled.Call,
+                    color = MaterialTheme.colorScheme.primary,
+                    onClick = onCall
+                )
+                ActionIconButton(
+                    icon = Icons.AutoMirrored.Filled.Message,
+                    color = Color(0xFF1E88E5),
+                    onClick = onMessage
+                )
+                ActionIconButton(
+                    label = "WA",
+                    color = Color(0xFF25D366),
+                    onClick = onWhatsApp
+                )
+                ActionIconButton(
+                    label = "IMO",
+                    color = Color(0xFF6C27D5),
+                    onClick = onImo
+                )
             }
         }
     }

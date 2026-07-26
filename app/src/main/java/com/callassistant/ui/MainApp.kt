@@ -1,16 +1,21 @@
 package com.callassistant.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Dialpad
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -30,6 +35,8 @@ import com.callassistant.ui.screens.CallLogScreen
 import com.callassistant.ui.screens.ContactsScreen
 import com.callassistant.ui.screens.DialPadScreen
 import com.callassistant.ui.screens.MessagesScreen
+import com.callassistant.ui.screens.NotesScreen
+import com.callassistant.ui.screens.RecordingsScreen
 import com.callassistant.ui.screens.SpamRulesScreen
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
@@ -37,7 +44,8 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object CallLog : Screen("call_log", "Call Log", Icons.Default.Call)
     object DialPad : Screen("dial_pad", "Dial", Icons.Default.Dialpad)
     object SpamRules : Screen("spam_rules", "Spam", Icons.Default.Shield)
-    object Messages : Screen("messages", "Messages", Icons.AutoMirrored.Filled.Message)
+    object Messages : Screen("messages", "Msg", Icons.AutoMirrored.Filled.Message)
+    object Recordings : Screen("recordings", "Records", Icons.Default.Mic)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,17 +56,53 @@ fun MainApp(
     hasPermission: (String) -> Boolean,
     viewModel: MainViewModel = viewModel(factory = factory)
 ) {
-    val screens = listOf(Screen.Contacts, Screen.CallLog, Screen.DialPad, Screen.SpamRules, Screen.Messages)
+    val screens = listOf(Screen.CallLog, Screen.Contacts, Screen.DialPad, Screen.SpamRules, Screen.Messages, Screen.Recordings)
     val selectedRoute by viewModel.selectedRoute.collectAsStateWithLifecycle()
     var showKeyboardSettings by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Call Assistant") },
+                title = { Text("Call Assistant", style = MaterialTheme.typography.titleMedium) },
                 actions = {
-                    IconButton(onClick = { showKeyboardSettings = true }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Keyboard settings")
+                    var menuExpanded by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Notes") },
+                                onClick = {
+                                    menuExpanded = false
+                                    viewModel.selectRoute("notes")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Theme") },
+                                onClick = {
+                                    menuExpanded = false
+                                    showKeyboardSettings = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Spam & Block Numbers") },
+                                onClick = {
+                                    menuExpanded = false
+                                    viewModel.selectRoute(Screen.SpamRules.route)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Records") },
+                                onClick = {
+                                    menuExpanded = false
+                                    viewModel.selectRoute(Screen.Recordings.route)
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -91,6 +135,7 @@ fun MainApp(
                 modifier = modifier
             )
             Screen.DialPad.route -> DialPadScreen(
+                viewModel = viewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 modifier = modifier
@@ -103,6 +148,13 @@ fun MainApp(
                 viewModel = viewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
+                modifier = modifier
+            )
+            Screen.Recordings.route -> RecordingsScreen(
+                modifier = modifier
+            )
+            "notes" -> NotesScreen(
+                viewModel = viewModel,
                 modifier = modifier
             )
         }

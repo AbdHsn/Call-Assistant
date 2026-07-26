@@ -1,6 +1,7 @@
 package com.callassistant.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +26,9 @@ fun PermissionGuard(
     content: @Composable () -> Unit
 ) {
     if (hasPermission(permission.permission)) {
-        content()
+        Box(modifier = modifier.fillMaxSize()) {
+            content()
+        }
     } else {
         Column(
             modifier = modifier

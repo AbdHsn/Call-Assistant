@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.callassistant.app-mergeDebugResources-49:/values-zh-rHK/values-zh-rHK.xml",
+            "outputFile": "com.callassistant.app-mergeDebugResources-50:/values-zh-rHK/values-zh-rHK.xml",
             "map": [
                 {
                     "source": "/home/abdullahbinhasan/.gradle/caches/transforms-3/7072d9865b60965cbdd580efdec2d094/transformed/material3-release/res/values-zh-rHK/values-zh-rHK.xml",

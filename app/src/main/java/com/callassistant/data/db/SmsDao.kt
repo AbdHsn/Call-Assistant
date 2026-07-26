@@ -20,4 +20,7 @@ interface SmsDao {
 
     @Query("DELETE FROM sms_messages")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM sms_messages WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
 }

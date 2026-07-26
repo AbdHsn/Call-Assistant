@@ -17,4 +17,13 @@ interface BlockedNumberDao {
 
     @Query("DELETE FROM blocked_numbers WHERE number = :number")
     suspend fun delete(number: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM blocked_numbers WHERE number = :number)")
+    suspend fun isBlocked(number: String): Boolean
+
+    @Query(
+        "UPDATE blocked_numbers SET attemptCount = attemptCount + 1, lastAttemptAt = :timestamp " +
+            "WHERE number = :number"
+    )
+    suspend fun recordAttempt(number: String, timestamp: Long = System.currentTimeMillis())
 }

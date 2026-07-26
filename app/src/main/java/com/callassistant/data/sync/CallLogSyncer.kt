@@ -17,7 +17,8 @@ class CallLogSyncer(private val context: Context) {
             CallLog.Calls.NUMBER,
             CallLog.Calls.CACHED_NAME,
             CallLog.Calls.TYPE,
-            CallLog.Calls.DATE
+            CallLog.Calls.DATE,
+            CallLog.Calls.DURATION
         )
         try {
             resolver.query(
@@ -31,6 +32,7 @@ class CallLogSyncer(private val context: Context) {
                 val nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME)
                 val typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE)
                 val dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE)
+                val durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION)
                 while (cursor.moveToNext()) {
                     val rawNumber = if (numberIndex >= 0) cursor.getString(numberIndex) else null
                     val number = rawNumber?.replace(" ", "")?.replace("-", "")?.trim() ?: continue
@@ -44,7 +46,8 @@ class CallLogSyncer(private val context: Context) {
                         }
                     } else CallType.INCOMING
                     val date = if (dateIndex >= 0) cursor.getLong(dateIndex) else 0L
-                    entries.add(CallLogEntry(number = number, name = name, type = type, timestamp = date))
+                    val duration = if (durationIndex >= 0) cursor.getLong(durationIndex) else 0L
+                    entries.add(CallLogEntry(number = number, name = name, type = type, timestamp = date, duration = duration))
                 }
             }
         } catch (_: SecurityException) {
