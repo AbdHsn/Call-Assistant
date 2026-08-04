@@ -4,9 +4,11 @@ import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.net.Uri
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.graphics.BitmapFactory
 import android.os.SystemClock
 import android.telephony.SmsManager
 import android.view.WindowManager
@@ -22,6 +24,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -72,8 +75,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -82,14 +88,23 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.callassistant.receiver.CallReminderReceiver
 import com.callassistant.service.CallAssistantInCallService
 import com.callassistant.service.CallState
+import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.theme.AccentTealStart
+import com.callassistant.ui.theme.AccentTealEnd
 import com.callassistant.ui.theme.CallAssistantTheme
+import com.callassistant.ui.theme.ConnectingAmber
+import com.callassistant.ui.theme.ErrorRed
+import com.callassistant.ui.theme.SuccessGreen
 import com.callassistant.util.CallNotesStore
 import com.callassistant.util.CallRecorder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class InCallActivity : ComponentActivity() {
@@ -109,6 +124,12 @@ class InCallActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContent {
+            val viewModel = ViewModelProvider(
+                this@InCallActivity,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+            )[MainViewModel::class.java]
+            val themeMode by viewModel.themeMode.collectAsState()
+
             val callState by CallAssistantInCallService.callState.collectAsState()
             val connectTimestamp by CallAssistantInCallService.callConnectTimestamp.collectAsState()
             val isMuted by CallAssistantInCallService.isMuted.collectAsState()
@@ -118,8 +139,9 @@ class InCallActivity : ComponentActivity() {
                 if (callState is CallState.Ended) finish()
             }
 
-            CallAssistantTheme {
+            CallAssistantTheme(themeMode = themeMode) {
                 InCallScreen(
+                    viewModel = viewModel,
                     callState = callState,
                     connectTimestamp = connectTimestamp,
                     isMuted = isMuted,
@@ -141,13 +163,9 @@ class InCallActivity : ComponentActivity() {
     }
 }
 
-private val AccentTealStart = Color(0xFF17A79B)
-private val AccentTealEnd = Color(0xFF6FCF97)
-private val DeclineRed = Color(0xFFE64C3C)
-private val ConnectingAmber = Color(0xFFE0A030)
-
 @Composable
 private fun InCallScreen(
+    viewModel: MainViewModel,
     callState: CallState,
     connectTimestamp: Long?,
     isMuted: Boolean,
@@ -172,7 +190,10 @@ private fun InCallScreen(
         is CallState.Connecting -> callState.displayName
         else -> null
     }
-    val initial = (displayName ?: number).firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+    val contacts by viewModel.contacts.collectAsState()
+    val contact = contacts.find { it.phoneNumber == number }
+    val resolvedPhotoUri = contact?.photoUri
+    val resolvedName = displayName ?: contact?.name ?: number.ifBlank { "Unknown" }
     var showDialpad by remember { mutableStateOf(false) }
     var showNoteDialog by remember { mutableStateOf(false) }
     var showReminderDialog by remember { mutableStateOf(false) }
@@ -294,10 +315,10 @@ private fun InCallScreen(
             )
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CallerAvatar(initial = initial, pulsing = callState is CallState.Incoming)
+                CallerAvatar(name = resolvedName, photoUri = resolvedPhotoUri, pulsing = callState is CallState.Incoming)
                 Spacer(modifier = Modifier.height(28.dp))
                 Text(
-                    text = displayName ?: number.ifBlank { "Unknown" },
+                    text = resolvedName,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -305,7 +326,7 @@ private fun InCallScreen(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (displayName != null && number.isNotBlank()) number else "Mobile",
+                    text = if (resolvedName != number && number.isNotBlank()) number else "Mobile",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 15.sp
                 )
@@ -344,11 +365,11 @@ private fun InCallScreen(
                             RoundActionButton(
                                 icon = Icons.Filled.CallEnd,
                                 label = "Decline",
-                                tint = DeclineRed,
+                                tint = ErrorRed,
                                 onClick = onReject
                             )
                         }
-                        SlideToAnswerButton(onAnswer = onAnswer)
+                        SwipeAnswerRejectButton(onAnswer = onAnswer, onReject = onReject)
                     }
                     is CallState.Active -> {
                         Row(
@@ -387,7 +408,7 @@ private fun InCallScreen(
                                 onClick = { showReminderDialog = true }
                             )
                         }
-                        CallButton(Icons.Filled.CallEnd, DeclineRed, "End", onHangUp)
+                        CallButton(Icons.Filled.CallEnd, ErrorRed, "End", onHangUp)
                     }
                     is CallState.Connecting -> {
                         CallToolsRow(
@@ -398,7 +419,7 @@ private fun InCallScreen(
                             onNoteClick = { noteText = ""; showNoteDialog = true },
                             modifier = Modifier.padding(bottom = 24.dp)
                         )
-                        CallButton(Icons.Filled.CallEnd, DeclineRed, "Cancel", onHangUp)
+                        CallButton(Icons.Filled.CallEnd, ErrorRed, "Cancel", onHangUp)
                     }
                     else -> {}
                 }
@@ -463,7 +484,7 @@ private fun InCallScreen(
 }
 
 @Composable
-private fun CallerAvatar(initial: String, pulsing: Boolean) {
+private fun CallerAvatar(name: String, photoUri: String?, pulsing: Boolean) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -475,6 +496,24 @@ private fun CallerAvatar(initial: String, pulsing: Boolean) {
         label = "pulseScale"
     )
     val ringBrush = Brush.linearGradient(listOf(AccentTealStart, AccentTealEnd))
+    val context = LocalContext.current
+    var bitmap by remember(photoUri) { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(photoUri) {
+        bitmap = if (photoUri.isNullOrBlank()) {
+            null
+        } else {
+            withContext(Dispatchers.IO) {
+                try {
+                    context.contentResolver.openInputStream(Uri.parse(photoUri))?.use { stream ->
+                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                    }
+                } catch (_: Exception) {
+                    null
+                }
+            }
+        }
+    }
+    val initial = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
     Box(contentAlignment = Alignment.Center) {
         if (pulsing) {
             Box(
@@ -498,7 +537,16 @@ private fun CallerAvatar(initial: String, pulsing: Boolean) {
                 .background(ringBrush),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = initial, color = Color.White, fontSize = 44.sp, fontWeight = FontWeight.Bold)
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap!!,
+                    contentDescription = "Contact photo",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(text = initial, color = Color.White, fontSize = 44.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -590,7 +638,7 @@ private fun CallToolsRow(
             icon = Icons.Filled.FiberManualRecord,
             label = if (isRecording) "Stop" else "Record",
             active = isRecording,
-            activeColor = DeclineRed,
+            activeColor = ErrorRed,
             onClick = onToggleRecording
         )
         SecondaryControlButton(
@@ -655,28 +703,56 @@ private fun CallButton(
 }
 
 @Composable
-private fun SlideToAnswerButton(onAnswer: () -> Unit) {
+private fun SwipeAnswerRejectButton(onAnswer: () -> Unit, onReject: () -> Unit) {
     val scope = rememberCoroutineScope()
     val handleSize = 52.dp
-    var containerWidthPx by remember { mutableStateOf(0f) }
-    val handleSizePx = with(androidx.compose.ui.platform.LocalDensity.current) { handleSize.toPx() }
+    val threshold = with(androidx.compose.ui.platform.LocalDensity.current) { 80.dp.toPx() }
+    val maxOffset = with(androidx.compose.ui.platform.LocalDensity.current) { 140.dp.toPx() }
     val offsetX = remember { Animatable(0f) }
-    val maxOffset = (containerWidthPx - handleSizePx).coerceAtLeast(0f)
+
+    val backgroundColor = when {
+        offsetX.value > 0 -> SuccessGreen.copy(alpha = (offsetX.value / threshold).coerceIn(0f, 1f))
+        offsetX.value < 0 -> ErrorRed.copy(alpha = (-offsetX.value / threshold).coerceIn(0f, 1f))
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(handleSize)
-            .onGloballyPositioned { containerWidthPx = it.size.width.toFloat() }
             .clip(RoundedCornerShape(handleSize / 2))
-            .background(Brush.horizontalGradient(listOf(AccentTealStart, AccentTealEnd)))
+            .background(backgroundColor)
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = {
+                        scope.launch {
+                            if (offsetX.value > threshold) {
+                                offsetX.animateTo(maxOffset, tween(150))
+                                onAnswer()
+                            } else if (offsetX.value < -threshold) {
+                                offsetX.animateTo(-maxOffset, tween(150))
+                                onReject()
+                            } else {
+                                offsetX.animateTo(0f, tween(150))
+                            }
+                        }
+                    },
+                    onDragCancel = {
+                        scope.launch { offsetX.animateTo(0f, tween(150)) }
+                    }
+                ) { change, dragAmount ->
+                    change.consume()
+                    val newValue = (offsetX.value + dragAmount.x).coerceIn(-maxOffset, maxOffset)
+                    scope.launch { offsetX.snapTo(newValue) }
+                }
+            },
+        contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Slide to answer",
-            color = Color.White,
+            text = "Swipe to answer or reject",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.align(Alignment.Center)
+            fontWeight = FontWeight.Medium
         )
         Box(
             modifier = Modifier
@@ -684,34 +760,13 @@ private fun SlideToAnswerButton(onAnswer: () -> Unit) {
                 .padding(3.dp)
                 .size(handleSize - 6.dp)
                 .clip(CircleShape)
-                .background(Color.White)
-                .pointerInput(maxOffset) {
-                    detectDragGestures(
-                        onDragEnd = {
-                            scope.launch {
-                                if (offsetX.value > maxOffset * 0.7f) {
-                                    offsetX.animateTo(maxOffset, tween(150))
-                                    onAnswer()
-                                } else {
-                                    offsetX.animateTo(0f, tween(150))
-                                }
-                            }
-                        },
-                        onDragCancel = {
-                            scope.launch { offsetX.animateTo(0f, tween(150)) }
-                        }
-                    ) { change, dragAmount ->
-                        change.consume()
-                        val newValue = (offsetX.value + dragAmount.x).coerceIn(0f, maxOffset)
-                        scope.launch { offsetX.snapTo(newValue) }
-                    }
-                },
+                .background(Color.White),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Filled.Call,
-                contentDescription = "Answer",
-                tint = AccentTealEnd,
+                imageVector = if (offsetX.value >= 0) Icons.Filled.Call else Icons.Filled.CallEnd,
+                contentDescription = if (offsetX.value >= 0) "Answer" else "Decline",
+                tint = if (offsetX.value >= 0) SuccessGreen else ErrorRed,
                 modifier = Modifier.size(22.dp)
             )
         }

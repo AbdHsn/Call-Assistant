@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.callassistant.CallAssistantApplication
 import com.callassistant.data.entity.BlockedNumber
 import com.callassistant.data.entity.Contact
+import com.callassistant.data.entity.ContactSource
 import com.callassistant.data.entity.CallLogEntry
 import com.callassistant.data.entity.RuleType
 import com.callassistant.data.entity.SmsDirection
@@ -19,6 +20,7 @@ import com.callassistant.data.entity.SpamRule
 import com.callassistant.data.sync.CallLogSyncer
 import com.callassistant.data.sync.ContactSyncer
 import com.callassistant.data.sync.SmsSyncer
+import com.callassistant.ui.theme.ThemeMode
 import com.callassistant.util.DeletedEntriesStore
 import com.callassistant.util.PhoneNumberNormalizer
 import kotlinx.coroutines.Dispatchers
@@ -59,12 +61,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _selectedRoute = MutableStateFlow("call_log")
     val selectedRoute: StateFlow<String> = _selectedRoute
 
+    private val prefs = getApplication<Application>().getSharedPreferences("app_settings", Application.MODE_PRIVATE)
+
+    private val _themeMode = MutableStateFlow(loadThemeMode())
+    val themeMode: StateFlow<ThemeMode> = _themeMode
+
     init {
         seedSpamRules()
     }
 
     fun selectRoute(route: String) {
         _selectedRoute.value = route
+    }
+
+    private fun loadThemeMode(): ThemeMode = try {
+        ThemeMode.valueOf(prefs.getString("theme_mode", ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name)
+    } catch (_: IllegalArgumentException) {
+        ThemeMode.SYSTEM
+    }
+
+    fun selectThemeMode(mode: ThemeMode) {
+        _themeMode.value = mode
+        prefs.edit().putString("theme_mode", mode.name).apply()
     }
 
     private fun seedSpamRules() {
@@ -144,10 +162,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             _syncState.value = SyncState.Syncing
             val deletedKeys = DeletedEntriesStore.getDeletedContactKeys(getApplication())
-            val contacts = contactSyncer.sync()
+            val localContacts = db.contactDao().getAll().first()
+                .filter { it.source == ContactSource.LOCAL }
+            val synced = contactSyncer.sync()
                 .filterNot { contactKey(it.phoneNumber) in deletedKeys }
+                .filterNot { contactKey(it.phoneNumber) in localContacts.map { contactKey(it.phoneNumber) } }
             db.contactDao().deleteAll()
-            db.contactDao().insertAll(contacts)
+            db.contactDao().insertAll(synced + localContacts)
             _syncState.value = SyncState.Idle
         }
     }
@@ -193,6 +214,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveContact(contact: Contact) {
         viewModelScope.launch(Dispatchers.IO) {
             db.contactDao().insertAll(listOf(contact))
+            com.callassistant.data.sync.ContactPhotoWriter.writeName(
+                getApplication(), contact.phoneNumber, contact.name
+            )
+            contact.photoUri?.let { photoUri ->
+                com.callassistant.data.sync.ContactPhotoWriter.writePhoto(
+                    getApplication(), contact.phoneNumber, contact.name, photoUri
+                )
+            }
+        }
+    }
+
+    fun importContacts(contacts: List<Contact>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.contactDao().insertAll(contacts)
         }
     }
 
@@ -236,10 +271,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             _syncState.value = SyncState.Syncing
             val deletedKeys = DeletedEntriesStore.getDeletedSmsKeys(getApplication())
-            val messages = smsSyncer.sync()
+            val synced = smsSyncer.sync()
                 .filterNot { smsKey(it.number, it.timestamp, it.body) in deletedKeys }
+            val existing = db.smsDao().getAll().first()
+            val syncedKeys = synced.associateBy { smsKey(it.number, it.timestamp, it.body) }
+            val merged = existing.filter { smsKey(it.number, it.timestamp, it.body) !in syncedKeys } + synced
             db.smsDao().deleteAll()
-            db.smsDao().insertAll(messages)
+            db.smsDao().insertAll(merged)
             _syncState.value = SyncState.Idle
         }
     }

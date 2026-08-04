@@ -28,8 +28,10 @@ object CallNotificationManager {
     private const val CHANNEL_INCOMING = "call_assistant_incoming_call"
     private const val CHANNEL_MISSED = "call_assistant_missed_call"
     private const val CHANNEL_SMS = "call_assistant_sms"
+    private const val CHANNEL_ONGOING_CALL = "call_assistant_ongoing_call"
 
     private const val NOTIFICATION_ID_INCOMING = 1
+    private const val NOTIFICATION_ID_ONGOING_CALL = 2
 
     fun createChannels(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -49,6 +51,12 @@ object CallNotificationManager {
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL_SMS, "Messages", NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = "New message notifications"
+            }
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL_ONGOING_CALL, "Ongoing calls", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Tap to return to the current call"
+                setSound(null, null)
             }
         )
     }
@@ -118,6 +126,45 @@ object CallNotificationManager {
         NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_INCOMING)
     }
 
+    fun showOngoingCallNotification(
+        context: Context,
+        number: String,
+        displayName: String?
+    ) {
+        if (!context.hasNotificationPermission()) return
+        createChannels(context)
+
+        val openCallIntent = Intent(context, InCallActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val openCallPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            openCallIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val title = displayName?.ifBlank { null } ?: number.ifBlank { "Call" }
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ONGOING_CALL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(number.ifBlank { "Ongoing call" })
+            .setContentIntent(openCallPendingIntent)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setOngoing(true)
+            .setAutoCancel(false)
+            .setOnlyAlertOnce(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_ONGOING_CALL, notification)
+    }
+
+    fun cancelOngoingCallNotification(context: Context) {
+        NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_ONGOING_CALL)
+    }
+
     fun showMissedCallNotification(
         context: Context,
         number: String,
@@ -184,13 +231,14 @@ object CallNotificationManager {
         if (!context.hasNotificationPermission()) return
         createChannels(context)
 
-        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+        val openThreadIntent = Intent(context, SmsActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(SmsActivity.EXTRA_NUMBER, number)
         }
-        val openAppPendingIntent = PendingIntent.getActivity(
+        val openThreadPendingIntent = PendingIntent.getActivity(
             context,
             0,
-            openAppIntent,
+            openThreadIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -203,7 +251,7 @@ object CallNotificationManager {
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
-            .setContentIntent(openAppPendingIntent)
+            .setContentIntent(openThreadPendingIntent)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setAutoCancel(true)
             .build()

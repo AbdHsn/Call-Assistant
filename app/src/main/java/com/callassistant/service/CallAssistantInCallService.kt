@@ -105,6 +105,7 @@ class CallAssistantInCallService : InCallService() {
             _callState.value = CallState.Ended
             _callConnectTimestamp.value = null
             CallNotificationManager.cancelIncomingCallNotification(this)
+            CallNotificationManager.cancelOngoingCallNotification(this)
             currentCallNumber = ""
             currentCallName = null
             currentCallWasIncoming = false
@@ -159,12 +160,27 @@ class CallAssistantInCallService : InCallService() {
         _callState.value = newState
 
         when (newState) {
-            is CallState.Incoming -> CallNotificationManager.showIncomingCallNotification(
-                this,
-                newState.number,
-                newState.displayName
-            )
-            else -> CallNotificationManager.cancelIncomingCallNotification(this)
+            is CallState.Incoming -> {
+                CallNotificationManager.showIncomingCallNotification(
+                    this,
+                    newState.number,
+                    newState.displayName
+                )
+                CallNotificationManager.cancelOngoingCallNotification(this)
+            }
+            is CallState.Active, is CallState.Connecting -> {
+                CallNotificationManager.cancelIncomingCallNotification(this)
+                CallNotificationManager.showOngoingCallNotification(
+                    this,
+                    currentCallNumber,
+                    currentCallName
+                )
+            }
+            is CallState.Ended -> {
+                CallNotificationManager.cancelIncomingCallNotification(this)
+                CallNotificationManager.cancelOngoingCallNotification(this)
+            }
+            else -> {}
         }
     }
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Call Assistant</string>
+    <string name="accessibility_service_description">Enables reliable two-way call audio capture on supported devices.</string>
 </resources>

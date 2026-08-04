@@ -1,20 +1,20 @@
 -- Merging decision tree log ---
 provider#androidx.core.content.FileProvider
-INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:144:9-152:20
+INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:158:9-166:20
 	android:grantUriPermissions
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:148:13-47
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:162:13-47
 	android:authorities
 		INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:146:13-64
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:160:13-64
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:147:13-37
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:161:13-37
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:145:13-62
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:159:13-62
 manifest
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-182:12
-INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-182:12
-INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-182:12
-INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-182:12
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-223:12
+INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-223:12
+INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-223:12
+INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:2:1-223:12
 MERGED from [androidx.compose.material3:material3-android:1.2.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/7072d9865b60965cbdd580efdec2d094/transformed/material3-release/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.compose.material:material-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/02bd9760484badd3987dd6727c9ac72f/transformed/material-release/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.material:material-icons-core-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/46873ad3cf747035ef19f781494f1de1/transformed/material-icons-core-release/AndroidManifest.xml:2:1-7:12
@@ -152,7 +152,7 @@ ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/An
 	android:name
 		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:24:22-78
 queries
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:26:5-37:15
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:26:5-51:15
 package#com.whatsapp
 ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:27:9-48
 	android:name
@@ -174,12 +174,36 @@ ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/An
 	android:scheme
 		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
 	android:mimeType
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:132:23-73
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:146:23-73
 intent#action:name:android.intent.action.VIEW+data:host:user+data:scheme:imo
 ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:33:9-36:18
+intent#action:name:android.settings.ACCESSIBILITY_SETTINGS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:37:9-39:18
+action#android.settings.ACCESSIBILITY_SETTINGS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:38:13-78
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:38:21-75
+intent#action:name:android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS+data:scheme:package
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:9-43:18
+action#android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-92
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:21-89
+intent#action:name:android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:44:9-46:18
+action#android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:45:13-92
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:45:21-89
+intent#action:name:android.settings.APPLICATION_DETAILS_SETTINGS+data:scheme:package
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:47:9-50:18
+action#android.settings.APPLICATION_DETAILS_SETTINGS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:13-84
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:21-81
 application
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:39:5-181:19
-INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:39:5-181:19
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:53:5-222:19
+INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:53:5-222:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/cefac78f3a6f2a56ec3fa31816c6b6a7/transformed/ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/cefac78f3a6f2a56ec3fa31816c6b6a7/transformed/ui-tooling-release/AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/35a76673c25b566ecea731a792f2c3fe/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:22:5-26:19
@@ -203,209 +227,253 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/abdullahbinhasan/.gra
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/7f47e2d3f4ae0ebf05bb4554028ce1f3/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:45:9-35
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:59:9-35
 	android:label
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:43:9-41
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:57:9-41
 	android:roundIcon
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:44:9-54
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:58:9-54
 	android:icon
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:42:9-43
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:56:9-43
 	android:allowBackup
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:9-35
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:55:9-35
 	android:theme
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:46:9-51
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:60:9-51
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:9-49
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:54:9-49
 activity#com.callassistant.MainActivity
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:9-65:20
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:62:9-79:20
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:50:13-36
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:64:13-36
 	android:theme
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:51:13-55
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:65:13-55
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:49:13-41
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:63:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:52:13-55:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:66:13-69:29
 action#android.intent.action.MAIN
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:53:17-69
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:17-69
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:53:25-66
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:54:17-77
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:68:17-77
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:54:27-74
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:68:27-74
 intent-filter#action:name:android.intent.action.DIAL+category:name:android.intent.category.DEFAULT
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:56:13-59:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:70:13-73:29
 action#android.intent.action.DIAL
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:57:17-69
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:17-69
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:57:25-66
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:25-66
 category#android.intent.category.DEFAULT
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:58:17-76
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-76
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:58:27-73
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:27-73
 intent-filter#action:name:android.intent.action.DIAL+category:name:android.intent.category.DEFAULT+data:scheme:tel
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:60:13-64:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:74:13-78:29
 service#com.callassistant.service.CallAssistantInCallService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:9-77:19
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:81:9-91:19
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:69:13-36
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:13-36
 	android:permission
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:70:13-72
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:13-72
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:68:13-63
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:82:13-63
 meta-data#android.telecom.IN_CALL_SERVICE_UI
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:13-73:40
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:85:13-87:40
 	android:value
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:73:17-37
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:87:17-37
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-66
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:86:17-66
 intent-filter#action:name:android.telecom.InCallService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:74:13-76:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:88:13-90:29
 action#android.telecom.InCallService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:75:17-72
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:89:17-72
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:75:25-69
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:89:25-69
 service#com.callassistant.service.CallScreeningServiceImpl
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:79:9-86:19
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:93:9-100:19
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:81:13-36
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:95:13-36
 	android:permission
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:82:13-75
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:96:13-75
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:80:13-61
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:94:13-61
 intent-filter#action:name:android.telecom.CallScreeningService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:13-85:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:97:13-99:29
 action#android.telecom.CallScreeningService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-79
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:98:17-79
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:25-76
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:98:25-76
 service#com.callassistant.service.HeadlessSmsSendService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:88:9-100:19
-	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:90:13-36
-	android:permission
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:91:13-77
-	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:89:13-59
-intent-filter#action:name:android.intent.action.RESPOND_VIA_MESSAGE+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:92:13-99:29
-action#android.intent.action.RESPOND_VIA_MESSAGE
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:93:17-84
-	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:93:25-81
-service#com.callassistant.keyboard.CustomKeyboardService
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:102:9-112:19
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:102:9-114:19
 	android:exported
 		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:104:13-36
 	android:permission
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:105:13-70
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:105:13-77
 	android:name
 		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:103:13-59
+intent-filter#action:name:android.intent.action.RESPOND_VIA_MESSAGE+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:106:13-113:29
+action#android.intent.action.RESPOND_VIA_MESSAGE
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:17-84
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:25-81
+service#com.callassistant.keyboard.CustomKeyboardService
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:116:9-126:19
+	android:exported
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:118:13-36
+	android:permission
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:119:13-70
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:117:13-59
 intent-filter#action:name:android.view.InputMethod
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:106:13-108:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:120:13-122:29
 action#android.view.InputMethod
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:17-67
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:17-67
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:25-64
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:25-64
 meta-data#android.view.im
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:109:13-111:50
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:123:13-125:50
 	android:resource
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:111:17-47
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:125:17-47
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:110:17-47
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:124:17-47
 receiver#com.callassistant.receiver.SmsReceiver
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:114:9-124:20
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:128:9-138:20
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:116:13-36
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:130:13-36
 	android:permission
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:117:13-66
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:131:13-66
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:115:13-49
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:129:13-49
 intent-filter#action:name:android.provider.Telephony.SMS_RECEIVED
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:118:13-120:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:132:13-134:29
 	android:priority
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:118:28-50
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:132:28-50
 action#android.provider.Telephony.SMS_RECEIVED
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:119:17-82
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:133:17-82
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:119:25-79
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:133:25-79
 intent-filter#action:name:android.provider.Telephony.SMS_DELIVER
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:13-123:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:135:13-137:29
 	android:priority
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:28-50
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:135:28-50
 action#android.provider.Telephony.SMS_DELIVER
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:122:17-81
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:136:17-81
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:122:25-78
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:136:25-78
 receiver#com.callassistant.receiver.WapPushReceiver
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:126:9-134:20
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:140:9-148:20
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:128:13-36
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:142:13-36
 	android:permission
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:129:13-71
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:143:13-71
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:127:13-53
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:141:13-53
 intent-filter#action:name:android.provider.Telephony.WAP_PUSH_DELIVER+data:mimeType:application/vnd.wap.mms-message
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:130:13-133:29
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:144:13-147:29
 action#android.provider.Telephony.WAP_PUSH_DELIVER
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:131:17-86
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:145:17-86
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:131:25-83
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:145:25-83
 receiver#com.callassistant.receiver.CallReminderReceiver
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:136:9-138:40
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:150:9-152:40
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:138:13-37
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:152:13-37
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:137:13-58
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:151:13-58
 receiver#com.callassistant.receiver.CallActionReceiver
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:140:9-142:40
-	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:142:13-37
-	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:141:13-56
-activity#com.callassistant.InCallActivity
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:154:9-162:58
-	android:screenOrientation
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:159:13-49
-	android:turnScreenOn
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:158:13-40
-	android:excludeFromRecents
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:161:13-46
-	android:showWhenLocked
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:157:13-42
-	android:launchMode
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:160:13-48
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:154:9-156:40
 	android:exported
 		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:156:13-37
-	android:theme
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:162:13-55
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:155:13-43
-activity#com.callassistant.SmsActivity
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:164:9-180:20
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:155:13-56
+service#com.callassistant.service.CallRecordingService
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:168:9-172:58
+	android:enabled
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:170:13-35
 	android:exported
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:166:13-36
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:171:13-37
+	android:foregroundServiceType
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:172:13-55
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:165:13-40
-intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.APP_MESSAGING+category:name:android.intent.category.DEFAULT
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:167:13-171:29
-category#android.intent.category.APP_MESSAGING
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:170:17-82
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:169:13-57
+receiver#com.callassistant.receiver.PhoneStateReceiver
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:174:9-181:20
+	android:enabled
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:176:13-35
+	android:exported
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:177:13-36
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:170:27-79
-intent-filter#action:name:android.intent.action.SENDTO+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:172:13-179:29
-action#android.intent.action.SENDTO
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:173:17-71
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:175:13-56
+intent-filter#action:name:android.intent.action.PHONE_STATE
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:178:13-180:29
+action#android.intent.action.PHONE_STATE
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:179:17-76
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:173:25-68
-meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:149:13-151:54
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:179:25-73
+service#com.callassistant.service.CallRecordingAccessibilityService
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:183:9-194:19
+	android:enabled
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:185:13-35
+	android:exported
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:186:13-36
+	android:permission
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:187:13-79
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:184:13-70
+intent-filter#action:name:android.accessibilityservice.AccessibilityService
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:188:13-190:29
+action#android.accessibilityservice.AccessibilityService
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:189:17-92
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:189:25-89
+meta-data#android.accessibilityservice
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:191:13-193:72
 	android:resource
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:151:17-51
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:193:17-69
 	android:name
-		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:150:17-67
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:192:17-60
+activity#com.callassistant.InCallActivity
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:196:9-203:58
+	android:screenOrientation
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:201:13-49
+	android:turnScreenOn
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:200:13-40
+	android:showWhenLocked
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:199:13-42
+	android:launchMode
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:202:13-48
+	android:exported
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:198:13-37
+	android:theme
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:203:13-55
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:197:13-43
+activity#com.callassistant.SmsActivity
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:205:9-221:20
+	android:exported
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:207:13-36
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:206:13-40
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.APP_MESSAGING+category:name:android.intent.category.DEFAULT
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:208:13-212:29
+category#android.intent.category.APP_MESSAGING
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:211:17-82
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:211:27-79
+intent-filter#action:name:android.intent.action.SENDTO+category:name:android.intent.category.DEFAULT+data:scheme:mms+data:scheme:mmsto+data:scheme:sms+data:scheme:smsto
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:213:13-220:29
+action#android.intent.action.SENDTO
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:214:17-71
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:214:25-68
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:163:13-165:54
+	android:resource
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:165:17-51
+	android:name
+		ADDED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:164:17-67
 uses-sdk
 INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml

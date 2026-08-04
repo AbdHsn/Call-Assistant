@@ -9,16 +9,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,6 +36,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,6 +58,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,12 +75,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import com.callassistant.data.entity.Contact
 import com.callassistant.data.entity.ContactSource
 import com.callassistant.permission.Permissions
 import com.callassistant.ui.MainViewModel
-import com.callassistant.ui.components.MapLocationPickerDialog
+import com.callassistant.ui.components.AddContactDialog
 import com.callassistant.ui.components.PermissionGuard
+import com.callassistant.ui.theme.ErrorRed
+import com.callassistant.ui.theme.MessageBlue
 
 private enum class ContactSortMode(val label: String) {
     NAME_ASC("Name A-Z"),
@@ -114,6 +118,61 @@ fun ContactsScreen(
         var showDeleteDialog by remember { mutableStateOf(false) }
         var showContactDialog by remember { mutableStateOf(false) }
         var editingContact by remember { mutableStateOf<Contact?>(null) }
+
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+
+        val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val text = context.contentResolver.openInputStream(uri)?.use { it.bufferedReader().readText() } ?: ""
+                    val parsed = if (text.contains("BEGIN:VCARD", ignoreCase = true)) parseVCard(text) else parseCsv(text)
+                    viewModel.importContacts(parsed)
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "Imported ${parsed.size} contacts", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "Import failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        val exportCsvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val csv = writeCsv(viewModel.contacts.value)
+                    context.contentResolver.openOutputStream(uri)?.use { out -> out.write(csv.toByteArray()) }
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "Exported CSV", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "Export failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        val exportVCardLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/vcard")) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val vCard = writeVCard(viewModel.contacts.value)
+                    context.contentResolver.openOutputStream(uri)?.use { out -> out.write(vCard.toByteArray()) }
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "Exported vCard", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "Export failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
         val filteredContacts by remember(contacts, query, sortMode, callLogs) {
             derivedStateOf {
@@ -156,7 +215,7 @@ fun ContactsScreen(
                         viewModel.deleteContacts(filteredContacts.filter { it.id in selectedIds })
                         selectedIds = emptySet()
                         showDeleteDialog = false
-                    }) { Text("Delete", color = Color.Red) }
+                    }) { Text("Delete", color = ErrorRed) }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
@@ -175,7 +234,7 @@ fun ContactsScreen(
                         contactsToBlock.forEach { viewModel.blockNumber(it.phoneNumber, name = it.name) }
                         selectedIds = emptySet()
                         showBlockDialog = false
-                    }) { Text("Block", color = Color.Red) }
+                    }) { Text("Block", color = ErrorRed) }
                 },
                 dismissButton = {
                     TextButton(onClick = { showBlockDialog = false }) { Text("Cancel") }
@@ -256,6 +315,38 @@ fun ContactsScreen(
                             }
                         }
                     }
+                    Box {
+                        var exportMenuExpanded by remember { mutableStateOf(false) }
+                        IconButton(onClick = { exportMenuExpanded = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = "Import / Export")
+                        }
+                        DropdownMenu(
+                            expanded = exportMenuExpanded,
+                            onDismissRequest = { exportMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Import") },
+                                onClick = {
+                                    exportMenuExpanded = false
+                                    importLauncher.launch(arrayOf("text/csv", "text/vcard", "text/x-vcard", "text/comma-separated-values", "text/*"))
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Export CSV") },
+                                onClick = {
+                                    exportMenuExpanded = false
+                                    exportCsvLauncher.launch("contacts.csv")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Export vCard") },
+                                onClick = {
+                                    exportMenuExpanded = false
+                                    exportVCardLauncher.launch("contacts.vcf")
+                                }
+                            )
+                        }
+                    }
                 }
                 if (inSelectionMode) {
                     Row(
@@ -274,10 +365,10 @@ fun ContactsScreen(
                                 selectedIds = filteredContacts.map { it.id }.toSet()
                             }) { Text("Select all") }
                             IconButton(onClick = { showDeleteDialog = true }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color.Red)
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = ErrorRed)
                             }
                             IconButton(onClick = { showBlockDialog = true }) {
-                                Icon(Icons.Filled.Block, contentDescription = "Block", tint = Color.Red)
+                                Icon(Icons.Filled.Block, contentDescription = "Block", tint = ErrorRed)
                             }
                             IconButton(onClick = { selectedIds = emptySet() }) {
                                 Icon(Icons.Filled.Clear, contentDescription = "Cancel")
@@ -288,98 +379,95 @@ fun ContactsScreen(
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(filteredContacts, key = { it.id }) { contact ->
-                    val context = LocalContext.current
                     val isSelected = contact.id in selectedIds
-                    Card(
+                    ContactListItem(
+                        name = contact.name,
+                        photoUri = contact.photoUri,
                         modifier = Modifier
                             .animateItemPlacement()
-                            .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        colors = if (isSelected)
-                            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                        else CardDefaults.cardColors()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .combinedClickable(
+                        selected = isSelected,
+                        inSelectionMode = inSelectionMode,
+                        onToggleSelected = { checked ->
+                            selectedIds = if (checked) selectedIds + contact.id else selectedIds - contact.id
+                        },
+                        onClick = {
+                            if (inSelectionMode) {
+                                selectedIds = if (isSelected) selectedIds - contact.id else selectedIds + contact.id
+                            }
+                        },
+                        onLongClick = {
+                            selectedIds = selectedIds + contact.id
+                        },
+                        header = { Text(contact.name, style = MaterialTheme.typography.titleMedium) },
+                        subHeader = { Text(contact.phoneNumber, style = MaterialTheme.typography.bodyMedium) },
+                        trailing = {
+                            if (!inSelectionMode) {
+                                ActionIconButton(
+                                    icon = Icons.Filled.Call,
+                                    color = MaterialTheme.colorScheme.primary,
                                     onClick = {
-                                        if (inSelectionMode) {
-                                            selectedIds = if (isSelected) selectedIds - contact.id else selectedIds + contact.id
+                                        if (hasPermission(Manifest.permission.CALL_PHONE)) {
+                                            context.startActivity(
+                                                Intent(Intent.ACTION_CALL, Uri.parse("tel:${contact.phoneNumber}"))
+                                            )
+                                        } else {
+                                            requestPermissions()
                                         }
-                                    },
-                                    onLongClick = {
-                                        selectedIds = selectedIds + contact.id
                                     }
                                 )
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            if (inSelectionMode) {
-                                Checkbox(
-                                    checked = isSelected,
-                                    onCheckedChange = { checked ->
-                                        selectedIds = if (checked) selectedIds + contact.id else selectedIds - contact.id
-                                    },
-                                    modifier = Modifier.padding(end = 4.dp)
+                                ActionIconButton(
+                                    icon = Icons.AutoMirrored.Filled.Message,
+                                    color = MessageBlue,
+                                    onClick = {
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${contact.phoneNumber}"))
+                                        )
+                                    }
                                 )
-                            }
-                            ContactAvatar(name = contact.name, photoUri = contact.photoUri)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = contact.name, style = MaterialTheme.typography.titleMedium)
-                                Text(text = contact.phoneNumber, style = MaterialTheme.typography.bodyMedium)
-                            }
-                            if (!inSelectionMode) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    ActionIconButton(
-                                        label = "Edit",
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        onClick = {
-                                            editingContact = contact
-                                            showContactDialog = true
-                                        }
-                                    )
-                                    ActionIconButton(
-                                        icon = Icons.Filled.Call,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        onClick = {
-                                            if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                                context.startActivity(
-                                                    Intent(Intent.ACTION_CALL, Uri.parse("tel:${contact.phoneNumber}"))
-                                                )
-                                            } else {
-                                                requestPermissions()
+                                Box {
+                                    var expanded by remember { mutableStateOf(false) }
+                                    IconButton(onClick = { expanded = true }) {
+                                        Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+                                    }
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Edit") },
+                                            onClick = {
+                                                expanded = false
+                                                editingContact = contact
+                                                showContactDialog = true
                                             }
-                                        }
-                                    )
-                                    ActionIconButton(
-                                        icon = Icons.AutoMirrored.Filled.Message,
-                                        color = Color(0xFF1E88E5),
-                                        onClick = {
-                                            context.startActivity(
-                                                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${contact.phoneNumber}"))
-                                            )
-                                        }
-                                    )
-                                    ActionIconButton(
-                                        label = "WA",
-                                        color = Color(0xFF25D366),
-                                        onClick = { openWhatsApp(context, contact.phoneNumber) }
-                                    )
-                                    ActionIconButton(
-                                        label = "IMO",
-                                        color = Color(0xFF6C27D5),
-                                        onClick = { openImo(context, contact.phoneNumber) }
-                                    )
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("Share") },
+                                            onClick = {
+                                                expanded = false
+                                                shareContact(context, contact)
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("WhatsApp") },
+                                            onClick = {
+                                                expanded = false
+                                                openWhatsApp(context, contact.phoneNumber)
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("IMO") },
+                                            onClick = {
+                                                expanded = false
+                                                openImo(context, contact.phoneNumber)
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
+                    )
                 }
             }
             }
@@ -395,181 +483,6 @@ fun ContactsScreen(
                 Icon(Icons.Default.Add, contentDescription = "Add contact")
             }
         }
-    }
-}
-
-@Composable
-private fun AddContactDialog(
-    contact: Contact? = null,
-    onConfirm: (Contact) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val initial = contact ?: Contact(name = "", phoneNumber = "")
-    var name by remember { mutableStateOf(initial.name) }
-    var phone by remember { mutableStateOf(initial.phoneNumber) }
-    var photoUri by remember { mutableStateOf(initial.photoUri ?: "") }
-    var address by remember { mutableStateOf(initial.address ?: "") }
-    var latitude by remember { mutableStateOf(initial.latitude) }
-    var longitude by remember { mutableStateOf(initial.longitude) }
-    var showMapPicker by remember { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
-    var preview by remember { mutableStateOf<ImageBitmap?>(null) }
-    val context = LocalContext.current
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.toString()?.let { photoUri = it }
-    }
-
-    LaunchedEffect(photoUri) {
-        preview = if (photoUri.isBlank()) {
-            null
-        } else {
-            val bitmap = withContext(Dispatchers.IO) {
-                try {
-                    context.contentResolver.openInputStream(Uri.parse(photoUri))?.use { stream ->
-                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
-                    }
-                } catch (_: Exception) {
-                    null
-                }
-            }
-            bitmap
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (contact != null) "Edit contact" else "New contact") },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(132.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable { galleryLauncher.launch("image/*") },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (preview != null) {
-                        Image(
-                            bitmap = preview!!,
-                            contentDescription = "Selected photo",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.Add, contentDescription = null)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Add photo", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    TextButton(onClick = { galleryLauncher.launch("image/*") }) {
-                        Text("Choose photo")
-                    }
-                    if (photoUri.isNotBlank()) {
-                        TextButton(onClick = { photoUri = "" }) {
-                            Text("Remove")
-                        }
-                    }
-                }
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Phone number") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = address,
-                    onValueChange = { address = it },
-                    label = { Text("Address") },
-                    minLines = 2,
-                    maxLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Location", style = MaterialTheme.typography.labelLarge)
-                        Text(
-                            if (latitude != null && longitude != null) {
-                                "Lat: %.6f  Lng: %.6f".format(latitude, longitude)
-                            } else {
-                                "No location selected"
-                            },
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    TextButton(onClick = { showMapPicker = true }) {
-                        Text(if (latitude != null) "Change" else "Pick on map")
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (name.isNotBlank() && phone.isNotBlank()) {
-                        val updated = contact?.copy(
-                            name = name.trim(),
-                            phoneNumber = phone.trim(),
-                            photoUri = photoUri.trim().takeIf { it.isNotBlank() },
-                            address = address.trim().takeIf { it.isNotBlank() },
-                            latitude = latitude,
-                            longitude = longitude
-                        ) ?: Contact(
-                            name = name.trim(),
-                            phoneNumber = phone.trim(),
-                            source = ContactSource.LOCAL,
-                            photoUri = photoUri.trim().takeIf { it.isNotBlank() },
-                            address = address.trim().takeIf { it.isNotBlank() },
-                            latitude = latitude,
-                            longitude = longitude
-                        )
-                        onConfirm(updated)
-                    }
-                },
-                enabled = name.isNotBlank() && phone.isNotBlank()
-            ) { Text("Save") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
-        }
-    )
-
-    if (showMapPicker) {
-        MapLocationPickerDialog(
-            initialLatitude = latitude,
-            initialLongitude = longitude,
-            onConfirm = { lat, lng ->
-                latitude = lat
-                longitude = lng
-                showMapPicker = false
-            },
-            onDismiss = { showMapPicker = false }
-        )
     }
 }
 
@@ -655,6 +568,54 @@ internal fun ActionIconButton(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun ContactListItem(
+    name: String,
+    photoUri: String?,
+    header: @Composable () -> Unit,
+    subHeader: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    inSelectionMode: Boolean = false,
+    onToggleSelected: (Boolean) -> Unit = {},
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
+    trailing: @Composable RowScope.() -> Unit = {}
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+        colors = if (selected && inSelectionMode)
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        else CardDefaults.cardColors()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            if (inSelectionMode) {
+                Checkbox(
+                    checked = selected,
+                    onCheckedChange = onToggleSelected,
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+            }
+            ContactAvatar(name = name, photoUri = photoUri)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                header()
+                subHeader()
+            }
+            trailing()
+        }
+    }
+}
+
 internal fun openWhatsApp(context: android.content.Context, phoneNumber: String) {
     val digits = phoneNumber.filter { it.isDigit() }
     val uri = Uri.parse("https://wa.me/$digits")
@@ -679,5 +640,80 @@ internal fun startOrFallback(context: android.content.Context, intent: Intent, f
         }
     } catch (_: Exception) {
         android.widget.Toast.makeText(context, fallbackMessage, android.widget.Toast.LENGTH_SHORT).show()
+    }
+}
+
+internal fun shareContact(context: android.content.Context, contact: com.callassistant.data.entity.Contact) {
+    val shareText = "Contact: ${contact.name}\nPhone: ${contact.phoneNumber}"
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, contact.name)
+        putExtra(Intent.EXTRA_TEXT, shareText)
+    }
+    context.startActivity(Intent.createChooser(intent, "Share contact"))
+}
+
+internal fun parseCsv(text: String): List<Contact> {
+    val lines = text.split("\n").map { it.trim() }.filter { it.isNotBlank() }
+    if (lines.isEmpty()) return emptyList()
+    val header = parseCsvLine(lines.first()).map { it.trim().lowercase().replace("\"", "") }
+    val nameIdx = header.indexOf("name").takeIf { it >= 0 } ?: 0
+    val phoneIdx = header.indexOf("phone").takeIf { it >= 0 } ?: 1
+    return lines.drop(1).mapNotNull { line ->
+        val cols = parseCsvLine(line)
+        val name = cols.getOrNull(nameIdx)?.trim()?.removeSurrounding("\"") ?: return@mapNotNull null
+        val phone = cols.getOrNull(phoneIdx)?.trim()?.removeSurrounding("\"") ?: return@mapNotNull null
+        if (name.isBlank() || phone.isBlank()) return@mapNotNull null
+        Contact(name = name, phoneNumber = phone, source = ContactSource.IMPORTED)
+    }
+}
+
+internal fun parseCsvLine(line: String): List<String> {
+    val result = mutableListOf<String>()
+    val current = StringBuilder()
+    var inQuotes = false
+    for (c in line) {
+        when {
+            c == '"' -> inQuotes = !inQuotes
+            c == ',' && !inQuotes -> {
+                result.add(current.toString())
+                current.clear()
+            }
+            else -> current.append(c)
+        }
+    }
+    result.add(current.toString())
+    return result
+}
+
+internal fun parseVCard(text: String): List<Contact> {
+    val cards = text.split("BEGIN:VCARD").drop(1)
+    return cards.mapNotNull { card ->
+        val lines = card.lines().map { it.trim() }
+        if (!card.contains("END:VCARD")) return@mapNotNull null
+        val name = lines.firstOrNull { it.startsWith("FN:") }?.substringAfter("FN:")?.trim()
+            ?: lines.firstOrNull { it.startsWith("N:") }?.substringAfter("N:")?.trim()?.split(";")?.let { parts ->
+                val first = parts.getOrNull(1)?.trim() ?: ""
+                val last = parts.getOrNull(0)?.trim() ?: ""
+                "$first $last".trim().ifBlank { null }
+            }
+        val phone = lines.firstOrNull { it.startsWith("TEL") }?.substringAfterLast(":")?.trim()
+            ?.takeIf { it.isNotBlank() }
+        if (name == null || phone == null) return@mapNotNull null
+        Contact(name = name, phoneNumber = phone, source = ContactSource.IMPORTED)
+    }
+}
+
+internal fun writeCsv(contacts: List<Contact>): String {
+    val header = "name,phone"
+    val rows = contacts.joinToString("\n") { contact ->
+        "\"${contact.name}\",\"${contact.phoneNumber}\""
+    }
+    return if (contacts.isEmpty()) header else "$header\n$rows"
+}
+
+internal fun writeVCard(contacts: List<Contact>): String {
+    return contacts.joinToString("\n") { contact ->
+        "BEGIN:VCARD\nVERSION:2.1\nFN:${contact.name}\nTEL:${contact.phoneNumber}\nEND:VCARD"
     }
 }

@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -49,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.permission.Permissions
 import com.callassistant.ui.MainViewModel
 import com.callassistant.ui.components.PermissionGuard
+import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.data.entity.SmsMessage
 import java.util.Calendar
 
@@ -142,7 +142,7 @@ fun MessagesScreen(
                 derivedStateOf { threads.filter { it.lastTimestamp.toMessageDayCategory() == MessageDayCategory.OLDER } }
             }
 
-            LaunchedEffect(hasReadSms) {
+            LaunchedEffect(Unit, hasReadSms) {
                 if (hasReadSms) {
                     viewModel.syncSms()
                 }
@@ -163,7 +163,7 @@ fun MessagesScreen(
                         TextButton(onClick = {
                             viewModel.deleteMessages(messages.filter { it.number in selectedNumbers })
                             showDeleteDialog = false
-                        }) { Text("Delete", color = Color.Red) }
+                        }) { Text("Delete", color = ErrorRed) }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
@@ -234,7 +234,7 @@ fun MessagesScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -253,7 +253,7 @@ fun MessagesScreen(
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
                                     contentDescription = "Delete",
-                                    tint = Color.Red
+                                    tint = ErrorRed
                                 )
                             }
                             IconButton(onClick = { selectedNumbers = emptySet() }) {

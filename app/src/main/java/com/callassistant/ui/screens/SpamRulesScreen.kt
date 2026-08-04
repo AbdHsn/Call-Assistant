@@ -37,13 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.data.entity.BlockedNumber
 import com.callassistant.data.entity.RuleType
 import com.callassistant.data.entity.SpamRule
 import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.theme.ErrorRed
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -195,7 +195,7 @@ fun BlockedNumberItem(blocked: BlockedNumber, onUnblock: () -> Unit) {
                 }
             }
             TextButton(onClick = onUnblock) {
-                Text("Unblock", color = Color.Red)
+                Text("Unblock", color = ErrorRed)
             }
         }
     }

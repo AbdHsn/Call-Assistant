@@ -1,6 +1,7 @@
 package com.callassistant.receiver
 
 import android.content.BroadcastReceiver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
@@ -22,8 +23,10 @@ class SmsReceiver : BroadcastReceiver() {
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent) ?: return
 
         val app = context.applicationContext as CallAssistantApplication
-        val number = messages.firstOrNull()?.originatingAddress ?: return
+        val number = messages.firstOrNull()?.originatingAddress?.replace(" ", "")?.trim() ?: return
         val body = messages.joinToString("") { it.messageBody }
+        val timestamp = System.currentTimeMillis()
+        val dateSent = messages.firstOrNull()?.timestampMillis ?: timestamp
 
         val isSenderBlocked = runBlocking(Dispatchers.IO) {
             app.spamRuleRepository.isNumberBlocked(number)
@@ -44,10 +47,23 @@ class SmsReceiver : BroadcastReceiver() {
                 SmsMessage(
                     number = number,
                     body = body,
-                    timestamp = System.currentTimeMillis(),
+                    timestamp = timestamp,
                     direction = SmsDirection.IN
                 )
             )
+            try {
+                val values = ContentValues().apply {
+                    put(Telephony.Sms.ADDRESS, number)
+                    put(Telephony.Sms.BODY, body)
+                    put(Telephony.Sms.DATE, timestamp)
+                    put(Telephony.Sms.DATE_SENT, dateSent)
+                    put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_INBOX)
+                    put(Telephony.Sms.READ, 0)
+                }
+                context.contentResolver.insert(Telephony.Sms.Inbox.CONTENT_URI, values)
+            } catch (_: SecurityException) {
+                // Not the default SMS app; the default app will write to the provider.
+            }
             CallNotificationManager.showSmsNotification(context, number, null, body)
         }
     }
