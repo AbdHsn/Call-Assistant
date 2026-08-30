@@ -123,7 +123,7 @@
         </activity>
 
         <service
-            android:name="com.callassistant.service.CallAssistantInCallService"
+            android:name="com.callassistant.incall.CallAssistantInCallService"
             android:exported="true"
             android:permission="android.permission.BIND_INCALL_SERVICE" >
             <meta-data
@@ -143,7 +143,7 @@
             </intent-filter>
         </service>
         <service
-            android:name="com.callassistant.service.HeadlessSmsSendService"
+            android:name="com.callassistant.sms.HeadlessSmsSendService"
             android:exported="true"
             android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
             <intent-filter>
@@ -171,7 +171,7 @@
         </service>
 
         <receiver
-            android:name="com.callassistant.receiver.SmsReceiver"
+            android:name="com.callassistant.sms.SmsReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS" >
             <intent-filter android:priority="999" >
@@ -182,7 +182,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.callassistant.receiver.WapPushReceiver"
+            android:name="com.callassistant.sms.WapPushReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_WAP_PUSH" >
             <intent-filter>
@@ -195,7 +195,7 @@
             android:name="com.callassistant.receiver.CallReminderReceiver"
             android:exported="false" />
         <receiver
-            android:name="com.callassistant.receiver.CallActionReceiver"
+            android:name="com.callassistant.incall.CallActionReceiver"
             android:exported="false" />
 
         <provider
@@ -238,7 +238,7 @@
         </service>
 
         <activity
-            android:name="com.callassistant.InCallActivity"
+            android:name="com.callassistant.incall.InCallActivity"
             android:exported="false"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"
@@ -246,7 +246,7 @@
             android:theme="@style/Theme.CallAssistant"
             android:turnScreenOn="true" />
         <activity
-            android:name="com.callassistant.SmsActivity"
+            android:name="com.callassistant.sms.SmsActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -266,10 +266,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="androidx.compose.ui.tooling.PreviewActivity"
+            android:name="androidx.activity.ComponentActivity"
             android:exported="true" />
         <activity
-            android:name="androidx.activity.ComponentActivity"
+            android:name="androidx.compose.ui.tooling.PreviewActivity"
             android:exported="true" />
 
         <provider

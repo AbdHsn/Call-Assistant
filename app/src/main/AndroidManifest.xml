@@ -79,7 +79,7 @@
         </activity>
 
         <service
-            android:name=".service.CallAssistantInCallService"
+            android:name=".incall.CallAssistantInCallService"
             android:exported="true"
             android:permission="android.permission.BIND_INCALL_SERVICE">
             <meta-data
@@ -100,7 +100,7 @@
         </service>
 
         <service
-            android:name=".service.HeadlessSmsSendService"
+            android:name=".sms.HeadlessSmsSendService"
             android:exported="true"
             android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
             <intent-filter>
@@ -126,7 +126,7 @@
         </service>
 
         <receiver
-            android:name=".receiver.SmsReceiver"
+            android:name=".sms.SmsReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter android:priority="999">
@@ -138,7 +138,7 @@
         </receiver>
 
         <receiver
-            android:name=".receiver.WapPushReceiver"
+            android:name=".sms.WapPushReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_WAP_PUSH">
             <intent-filter>
@@ -152,7 +152,7 @@
             android:exported="false" />
 
         <receiver
-            android:name=".receiver.CallActionReceiver"
+            android:name=".incall.CallActionReceiver"
             android:exported="false" />
 
         <provider
@@ -194,7 +194,7 @@
         </service>
 
         <activity
-            android:name=".InCallActivity"
+            android:name=".incall.InCallActivity"
             android:exported="false"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
@@ -203,7 +203,7 @@
             android:theme="@style/Theme.CallAssistant" />
 
         <activity
-            android:name=".SmsActivity"
+            android:name=".sms.SmsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

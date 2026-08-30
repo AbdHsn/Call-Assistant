@@ -42,7 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.data.entity.BlockedNumber
 import com.callassistant.data.entity.RuleType
 import com.callassistant.data.entity.SpamRule
-import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.SpamRulesViewModel
 import com.callassistant.ui.theme.ErrorRed
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -51,11 +51,12 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpamRulesScreen(
-    viewModel: MainViewModel,
+    viewModel: SpamRulesViewModel,
     modifier: Modifier = Modifier
 ) {
-    val rules by viewModel.spamRules.collectAsStateWithLifecycle()
-    val blockedNumbers by viewModel.blockedNumbers.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val rules = uiState.spamRules
+    val blockedNumbers = uiState.blockedNumbers
     var selectedTab by remember { mutableStateOf(0) }
     var showRuleDialog by remember { mutableStateOf(false) }
     var showBlockDialog by remember { mutableStateOf(false) }

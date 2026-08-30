@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.callassistant.data.entity.Contact
 import com.callassistant.data.entity.ContactSource
+import com.callassistant.util.ContactPhotoLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -74,16 +75,7 @@ internal fun AddContactDialog(
         preview = if (photoUri.isBlank()) {
             null
         } else {
-            val bitmap = withContext(Dispatchers.IO) {
-                try {
-                    context.contentResolver.openInputStream(Uri.parse(photoUri))?.use { stream ->
-                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
-                    }
-                } catch (_: Exception) {
-                    null
-                }
-            }
-            bitmap
+            ContactPhotoLoader.loadBitmap(context, photoUri)
         }
     }
 

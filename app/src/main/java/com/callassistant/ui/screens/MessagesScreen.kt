@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,9 +48,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.permission.Permissions
-import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.MessagesViewModel
 import com.callassistant.ui.components.PermissionGuard
 import com.callassistant.ui.theme.ErrorRed
+import com.callassistant.ui.util.rememberScrollPagination
 import com.callassistant.data.entity.SmsMessage
 import java.util.Calendar
 
@@ -72,7 +75,7 @@ private data class ThreadSummary(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessagesScreen(
-    viewModel: MainViewModel,
+    viewModel: MessagesViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -87,14 +90,15 @@ fun MessagesScreen(
             requestPermissions = requestPermissions,
             modifier = Modifier.fillMaxSize()
         ) {
-            val messages by viewModel.smsMessages.collectAsStateWithLifecycle()
-            val contacts by viewModel.contacts.collectAsStateWithLifecycle()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val messages = uiState.smsMessages
+            val contacts = uiState.contacts
             var searchQuery by remember { mutableStateOf("") }
             var sortMode by remember { mutableStateOf(MessageSortMode.NEWEST) }
             var selectedNumbers by remember { mutableStateOf(setOf<String>()) }
             val inSelectionMode = selectedNumbers.isNotEmpty()
             var showDeleteDialog by remember { mutableStateOf(false) }
-            val deleteProgress by viewModel.deleteProgress.collectAsStateWithLifecycle()
+            val deleteProgress = uiState.deleteProgress
             val hasReadSms = hasPermission(Permissions.readSms.permission)
 
             val threads by remember(messages, contacts, searchQuery, sortMode) {
@@ -141,6 +145,15 @@ fun MessagesScreen(
             val olderThreads by remember(threads) {
                 derivedStateOf { threads.filter { it.lastTimestamp.toMessageDayCategory() == MessageDayCategory.OLDER } }
             }
+
+            val listState = rememberLazyListState()
+            val olderLimit = rememberScrollPagination(
+                totalItemCount = olderThreads.size,
+                listState = listState,
+                resetKey = searchQuery to sortMode
+            )
+            val displayedOlderThreads = olderThreads.take(olderLimit)
+            val hasMoreOlderThreads = olderLimit < olderThreads.size
 
             LaunchedEffect(Unit, hasReadSms) {
                 if (hasReadSms) {
@@ -267,6 +280,7 @@ fun MessagesScreen(
                 }
 
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(bottom = 88.dp)
                 ) {
@@ -334,7 +348,7 @@ fun MessagesScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                         }
-                        items(olderThreads, key = { it.number }) { thread ->
+                        items(displayedOlderThreads, key = { it.number }) { thread ->
                             ThreadListItem(
                                 thread = thread,
                                 inSelectionMode = inSelectionMode,
@@ -352,6 +366,18 @@ fun MessagesScreen(
                                 },
                                 onLongClick = { selectedNumbers = selectedNumbers + thread.number }
                             )
+                        }
+                        if (hasMoreOlderThreads) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 }

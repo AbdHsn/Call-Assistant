@@ -30,13 +30,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.app.ActivityCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.callassistant.ui.MainApp
 import com.callassistant.ui.MainViewModel
-import com.callassistant.ui.MainViewModelFactory
 import com.callassistant.ui.theme.CallAssistantTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val requiredPermissions = mutableListOf(
@@ -95,7 +96,7 @@ class MainActivity : ComponentActivity() {
         promptDefaultSmsAppIfNeeded()
         promptCallScreeningRoleIfNeeded()
         setContent {
-            val viewModel = viewModel<MainViewModel>(factory = MainViewModelFactory(application))
+            val viewModel: MainViewModel = hiltViewModel()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             var isReady by remember { mutableStateOf(isSetupCompleted()) }
 
@@ -106,7 +107,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     if (isReady) {
                         MainApp(
-                            factory = MainViewModelFactory(application),
                             requestPermissions = { requestPermissionLauncher.launch(requiredPermissions) },
                             hasPermission = { permission ->
                                 ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED

@@ -35,8 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.callassistant.ui.screens.CallLogScreen
 import com.callassistant.ui.screens.ContactsScreen
 import com.callassistant.ui.screens.DialPadScreen
@@ -62,7 +62,6 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp(
-    factory: MainViewModelFactory,
     requestPermissions: () -> Unit,
     hasPermission: (String) -> Boolean,
     isAccessibilityEnabled: () -> Boolean,
@@ -71,12 +70,18 @@ fun MainApp(
     openBatterySettings: () -> Unit,
     openAppSettings: () -> Unit,
     openAccessibility: () -> Unit,
-    viewModel: MainViewModel = viewModel(factory = factory)
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val screens = listOf(Screen.CallLog, Screen.Contacts, Screen.DialPad, Screen.Messages)
     val selectedRoute by viewModel.selectedRoute.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
+
+    val contactsViewModel: ContactsViewModel = hiltViewModel()
+    val callLogViewModel: CallLogViewModel = hiltViewModel()
+    val dialPadViewModel: DialPadViewModel = hiltViewModel()
+    val messagesViewModel: MessagesViewModel = hiltViewModel()
+    val spamRulesViewModel: SpamRulesViewModel = hiltViewModel()
 
     Scaffold(
         topBar = {
@@ -155,29 +160,29 @@ fun MainApp(
         val modifier = Modifier.padding(padding)
         when (selectedRoute) {
             Screen.Contacts.route -> ContactsScreen(
-                viewModel = viewModel,
+                viewModel = contactsViewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 modifier = modifier
             )
             Screen.CallLog.route -> CallLogScreen(
-                viewModel = viewModel,
+                viewModel = callLogViewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 modifier = modifier
             )
             Screen.DialPad.route -> DialPadScreen(
-                viewModel = viewModel,
+                viewModel = dialPadViewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 modifier = modifier
             )
             Screen.SpamRules.route -> SpamRulesScreen(
-                viewModel = viewModel,
+                viewModel = spamRulesViewModel,
                 modifier = modifier
             )
             Screen.Messages.route -> MessagesScreen(
-                viewModel = viewModel,
+                viewModel = messagesViewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 modifier = modifier
@@ -195,10 +200,10 @@ fun MainApp(
                 isBatteryOptimizationIgnored = isBatteryIgnored,
                 onRequestBatteryOpt = requestBatteryOpt,
                 onOpenBatterySettings = openBatterySettings,
-                onContinue = { viewModel.selectRoute(Screen.CallLog.route) }
+                onContinue = { viewModel.selectRoute(Screen.DialPad.route) }
             )
             "notes" -> NotesScreen(
-                viewModel = viewModel,
+                viewModel = contactsViewModel,
                 modifier = modifier
             )
         }

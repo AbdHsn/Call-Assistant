@@ -15,4 +15,6 @@ object PhoneNumberNormalizer {
         val digits = number.filter { it.isDigit() }
         return if (digits.length > 10) digits.takeLast(10) else digits
     }
+
+    fun matches(a: String, b: String): Boolean = normalize(a) == normalize(b)
 }

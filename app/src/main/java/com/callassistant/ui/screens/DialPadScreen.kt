@@ -86,14 +86,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.R
 import com.callassistant.data.entity.CallLogEntry
 import com.callassistant.data.entity.Contact
-import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.DialPadViewModel
 import com.callassistant.ui.components.AddContactDialog
 import com.callassistant.ui.theme.MessageBlue
+import com.callassistant.util.telCallUri
 import kotlinx.coroutines.delay
 
 @Composable
 fun DialPadScreen(
-    viewModel: MainViewModel,
+    viewModel: DialPadViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -239,7 +240,7 @@ private fun T9Contact.match(digits: String): ContactMatch? {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DialPadContent(
-    viewModel: MainViewModel,
+    viewModel: DialPadViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -249,9 +250,9 @@ private fun DialPadContent(
     var showAddDialog by remember { mutableStateOf(false) }
     var editingContact by remember { mutableStateOf<Contact?>(null) }
     var isDefaultDialer by remember { mutableStateOf(isDefaultDialerApp(context)) }
-    val contacts by viewModel.contacts.collectAsStateWithLifecycle()
-
-    val callLogs by viewModel.callLogs.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val contacts = uiState.contacts
+    val callLogs = uiState.callLogs
 
     val scoreMap = remember(callLogs) {
         callLogs.groupBy { it.number.filter { c -> c.isDigit() } }
@@ -298,7 +299,7 @@ private fun DialPadContent(
     fun placeCall(target: String = number.text) {
         if (target.isBlank()) return
         if (hasPermission(Manifest.permission.CALL_PHONE)) {
-            context.startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:$target")))
+            context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(target)))
         } else {
             requestPermissions()
         }
@@ -701,14 +702,13 @@ private fun DialPadContent(
                     )
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    if (number.text.isNotEmpty()) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Backspace,
-                            contentDescription = "Delete (hold to clear)",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
+                    Icon(
+                        Icons.AutoMirrored.Filled.Backspace,
+                        contentDescription = "Delete (hold to clear)",
+                        tint = if (number.text.isNotEmpty()) MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        modifier = Modifier.size(22.dp)
+                    )
                 }
             }
         }

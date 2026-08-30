@@ -8,6 +8,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import androidx.core.content.ContextCompat
+import com.callassistant.util.ContactPhotoLoader
 
 /**
  * Writes contact photos into the system Contacts Provider so they survive
@@ -40,7 +41,7 @@ object ContactPhotoWriter {
 
     private fun loadPhotoBytes(context: Context, photoUri: String): ByteArray? {
         return try {
-            context.contentResolver.openInputStream(Uri.parse(photoUri))?.use { it.readBytes() }
+            ContactPhotoLoader.openPhotoStream(context, photoUri)?.use { it.readBytes() }
         } catch (_: Exception) {
             null
         }

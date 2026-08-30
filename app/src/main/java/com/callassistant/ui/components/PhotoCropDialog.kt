@@ -45,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -112,7 +113,11 @@ internal fun PhotoCropDialog(
         val file = File(dir, "photo_${System.currentTimeMillis()}.jpg")
         return try {
             FileOutputStream(file).use { out.compress(Bitmap.CompressFormat.JPEG, 92, it) }
-            Uri.fromFile(file).toString()
+            FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            ).toString()
         } catch (_: Exception) {
             null
         }

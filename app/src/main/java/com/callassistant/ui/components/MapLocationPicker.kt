@@ -54,6 +54,68 @@ private const val DEFAULT_ZOOM = 15.0
 private val DEFAULT_POINT = GeoPoint(23.8103, 90.4125) // Dhaka fallback
 
 @Composable
+fun ReadOnlyLocationMap(
+    latitude: Double,
+    longitude: Double,
+    modifier: Modifier = Modifier
+) {
+    val point = remember(latitude, longitude) { GeoPoint(latitude, longitude) }
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+
+    DisposableEffect(mapViewRef) {
+        mapViewRef?.onResume()
+        onDispose {
+            mapViewRef?.onPause()
+            mapViewRef?.onDetach()
+        }
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            configureOsmdroid(ctx)
+            val markerIcon = createMarkerIcon(ctx)
+            MapView(ctx).apply {
+                setTileSource(TileSourceFactory.MAPNIK)
+                setMultiTouchControls(true)
+                controller.setZoom(DEFAULT_ZOOM)
+                controller.setCenter(point)
+                overlays.add(
+                    Marker(this).apply {
+                        position = point
+                        icon = markerIcon
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    }
+                )
+                mapViewRef = this
+            }
+        },
+        update = { }
+    )
+}
+
+private fun configureOsmdroid(context: android.content.Context) {
+    Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", 0))
+    Configuration.getInstance().userAgentValue = context.packageName
+    val base = File(context.cacheDir, "osmdroid").apply { mkdirs() }
+    val cache = File(base, "tiles").apply { mkdirs() }
+    Configuration.getInstance().osmdroidBasePath = base
+    Configuration.getInstance().osmdroidTileCache = cache
+}
+
+private fun createMarkerIcon(context: android.content.Context): BitmapDrawable {
+    val markerBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(markerBitmap)
+    val paint = Paint().apply {
+        color = Color.parseColor("#E53935")
+        isAntiAlias = true
+        style = Paint.Style.FILL
+    }
+    canvas.drawCircle(20f, 20f, 18f, paint)
+    return BitmapDrawable(context.resources, markerBitmap)
+}
+
+@Composable
 fun MapLocationPickerDialog(
     initialLatitude: Double?,
     initialLongitude: Double?,
@@ -161,22 +223,8 @@ fun MapLocationPickerDialog(
                     AndroidView(
                         modifier = Modifier.fillMaxWidth().height(400.dp),
                         factory = { ctx ->
-                            Configuration.getInstance().load(ctx, ctx.getSharedPreferences("osmdroid", 0))
-                            Configuration.getInstance().userAgentValue = ctx.packageName
-                            val base = File(ctx.cacheDir, "osmdroid").apply { mkdirs() }
-                            val cache = File(base, "tiles").apply { mkdirs() }
-                            Configuration.getInstance().osmdroidBasePath = base
-                            Configuration.getInstance().osmdroidTileCache = cache
-
-                            val markerBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888)
-                            val canvas = Canvas(markerBitmap)
-                            val paint = Paint().apply {
-                                color = Color.parseColor("#E53935")
-                                isAntiAlias = true
-                                style = Paint.Style.FILL
-                            }
-                            canvas.drawCircle(20f, 20f, 18f, paint)
-                            val markerIcon = BitmapDrawable(ctx.resources, markerBitmap)
+                            configureOsmdroid(ctx)
+                            val markerIcon = createMarkerIcon(ctx)
 
                             MapView(ctx).apply {
                                 setTileSource(TileSourceFactory.MAPNIK)

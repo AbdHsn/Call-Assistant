@@ -10,11 +10,11 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import android.net.Uri
-import com.callassistant.InCallActivity
+import com.callassistant.incall.InCallActivity
 import com.callassistant.MainActivity
 import com.callassistant.R
-import com.callassistant.SmsActivity
-import com.callassistant.receiver.CallActionReceiver
+import com.callassistant.sms.SmsActivity
+import com.callassistant.incall.CallActionReceiver
 
 /**
  * Builds and manages the incoming call notification used by the default-dialer [InCallService].

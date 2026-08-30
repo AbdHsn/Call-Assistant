@@ -1,82 +1,78 @@
 [
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-mdpi_ic_launcher_round.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-mdpi/ic_launcher_round.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-xhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-xxhdpi/ic_launcher.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-xxxhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/layout_keyboard.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/layout/keyboard.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-mdpi/ic_launcher_round.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-xxhdpi_ic_launcher_round.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-xxhdpi/ic_launcher_round.png"
+        "merged": "com.callassistant.app-merged_res-62:/xml_file_paths.xml.flat",
+        "source": "com.callassistant.app-main-64:/xml/file_paths.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/xml_method.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/xml/method.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/xml_method.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/xml/method.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/drawable_ic_launcher_foreground.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/drawable/ic_launcher_foreground.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-xxxhdpi/ic_launcher.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-xhdpi/ic_launcher.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-xxxhdpi/ic_launcher.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-xxhdpi/ic_launcher_round.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/drawable/ic_launcher_foreground.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/xml_accessibility_service_config.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/xml/accessibility_service_config.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-xhdpi_ic_launcher_round.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-xhdpi/ic_launcher_round.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/layout_keyboard.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/layout/keyboard.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-mdpi_ic_launcher.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-mdpi/ic_launcher.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-hdpi/ic_launcher.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/xml_file_paths.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/xml/file_paths.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/drawable_ic_whatsapp.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/drawable/ic_whatsapp.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-hdpi/ic_launcher.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/xml_file_paths.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/xml/file_paths.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/drawable_ic_whatsapp.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/drawable/ic_whatsapp.xml"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/xml_accessibility_service_config.xml.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/xml/accessibility_service_config.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "com.callassistant.app-merged_res-52:/drawable_ic_whatsapp.xml.flat",
-        "source": "com.callassistant.app-main-54:/drawable/ic_whatsapp.xml"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-xhdpi_ic_launcher.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-xhdpi/ic_launcher.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/mipmap-hdpi/ic_launcher_round.png"
     },
     {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-xxxhdpi/ic_launcher_round.png"
-    },
-    {
-        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-52:/mipmap-hdpi_ic_launcher_round.png.flat",
-        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-54:/mipmap-hdpi/ic_launcher_round.png"
+        "merged": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-merged_res-62:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/home/abdullahbinhasan/.gradle/daemon/8.0/com.callassistant.app-main-64:/drawable/ic_launcher_foreground.xml"
     }
 ]

@@ -80,9 +80,12 @@ import com.callassistant.data.entity.Contact
 import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.ui.theme.SuccessGreen
 import com.callassistant.permission.Permissions
-import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.CallLogViewModel
 import com.callassistant.ui.components.AddContactDialog
 import com.callassistant.ui.components.PermissionGuard
+import com.callassistant.ui.util.rememberScrollPagination
+import com.callassistant.util.PhoneNumberNormalizer
+import com.callassistant.util.telCallUri
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -109,7 +112,7 @@ private data class CallLogGroup(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CallLogScreen(
-    viewModel: MainViewModel,
+    viewModel: CallLogViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -120,7 +123,9 @@ fun CallLogScreen(
         requestPermissions = requestPermissions,
         modifier = modifier
     ) {
-        val logs by viewModel.callLogs.collectAsStateWithLifecycle()
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val logs = uiState.callLogs
+        val contacts = uiState.contacts
         val context = LocalContext.current
         var showBlockDialog by remember { mutableStateOf(false) }
         val hasCallLogPermission = hasPermission(Permissions.callLog.permission)
@@ -131,7 +136,7 @@ fun CallLogScreen(
         var expandedNumbers by remember { mutableStateOf(setOf<String>()) }
         var showDeleteDialog by remember { mutableStateOf(false) }
         var editingContact by remember { mutableStateOf<Contact?>(null) }
-        val contacts by viewModel.contacts.collectAsStateWithLifecycle()
+        var selectedDetailNumber by remember { mutableStateOf<String?>(null) }
 
         val allGroups by remember(logs, query, sortMode, contacts) {
             derivedStateOf {
@@ -165,29 +170,18 @@ fun CallLogScreen(
             }
         }
 
-        val listState = rememberLazyListState()
-        val pageSize = 20
-        var olderLimit by remember { mutableStateOf(pageSize) }
-
         val todayGroups by remember(allGroups) { derivedStateOf { allGroups.filter { it.category == DayCategory.TODAY } } }
         val yesterdayGroups by remember(allGroups) { derivedStateOf { allGroups.filter { it.category == DayCategory.YESTERDAY } } }
         val olderGroups by remember(allGroups) { derivedStateOf { allGroups.filter { it.category == DayCategory.OLDER } } }
-        val displayedGroups by remember(todayGroups, yesterdayGroups, olderGroups, olderLimit) { derivedStateOf { todayGroups + yesterdayGroups + olderGroups.take(olderLimit) } }
 
-        val shouldLoadMore by remember {
-            derivedStateOf {
-                val layoutInfo = listState.layoutInfo
-                val totalItems = layoutInfo.totalItemsCount
-                val lastVisible = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-                lastVisible > 0 && lastVisible >= totalItems - 2
-            }
-        }
-
-        LaunchedEffect(shouldLoadMore) {
-            if (shouldLoadMore && olderLimit < olderGroups.size) {
-                olderLimit = (olderLimit + pageSize).coerceAtMost(olderGroups.size)
-            }
-        }
+        val listState = rememberLazyListState()
+        val olderLimit = rememberScrollPagination(
+            totalItemCount = olderGroups.size,
+            listState = listState,
+            resetKey = query to sortMode
+        )
+        val displayedOlderGroups = olderGroups.take(olderLimit)
+        val hasMoreOlderGroups = olderLimit < olderGroups.size
 
         LaunchedEffect(hasCallLogPermission) {
             if (hasCallLogPermission) {
@@ -328,7 +322,11 @@ fun CallLogScreen(
                     ) {
                         Text("${selectedNumbers.size} selected", style = MaterialTheme.typography.titleMedium)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            TextButton(onClick = { selectedNumbers = displayedGroups.map { it.number }.toSet() }) {
+                            TextButton(onClick = {
+                                selectedNumbers = (todayGroups + yesterdayGroups + displayedOlderGroups)
+                                    .map { it.number }
+                                    .toSet()
+                            }) {
                                 Text("Select all")
                             }
                             IconButton(onClick = { showDeleteDialog = true }) {
@@ -344,6 +342,9 @@ fun CallLogScreen(
                     }
                 }
 
+                val onOpenDetail = { number: String ->
+                    selectedDetailNumber = number
+                }
                 val onToggleSelection = { number: String ->
                     selectedNumbers = if (number in selectedNumbers) selectedNumbers - number else selectedNumbers + number
                 }
@@ -372,6 +373,7 @@ fun CallLogScreen(
                                 onSelect = { onToggleSelection(group.number) },
                                 onLongClick = { onAddToSelection(group.number) },
                                 onToggleExpand = { onToggleExpand(group.id) },
+                                onOpenDetail = { onOpenDetail(group.number) },
                                 hasPermission = hasPermission,
                                 requestPermissions = requestPermissions,
                                 onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
@@ -395,6 +397,7 @@ fun CallLogScreen(
                                 onSelect = { onToggleSelection(group.number) },
                                 onLongClick = { onAddToSelection(group.number) },
                                 onToggleExpand = { onToggleExpand(group.id) },
+                                onOpenDetail = { onOpenDetail(group.number) },
                                 hasPermission = hasPermission,
                                 requestPermissions = requestPermissions,
                                 onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
@@ -409,7 +412,7 @@ fun CallLogScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                         }
-                        items(olderGroups.take(olderLimit), key = { it.id }) { group ->
+                        items(displayedOlderGroups, key = { it.id }) { group ->
                             CallLogGroupItem(
                                 group = group,
                                 inSelectionMode = inSelectionMode,
@@ -418,12 +421,13 @@ fun CallLogScreen(
                                 onSelect = { onToggleSelection(group.number) },
                                 onLongClick = { onAddToSelection(group.number) },
                                 onToggleExpand = { onToggleExpand(group.id) },
+                                onOpenDetail = { onOpenDetail(group.number) },
                                 hasPermission = hasPermission,
                                 requestPermissions = requestPermissions,
                                 onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
                             )
                         }
-                        if (olderLimit < olderGroups.size) {
+                        if (hasMoreOlderGroups) {
                             item {
                                 Box(
                                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -444,6 +448,26 @@ fun CallLogScreen(
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = "Sync call log")
             }
+
+            selectedDetailNumber?.let { number ->
+                val matchedContact = contacts.find { PhoneNumberNormalizer.matches(it.phoneNumber, number) }
+                val relatedCallLogs = logs.filter { PhoneNumberNormalizer.matches(it.number, number) }
+                ContactDetailScreen(
+                    phoneNumber = number,
+                    contact = matchedContact,
+                    callLogs = relatedCallLogs,
+                    onBack = { selectedDetailNumber = null },
+                    onSaveContact = viewModel::saveContact,
+                    onDeleteContact = viewModel::deleteContact,
+                    onDeleteCallLogs = viewModel::deleteCallLogs,
+                    onBlockNumber = { blockedNumber, name ->
+                        viewModel.blockNumber(blockedNumber, name = name)
+                    },
+                    hasPermission = hasPermission,
+                    requestPermissions = requestPermissions,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
@@ -458,6 +482,7 @@ private fun CallLogGroupItem(
     onSelect: () -> Unit,
     onLongClick: () -> Unit,
     onToggleExpand: () -> Unit,
+    onOpenDetail: () -> Unit,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     onAddAsContact: () -> Unit
@@ -481,8 +506,8 @@ private fun CallLogGroupItem(
                         onClick = {
                             if (inSelectionMode) {
                                 onSelect()
-                            } else if (group.entries.size > 1) {
-                                onToggleExpand()
+                            } else {
+                                onOpenDetail()
                             }
                         },
                         onLongClick = onLongClick
@@ -553,12 +578,17 @@ private fun CallLogGroupItem(
                 if (!inSelectionMode) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (group.entries.size > 1) {
-                            Icon(
-                                imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                contentDescription = if (isExpanded) "Collapse" else "Expand",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            IconButton(
+                                onClick = onToggleExpand,
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.width(2.dp))
                         Row(
@@ -568,7 +598,7 @@ private fun CallLogGroupItem(
                             IconButton(
                                 onClick = {
                                     if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                        context.startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:${group.number}")))
+                                        context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(group.number)))
                                     } else requestPermissions()
                                 },
                                 modifier = Modifier.size(32.dp)

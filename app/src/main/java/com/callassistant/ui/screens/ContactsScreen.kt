@@ -2,7 +2,6 @@ package com.callassistant.ui.screens
 
 import android.Manifest
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -22,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,6 +42,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -79,11 +80,14 @@ import kotlinx.coroutines.launch
 import com.callassistant.data.entity.Contact
 import com.callassistant.data.entity.ContactSource
 import com.callassistant.permission.Permissions
-import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.ContactsViewModel
 import com.callassistant.ui.components.AddContactDialog
 import com.callassistant.ui.components.PermissionGuard
 import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.ui.theme.MessageBlue
+import com.callassistant.ui.util.rememberScrollPagination
+import com.callassistant.util.PhoneNumberNormalizer
+import com.callassistant.util.ContactPhotoLoader
 
 private enum class ContactSortMode(val label: String) {
     NAME_ASC("Name A-Z"),
@@ -96,7 +100,7 @@ private enum class ContactSortMode(val label: String) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactsScreen(
-    viewModel: MainViewModel,
+    viewModel: ContactsViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -107,8 +111,9 @@ fun ContactsScreen(
         requestPermissions = requestPermissions,
         modifier = modifier
     ) {
-        val contacts by viewModel.contacts.collectAsStateWithLifecycle()
-        val callLogs by viewModel.callLogs.collectAsStateWithLifecycle()
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val contacts = uiState.contacts
+        val callLogs = uiState.callLogs
         var showBlockDialog by remember { mutableStateOf(false) }
         val hasContacts = hasPermission(Permissions.contacts.permission)
         var query by remember { mutableStateOf("") }
@@ -118,6 +123,7 @@ fun ContactsScreen(
         var showDeleteDialog by remember { mutableStateOf(false) }
         var showContactDialog by remember { mutableStateOf(false) }
         var editingContact by remember { mutableStateOf<Contact?>(null) }
+        var selectedContact by remember { mutableStateOf<Contact?>(null) }
 
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
@@ -144,7 +150,7 @@ fun ContactsScreen(
             if (uri == null) return@rememberLauncherForActivityResult
             scope.launch(Dispatchers.IO) {
                 try {
-                    val csv = writeCsv(viewModel.contacts.value)
+                    val csv = writeCsv(viewModel.uiState.value.contacts)
                     context.contentResolver.openOutputStream(uri)?.use { out -> out.write(csv.toByteArray()) }
                     withContext(Dispatchers.Main) {
                         android.widget.Toast.makeText(context, "Exported CSV", android.widget.Toast.LENGTH_SHORT).show()
@@ -161,7 +167,7 @@ fun ContactsScreen(
             if (uri == null) return@rememberLauncherForActivityResult
             scope.launch(Dispatchers.IO) {
                 try {
-                    val vCard = writeVCard(viewModel.contacts.value)
+                    val vCard = writeVCard(viewModel.uiState.value.contacts)
                     context.contentResolver.openOutputStream(uri)?.use { out -> out.write(vCard.toByteArray()) }
                     withContext(Dispatchers.Main) {
                         android.widget.Toast.makeText(context, "Exported vCard", android.widget.Toast.LENGTH_SHORT).show()
@@ -204,6 +210,15 @@ fun ContactsScreen(
                 viewModel.syncContacts()
             }
         }
+
+        val listState = rememberLazyListState()
+        val displayLimit = rememberScrollPagination(
+            totalItemCount = filteredContacts.size,
+            listState = listState,
+            resetKey = query to sortMode
+        )
+        val displayedContacts = filteredContacts.take(displayLimit)
+        val hasMoreContacts = displayLimit < filteredContacts.size
 
         if (showDeleteDialog) {
             AlertDialog(
@@ -377,8 +392,8 @@ fun ContactsScreen(
                     }
                 }
 
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(filteredContacts, key = { it.id }) { contact ->
+                LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
+                    items(displayedContacts, key = { it.id }) { contact ->
                     val isSelected = contact.id in selectedIds
                     ContactListItem(
                         name = contact.name,
@@ -394,6 +409,8 @@ fun ContactsScreen(
                         onClick = {
                             if (inSelectionMode) {
                                 selectedIds = if (isSelected) selectedIds - contact.id else selectedIds + contact.id
+                            } else {
+                                selectedContact = contact
                             }
                         },
                         onLongClick = {
@@ -469,6 +486,18 @@ fun ContactsScreen(
                         }
                     )
                 }
+                    if (hasMoreContacts) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
             }
             }
             FloatingActionButton(
@@ -482,6 +511,37 @@ fun ContactsScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add contact")
             }
+
+            selectedContact?.let { selected ->
+                val liveContact = contacts.find { it.id == selected.id }?.let { fromDb ->
+                    fromDb.copy(
+                        photoUri = selected.photoUri ?: fromDb.photoUri,
+                        name = selected.name.ifBlank { fromDb.name },
+                        address = selected.address ?: fromDb.address,
+                        latitude = selected.latitude ?: fromDb.latitude,
+                        longitude = selected.longitude ?: fromDb.longitude
+                    )
+                } ?: selected
+                val relatedCallLogs = callLogs.filter {
+                    PhoneNumberNormalizer.matches(it.number, liveContact.phoneNumber)
+                }
+                ContactDetailScreen(
+                    phoneNumber = liveContact.phoneNumber,
+                    contact = liveContact,
+                    callLogs = relatedCallLogs,
+                    onBack = { selectedContact = null },
+                    onSaveContact = { saved ->
+                        viewModel.saveContact(saved)
+                        selectedContact = saved
+                    },
+                    onDeleteContact = { contact -> viewModel.deleteContacts(listOf(contact)) },
+                    onDeleteCallLogs = viewModel::deleteCallLogs,
+                    onBlockNumber = { number, name -> viewModel.blockNumber(number, name = name) },
+                    hasPermission = hasPermission,
+                    requestPermissions = requestPermissions,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
@@ -493,22 +553,18 @@ private val avatarColors = listOf(
 )
 
 @Composable
-internal fun ContactAvatar(name: String, photoUri: String? = null) {
+internal fun ContactAvatar(
+    name: String,
+    photoUri: String? = null,
+    size: androidx.compose.ui.unit.Dp = 40.dp
+) {
     val context = LocalContext.current
     var bitmap by remember(photoUri) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(photoUri) {
         bitmap = if (photoUri.isNullOrBlank()) {
             null
         } else {
-            withContext(Dispatchers.IO) {
-                try {
-                    context.contentResolver.openInputStream(Uri.parse(photoUri))?.use { stream ->
-                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
-                    }
-                } catch (_: Exception) {
-                    null
-                }
-            }
+            ContactPhotoLoader.loadBitmap(context, photoUri)
         }
     }
 
@@ -517,7 +573,7 @@ internal fun ContactAvatar(name: String, photoUri: String? = null) {
     val background = if (bitmap == null) color else MaterialTheme.colorScheme.surfaceVariant
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(size)
             .clip(CircleShape)
             .background(background),
         contentAlignment = Alignment.Center
@@ -530,7 +586,12 @@ internal fun ContactAvatar(name: String, photoUri: String? = null) {
                 contentScale = ContentScale.Crop
             )
         } else {
-            Text(text = initial, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = initial,
+                color = Color.White,
+                fontSize = (size.value * 0.4f).sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

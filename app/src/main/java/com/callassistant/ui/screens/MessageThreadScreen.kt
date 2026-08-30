@@ -58,7 +58,7 @@ import com.callassistant.data.entity.SmsDirection
 import com.callassistant.data.entity.SmsMessage
 import com.callassistant.data.entity.Contact
 import com.callassistant.permission.Permissions
-import com.callassistant.ui.MainViewModel
+import com.callassistant.ui.MessagesViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -67,15 +67,16 @@ import java.util.Locale
 @Composable
 fun MessageThreadScreen(
     number: String,
-    viewModel: MainViewModel,
+    viewModel: MessagesViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val messages by viewModel.smsMessages.collectAsStateWithLifecycle()
-    val contacts by viewModel.contacts.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val messages = uiState.smsMessages
+    val contacts = uiState.contacts
     val displayName = contacts.find { it.phoneNumber == number }?.name ?: number
 
     val threadMessages by remember(messages, number) {
@@ -312,14 +313,14 @@ private fun formatThreadDate(timestamp: Long): String {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewMessageScreen(
-    viewModel: MainViewModel,
+    viewModel: MessagesViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val contacts by viewModel.contacts.collectAsStateWithLifecycle()
+    val contacts = viewModel.uiState.collectAsStateWithLifecycle().value.contacts
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf(setOf<Contact>()) }
     var body by remember { mutableStateOf("") }

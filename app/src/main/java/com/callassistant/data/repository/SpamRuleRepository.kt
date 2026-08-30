@@ -16,6 +16,8 @@ class SpamRuleRepository(
 
     val allRules: Flow<List<SpamRule>> = dao.getAll()
 
+    val allBlockedNumbers: Flow<List<BlockedNumber>> = blockedNumberDao.getAll()
+
     suspend fun add(rule: SpamRule) = dao.insert(rule)
 
     suspend fun update(rule: SpamRule) = dao.update(rule)
@@ -57,5 +59,14 @@ class SpamRuleRepository(
     /** Records that a blocked number just attempted a call, for tracking how often it retries. */
     suspend fun recordBlockedAttempt(number: String) {
         blockedNumberDao.recordAttempt(PhoneNumberNormalizer.normalize(number))
+    }
+
+    suspend fun blockNumber(number: String, reason: String = "Manually blocked", name: String? = null) {
+        val normalized = PhoneNumberNormalizer.normalize(number)
+        blockedNumberDao.insert(BlockedNumber(number = normalized, name = name, reason = reason))
+    }
+
+    suspend fun unblockNumber(number: String) {
+        blockedNumberDao.delete(PhoneNumberNormalizer.normalize(number))
     }
 }
