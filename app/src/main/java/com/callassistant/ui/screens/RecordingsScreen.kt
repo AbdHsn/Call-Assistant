@@ -39,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callassistant.ui.recordings.RecordingsViewModel
 import com.callassistant.util.CallRecorder
 import com.callassistant.util.Recording
 import kotlinx.coroutines.Dispatchers
@@ -49,13 +51,16 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun RecordingsScreen(modifier: Modifier = Modifier) {
+fun RecordingsScreen(
+    viewModel: RecordingsViewModel,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
-    var recordings by remember { mutableStateOf(listOf<Recording>()) }
+    val recordings by viewModel.recordings.collectAsStateWithLifecycle()
     var refreshKey by remember { mutableStateOf(0) }
 
     LaunchedEffect(refreshKey) {
-        recordings = withContext(Dispatchers.IO) { CallRecorder.listRecordings(context) }
+        viewModel.refresh()
     }
 
     var activePath by remember { mutableStateOf<String?>(null) }

@@ -82,6 +82,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -89,9 +90,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import com.callassistant.R
 import com.callassistant.receiver.CallReminderReceiver
 import com.callassistant.data.entity.Contact
-import com.callassistant.ui.ContactsViewModel
+import com.callassistant.ui.phonebook.PhoneBookViewModel
 import com.callassistant.ui.MainViewModel
 import com.callassistant.ui.theme.AccentTealStart
 import com.callassistant.ui.theme.AccentTealEnd
@@ -116,7 +118,7 @@ class InCallActivity : ComponentActivity() {
     lateinit var session: CallSessionManager
 
     private val viewModel: MainViewModel by viewModels()
-    private val contactsViewModel: ContactsViewModel by viewModels()
+    private val phoneBookViewModel: PhoneBookViewModel by viewModels()
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,7 +136,7 @@ class InCallActivity : ComponentActivity() {
 
         setContent {
             val themeMode by viewModel.themeMode.collectAsState()
-            val contactsUiState by contactsViewModel.uiState.collectAsState()
+            val contactsUiState by phoneBookViewModel.uiState.collectAsState()
 
             val callState by session.callState.collectAsState()
             val connectTimestamp by session.callConnectTimestamp.collectAsState()
@@ -307,11 +309,10 @@ private fun InCallScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Call Assistant",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
+            Image(
+                painter = painterResource(R.drawable.ic_app_logo),
+                contentDescription = "Call Assistant",
+                modifier = Modifier.size(32.dp)
             )
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

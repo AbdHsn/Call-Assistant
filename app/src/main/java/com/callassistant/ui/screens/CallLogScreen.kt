@@ -36,8 +36,6 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -80,16 +78,25 @@ import com.callassistant.data.entity.Contact
 import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.ui.theme.SuccessGreen
 import com.callassistant.permission.Permissions
-import com.callassistant.ui.CallLogViewModel
+import com.callassistant.ui.phonebook.PhoneBookViewModel
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.ui.text.style.TextOverflow
 import com.callassistant.ui.components.AddContactDialog
+import com.callassistant.ui.components.MessageEmptyState
+import com.callassistant.ui.components.PhoneBookListSkeleton
+import com.callassistant.ui.components.MessageSectionHeader
 import com.callassistant.ui.components.PermissionGuard
+import com.callassistant.ui.components.PhoneBookListDivider
+import com.callassistant.ui.components.PhoneBookSearchRow
+import com.callassistant.ui.components.PhoneBookSelectionBar
+import com.callassistant.ui.components.PhoneBookTonalActionButton
+import com.callassistant.ui.components.formatThreadListTime
+import com.callassistant.ui.theme.MessageBlue
 import com.callassistant.ui.util.rememberScrollPagination
 import com.callassistant.util.PhoneNumberNormalizer
 import com.callassistant.util.telCallUri
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 private enum class CallLogSortMode(val label: String) {
     NEWEST("Newest"),
@@ -112,9 +119,10 @@ private data class CallLogGroup(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CallLogScreen(
-    viewModel: CallLogViewModel,
+    viewModel: PhoneBookViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
+    onOpenMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     PermissionGuard(
@@ -133,7 +141,6 @@ fun CallLogScreen(
         var sortMode by remember { mutableStateOf(CallLogSortMode.NEWEST) }
         var selectedNumbers by remember { mutableStateOf(setOf<String>()) }
         val inSelectionMode = selectedNumbers.isNotEmpty()
-        var expandedNumbers by remember { mutableStateOf(setOf<String>()) }
         var showDeleteDialog by remember { mutableStateOf(false) }
         var editingContact by remember { mutableStateOf<Contact?>(null) }
         var selectedDetailNumber by remember { mutableStateOf<String?>(null) }
@@ -185,7 +192,7 @@ fun CallLogScreen(
 
         LaunchedEffect(hasCallLogPermission) {
             if (hasCallLogPermission) {
-                viewModel.syncCallLogs()
+                viewModel.ensureCallLogsSynced()
             }
         }
 
@@ -255,91 +262,28 @@ fun CallLogScreen(
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 0.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = query,
-                        onValueChange = { query = it },
-                        label = { Text("Search call log") },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Search
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                Icons.Filled.Search,
-                                contentDescription = "Search",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        trailingIcon = {
-                            if (query.isNotEmpty()) {
-                                IconButton(onClick = { query = "" }) {
-                                    Icon(Icons.Filled.Clear, contentDescription = "Clear search")
-                                }
-                            }
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                    var expanded by remember { mutableStateOf(false) }
-                    Box {
-                        IconButton(onClick = { expanded = true }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = "Sort"
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            CallLogSortMode.values().forEach { mode ->
-                                DropdownMenuItem(
-                                    text = { Text(mode.label) },
-                                    onClick = {
-                                        sortMode = mode
-                                        expanded = false
-                                    }
-                                )
-                            }
-                        }
+                PhoneBookSearchRow(
+                    query = query,
+                    onQueryChange = { query = it },
+                    placeholder = "Search call log",
+                    sortOptions = CallLogSortMode.entries.map { it to it.label },
+                    onSortSelected = { selected ->
+                        sortMode = selected as CallLogSortMode
                     }
-                }
+                )
+
                 if (inSelectionMode) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("${selectedNumbers.size} selected", style = MaterialTheme.typography.titleMedium)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            TextButton(onClick = {
-                                selectedNumbers = (todayGroups + yesterdayGroups + displayedOlderGroups)
-                                    .map { it.number }
-                                    .toSet()
-                            }) {
-                                Text("Select all")
-                            }
-                            IconButton(onClick = { showDeleteDialog = true }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = ErrorRed)
-                            }
-                            IconButton(onClick = { showBlockDialog = true }) {
-                                Icon(Icons.Filled.Block, contentDescription = "Block", tint = ErrorRed)
-                            }
-                            IconButton(onClick = { selectedNumbers = emptySet() }) {
-                                Icon(Icons.Filled.Clear, contentDescription = "Cancel")
-                            }
-                        }
-                    }
+                    PhoneBookSelectionBar(
+                        selectedCount = selectedNumbers.size,
+                        onSelectAll = {
+                            selectedNumbers = (todayGroups + yesterdayGroups + displayedOlderGroups)
+                                .map { it.number }
+                                .toSet()
+                        },
+                        onDelete = { showDeleteDialog = true },
+                        onBlock = { showBlockDialog = true },
+                        onCancel = { selectedNumbers = emptySet() }
+                    )
                 }
 
                 val onOpenDetail = { number: String ->
@@ -351,103 +295,102 @@ fun CallLogScreen(
                 val onAddToSelection = { number: String ->
                     selectedNumbers = selectedNumbers + number
                 }
-                val onToggleExpand = { id: String ->
-                    expandedNumbers = if (id in expandedNumbers) expandedNumbers - id else expandedNumbers + id
-                }
 
-                LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
-                    if (todayGroups.isNotEmpty()) {
-                        item {
-                            Text(
-                                "Today",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
+                if (uiState.showCallLogsSkeleton) {
+                    PhoneBookListSkeleton(
+                        modifier = Modifier.weight(1f),
+                        showTrailingActions = true
+                    )
+                } else if (allGroups.isEmpty()) {
+                    MessageEmptyState(
+                        title = if (query.isBlank()) "No call history" else "No results",
+                        subtitle = if (query.isBlank()) {
+                            "Your recent calls will appear here"
+                        } else {
+                            "Try a different name or phone number"
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    )
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(bottom = 88.dp)
+                    ) {
+                        if (todayGroups.isNotEmpty()) {
+                            item { MessageSectionHeader("Today") }
+                            items(todayGroups, key = { it.id }) { group ->
+                                CallLogGroupItem(
+                                    group = group,
+                                    inSelectionMode = inSelectionMode,
+                                    isSelected = group.number in selectedNumbers,
+                                    onSelect = { onToggleSelection(group.number) },
+                                    onLongClick = { onAddToSelection(group.number) },
+                                    onOpenDetail = { onOpenDetail(group.number) },
+                                    onOpenMessage = onOpenMessage,
+                                    hasPermission = hasPermission,
+                                    requestPermissions = requestPermissions,
+                                    onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
+                                )
+                            }
                         }
-                        items(todayGroups, key = { it.id }) { group ->
-                            CallLogGroupItem(
-                                group = group,
-                                inSelectionMode = inSelectionMode,
-                                isSelected = group.number in selectedNumbers,
-                                isExpanded = group.id in expandedNumbers,
-                                onSelect = { onToggleSelection(group.number) },
-                                onLongClick = { onAddToSelection(group.number) },
-                                onToggleExpand = { onToggleExpand(group.id) },
-                                onOpenDetail = { onOpenDetail(group.number) },
-                                hasPermission = hasPermission,
-                                requestPermissions = requestPermissions,
-                                onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
-                            )
+                        if (yesterdayGroups.isNotEmpty()) {
+                            item { MessageSectionHeader("Yesterday") }
+                            items(yesterdayGroups, key = { it.id }) { group ->
+                                CallLogGroupItem(
+                                    group = group,
+                                    inSelectionMode = inSelectionMode,
+                                    isSelected = group.number in selectedNumbers,
+                                    onSelect = { onToggleSelection(group.number) },
+                                    onLongClick = { onAddToSelection(group.number) },
+                                    onOpenDetail = { onOpenDetail(group.number) },
+                                    onOpenMessage = onOpenMessage,
+                                    hasPermission = hasPermission,
+                                    requestPermissions = requestPermissions,
+                                    onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
+                                )
+                            }
                         }
-                    }
-                    if (yesterdayGroups.isNotEmpty()) {
-                        item {
-                            Text(
-                                "Yesterday",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                        items(yesterdayGroups, key = { it.id }) { group ->
-                            CallLogGroupItem(
-                                group = group,
-                                inSelectionMode = inSelectionMode,
-                                isSelected = group.number in selectedNumbers,
-                                isExpanded = group.id in expandedNumbers,
-                                onSelect = { onToggleSelection(group.number) },
-                                onLongClick = { onAddToSelection(group.number) },
-                                onToggleExpand = { onToggleExpand(group.id) },
-                                onOpenDetail = { onOpenDetail(group.number) },
-                                hasPermission = hasPermission,
-                                requestPermissions = requestPermissions,
-                                onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
-                            )
-                        }
-                    }
-                    if (olderGroups.isNotEmpty()) {
-                        item {
-                            Text(
-                                "Older",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                        items(displayedOlderGroups, key = { it.id }) { group ->
-                            CallLogGroupItem(
-                                group = group,
-                                inSelectionMode = inSelectionMode,
-                                isSelected = group.number in selectedNumbers,
-                                isExpanded = group.id in expandedNumbers,
-                                onSelect = { onToggleSelection(group.number) },
-                                onLongClick = { onAddToSelection(group.number) },
-                                onToggleExpand = { onToggleExpand(group.id) },
-                                onOpenDetail = { onOpenDetail(group.number) },
-                                hasPermission = hasPermission,
-                                requestPermissions = requestPermissions,
-                                onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
-                            )
-                        }
-                        if (hasMoreOlderGroups) {
-                            item {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
+                        if (olderGroups.isNotEmpty()) {
+                            item { MessageSectionHeader("Older") }
+                            items(displayedOlderGroups, key = { it.id }) { group ->
+                                CallLogGroupItem(
+                                    group = group,
+                                    inSelectionMode = inSelectionMode,
+                                    isSelected = group.number in selectedNumbers,
+                                    onSelect = { onToggleSelection(group.number) },
+                                    onLongClick = { onAddToSelection(group.number) },
+                                    onOpenDetail = { onOpenDetail(group.number) },
+                                    onOpenMessage = onOpenMessage,
+                                    hasPermission = hasPermission,
+                                    requestPermissions = requestPermissions,
+                                    onAddAsContact = { editingContact = Contact(name = "", phoneNumber = group.number) }
+                                )
+                            }
+                            if (hasMoreOlderGroups) {
+                                item {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { viewModel.syncCallLogs() },
+                icon = { Icon(Icons.Default.Refresh, contentDescription = null) },
+                text = { Text("Sync") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = "Sync call log")
-            }
+            )
 
             selectedDetailNumber?.let { number ->
                 val matchedContact = contacts.find { PhoneNumberNormalizer.matches(it.phoneNumber, number) }
@@ -462,6 +405,10 @@ fun CallLogScreen(
                     onDeleteCallLogs = viewModel::deleteCallLogs,
                     onBlockNumber = { blockedNumber, name ->
                         viewModel.blockNumber(blockedNumber, name = name)
+                    },
+                    onOpenMessage = { number ->
+                        selectedDetailNumber = null
+                        onOpenMessage(number)
                     },
                     hasPermission = hasPermission,
                     requestPermissions = requestPermissions,
@@ -478,214 +425,194 @@ private fun CallLogGroupItem(
     group: CallLogGroup,
     inSelectionMode: Boolean,
     isSelected: Boolean,
-    isExpanded: Boolean,
     onSelect: () -> Unit,
     onLongClick: () -> Unit,
-    onToggleExpand: () -> Unit,
     onOpenDetail: () -> Unit,
+    onOpenMessage: (String) -> Unit,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     onAddAsContact: () -> Unit
 ) {
     val context = LocalContext.current
     val mostRecent = group.entries.first()
+    val displayName = group.name?.takeIf { it.isNotBlank() }
+    val background = if (isSelected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val dividerInset = if (inSelectionMode) 16.dp else 82.dp
+    val duration = formatDuration(mostRecent.duration)
 
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = if (isSelected)
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-        else CardDefaults.cardColors()
+            .background(background)
     ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .combinedClickable(
-                        onClick = {
-                            if (inSelectionMode) {
-                                onSelect()
-                            } else {
-                                onOpenDetail()
-                            }
-                        },
-                        onLongClick = onLongClick
-                    )
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {
+                        if (inSelectionMode) onSelect() else onOpenDetail()
+                    },
+                    onLongClick = onLongClick
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            if (inSelectionMode) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onSelect() },
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+            }
+
+            ContactAvatar(
+                name = displayName ?: group.number,
+                photoUri = group.photoUri,
+                size = 52.dp
+            )
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                if (inSelectionMode) {
-                    Checkbox(
-                        checked = isSelected,
-                        onCheckedChange = { onSelect() },
-                        modifier = Modifier.padding(end = 8.dp)
+                Text(
+                    text = displayName ?: group.number,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (displayName != null) {
+                    Text(
+                        text = group.number,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                ContactAvatar(name = group.name ?: group.number, photoUri = group.photoUri)
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    val displayName = group.name?.takeIf { it.isNotBlank() }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = displayName ?: group.number,
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
-                        )
-                        if (group.entries.size > 1) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "${group.entries.size}",
-                                    color = Color.White,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-                    if (displayName != null) {
-                        Text(
-                            text = group.number,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1
-                        )
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val (icon, tint) = when (mostRecent.type) {
-                            CallType.INCOMING -> Icons.AutoMirrored.Filled.ArrowBack to MaterialTheme.colorScheme.primary
-                            CallType.OUTGOING -> Icons.AutoMirrored.Filled.ArrowForward to SuccessGreen
-                            CallType.MISSED -> Icons.Filled.Clear to ErrorRed
-                        }
-                        Icon(imageVector = icon, contentDescription = mostRecent.type.name, tint = tint, modifier = Modifier.size(16.dp))
-                        Text(
-                            text = " ${formatDate(mostRecent.timestamp)}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CallTypeIndicator(type = mostRecent.type)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "${callTypeLabel(mostRecent.type)}, ${formatThreadListTime(mostRecent.timestamp)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     if (mostRecent.blocked) {
-                        Text(text = "Blocked", color = ErrorRed, style = MaterialTheme.typography.labelSmall)
-                    }
-                }
-                if (!inSelectionMode) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (group.entries.size > 1) {
-                            IconButton(
-                                onClick = onToggleExpand,
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                    contentDescription = if (isExpanded) "Collapse" else "Expand",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                        context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(group.number)))
-                                    } else requestPermissions()
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) { Icon(Icons.Filled.Call, contentDescription = "Call") }
-                            IconButton(
-                                onClick = { context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${group.number}"))) },
-                                modifier = Modifier.size(32.dp)
-                            ) { Icon(Icons.AutoMirrored.Filled.Message, contentDescription = "SMS") }
-                            Box {
-                                var expanded by remember { mutableStateOf(false) }
-                                IconButton(onClick = { expanded = true }, modifier = Modifier.size(32.dp)) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "More options")
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("WhatsApp") },
-                                        onClick = {
-                                            expanded = false
-                                            openWhatsApp(context, group.number)
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("IMO") },
-                                        onClick = {
-                                            expanded = false
-                                            openImo(context, group.number)
-                                        }
-                                    )
-                                    if (group.name.isNullOrBlank()) {
-                                        DropdownMenuItem(
-                                            text = { Text("Add") },
-                                            onClick = {
-                                                expanded = false
-                                                onAddAsContact()
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        Text(
+                            text = " · Blocked",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = ErrorRed,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
             }
 
-            if (isExpanded) {
-                HorizontalDivider()
-                group.entries.forEachIndexed { index, entry ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 32.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val (icon, tint) = when (entry.type) {
-                            CallType.INCOMING -> Icons.AutoMirrored.Filled.ArrowBack to MaterialTheme.colorScheme.primary
-                            CallType.OUTGOING -> Icons.AutoMirrored.Filled.ArrowForward to SuccessGreen
-                            CallType.MISSED -> Icons.Filled.Clear to ErrorRed
-                        }
-                        Icon(imageVector = icon, contentDescription = entry.type.name, tint = tint, modifier = Modifier.size(14.dp))
-                        Text(
-                            text = " ${entry.type.name.lowercase().replaceFirstChar { it.uppercase() }} · ${formatDate(entry.timestamp)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.weight(1f)
+            if (!inSelectionMode) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        PhoneBookTonalActionButton(
+                            icon = Icons.Filled.Call,
+                            contentDescription = "Call",
+                            tint = MaterialTheme.colorScheme.primary,
+                            onClick = {
+                                if (hasPermission(Manifest.permission.CALL_PHONE)) {
+                                    context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(group.number)))
+                                } else {
+                                    requestPermissions()
+                                }
+                            }
                         )
-                        val dur = formatDuration(entry.duration)
-                        if (dur.isNotEmpty()) {
-                            Text(
-                                text = dur,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        PhoneBookTonalActionButton(
+                            icon = Icons.AutoMirrored.Filled.Message,
+                            contentDescription = "Message",
+                            tint = MessageBlue,
+                            onClick = { onOpenMessage(group.number) }
+                        )
+                        Box {
+                            var menuExpanded by remember { mutableStateOf(false) }
+                            IconButton(onClick = { menuExpanded = true }) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+                            }
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("WhatsApp") },
+                                    onClick = {
+                                        menuExpanded = false
+                                        openWhatsApp(context, group.number)
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("IMO") },
+                                    onClick = {
+                                        menuExpanded = false
+                                        openImo(context, group.number)
+                                    }
+                                )
+                                if (group.name.isNullOrBlank()) {
+                                    DropdownMenuItem(
+                                        text = { Text("Add contact") },
+                                        onClick = {
+                                            menuExpanded = false
+                                            onAddAsContact()
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
-                    if (index < group.entries.size - 1) {
-                        HorizontalDivider(modifier = Modifier.padding(start = 32.dp))
+                    if (duration.isNotEmpty()) {
+                        Text(
+                            text = duration,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
         }
+
+        PhoneBookListDivider(leadingInset = dividerInset)
     }
 }
 
-private fun formatDate(timestamp: Long): String {
-    return SimpleDateFormat("MMM d, h:mm a", Locale.getDefault()).format(Date(timestamp))
+@Composable
+private fun CallTypeIndicator(
+    type: CallType,
+    size: androidx.compose.ui.unit.Dp = 16.dp
+) {
+    val (icon, tint) = when (type) {
+        CallType.INCOMING -> Icons.AutoMirrored.Filled.ArrowBack to MaterialTheme.colorScheme.primary
+        CallType.OUTGOING -> Icons.AutoMirrored.Filled.ArrowForward to SuccessGreen
+        CallType.MISSED -> Icons.Filled.Clear to ErrorRed
+    }
+    Icon(
+        imageVector = icon,
+        contentDescription = type.name,
+        tint = tint,
+        modifier = Modifier.size(size)
+    )
+}
+
+private fun callTypeLabel(type: CallType): String = when (type) {
+    CallType.INCOMING -> "Incoming"
+    CallType.OUTGOING -> "Outgoing"
+    CallType.MISSED -> "Missed"
 }
 
 private fun formatDuration(seconds: Long): String {

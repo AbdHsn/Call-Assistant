@@ -1,6 +1,6 @@
 package com.callassistant.ui;
 
-import android.content.Context;
+import com.callassistant.data.repository.SettingsRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -9,7 +9,7 @@ import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 
 @ScopeMetadata
-@QualifierMetadata("dagger.hilt.android.qualifiers.ApplicationContext")
+@QualifierMetadata
 @DaggerGenerated
 @Generated(
     value = "dagger.internal.codegen.ComponentProcessor",
@@ -23,22 +23,23 @@ import javax.inject.Provider;
     "cast"
 })
 public final class MainViewModel_Factory implements Factory<MainViewModel> {
-  private final Provider<Context> contextProvider;
+  private final Provider<SettingsRepository> settingsRepositoryProvider;
 
-  public MainViewModel_Factory(Provider<Context> contextProvider) {
-    this.contextProvider = contextProvider;
+  public MainViewModel_Factory(Provider<SettingsRepository> settingsRepositoryProvider) {
+    this.settingsRepositoryProvider = settingsRepositoryProvider;
   }
 
   @Override
   public MainViewModel get() {
-    return newInstance(contextProvider.get());
+    return newInstance(settingsRepositoryProvider.get());
   }
 
-  public static MainViewModel_Factory create(Provider<Context> contextProvider) {
-    return new MainViewModel_Factory(contextProvider);
+  public static MainViewModel_Factory create(
+      Provider<SettingsRepository> settingsRepositoryProvider) {
+    return new MainViewModel_Factory(settingsRepositoryProvider);
   }
 
-  public static MainViewModel newInstance(Context context) {
-    return new MainViewModel(context);
+  public static MainViewModel newInstance(SettingsRepository settingsRepository) {
+    return new MainViewModel(settingsRepository);
   }
 }

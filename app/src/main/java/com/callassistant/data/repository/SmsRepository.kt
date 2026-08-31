@@ -17,6 +17,7 @@ interface SmsRepository {
     fun observeSmsMessages(): Flow<List<SmsMessage>>
     suspend fun syncSms()
     suspend fun saveMessage(number: String, body: String, direction: SmsDirection)
+    suspend fun saveIncomingMessage(number: String, body: String, timestamp: Long)
     suspend fun deleteMessages(messages: List<SmsMessage>, onProgress: (deleted: Int, total: Int) -> Unit)
 }
 
@@ -45,6 +46,17 @@ class SmsRepositoryImpl @Inject constructor(
     override suspend fun saveMessage(number: String, body: String, direction: SmsDirection) {
         db.smsDao().insert(
             SmsMessage(number = number, body = body, timestamp = System.currentTimeMillis(), direction = direction)
+        )
+    }
+
+    override suspend fun saveIncomingMessage(number: String, body: String, timestamp: Long) {
+        db.smsDao().insert(
+            SmsMessage(
+                number = number,
+                body = body,
+                timestamp = timestamp,
+                direction = SmsDirection.IN
+            )
         )
     }
 

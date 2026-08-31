@@ -1,6 +1,6 @@
 package com.callassistant.service;
 
-import com.callassistant.data.db.AppDatabase;
+import com.callassistant.data.repository.CallLogRepository;
 import com.callassistant.data.repository.SpamRuleRepository;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
@@ -25,23 +25,24 @@ import javax.inject.Provider;
 public final class CallScreeningServiceImpl_MembersInjector implements MembersInjector<CallScreeningServiceImpl> {
   private final Provider<SpamRuleRepository> repoProvider;
 
-  private final Provider<AppDatabase> dbProvider;
+  private final Provider<CallLogRepository> callLogRepositoryProvider;
 
   public CallScreeningServiceImpl_MembersInjector(Provider<SpamRuleRepository> repoProvider,
-      Provider<AppDatabase> dbProvider) {
+      Provider<CallLogRepository> callLogRepositoryProvider) {
     this.repoProvider = repoProvider;
-    this.dbProvider = dbProvider;
+    this.callLogRepositoryProvider = callLogRepositoryProvider;
   }
 
   public static MembersInjector<CallScreeningServiceImpl> create(
-      Provider<SpamRuleRepository> repoProvider, Provider<AppDatabase> dbProvider) {
-    return new CallScreeningServiceImpl_MembersInjector(repoProvider, dbProvider);
+      Provider<SpamRuleRepository> repoProvider,
+      Provider<CallLogRepository> callLogRepositoryProvider) {
+    return new CallScreeningServiceImpl_MembersInjector(repoProvider, callLogRepositoryProvider);
   }
 
   @Override
   public void injectMembers(CallScreeningServiceImpl instance) {
     injectRepo(instance, repoProvider.get());
-    injectDb(instance, dbProvider.get());
+    injectCallLogRepository(instance, callLogRepositoryProvider.get());
   }
 
   @InjectedFieldSignature("com.callassistant.service.CallScreeningServiceImpl.repo")
@@ -49,8 +50,9 @@ public final class CallScreeningServiceImpl_MembersInjector implements MembersIn
     instance.repo = repo;
   }
 
-  @InjectedFieldSignature("com.callassistant.service.CallScreeningServiceImpl.db")
-  public static void injectDb(CallScreeningServiceImpl instance, AppDatabase db) {
-    instance.db = db;
+  @InjectedFieldSignature("com.callassistant.service.CallScreeningServiceImpl.callLogRepository")
+  public static void injectCallLogRepository(CallScreeningServiceImpl instance,
+      CallLogRepository callLogRepository) {
+    instance.callLogRepository = callLogRepository;
   }
 }

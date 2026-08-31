@@ -7,19 +7,26 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import com.callassistant.data.db.AppDatabase;
+import com.callassistant.data.db.BlockedNumberDao;
+import com.callassistant.data.db.SpamRuleDao;
 import com.callassistant.data.repository.CallLogRepositoryImpl;
 import com.callassistant.data.repository.ContactRepositoryImpl;
+import com.callassistant.data.repository.NotesRepositoryImpl;
+import com.callassistant.data.repository.SettingsRepositoryImpl;
+import com.callassistant.data.repository.SmsRepository;
 import com.callassistant.data.repository.SmsRepositoryImpl;
 import com.callassistant.data.repository.SpamRuleRepository;
+import com.callassistant.data.repository.SpamRuleRepositoryImpl;
 import com.callassistant.data.sync.CallLogSyncer;
 import com.callassistant.data.sync.ContactSyncer;
 import com.callassistant.data.sync.SmsSyncer;
 import com.callassistant.di.AppModule_ProvideAppDatabaseFactory;
+import com.callassistant.di.AppModule_ProvideBlockedNumberDaoFactory;
 import com.callassistant.di.AppModule_ProvideCallLogSyncerFactory;
 import com.callassistant.di.AppModule_ProvideCallSessionManagerFactory;
 import com.callassistant.di.AppModule_ProvideContactSyncerFactory;
 import com.callassistant.di.AppModule_ProvideSmsSyncerFactory;
-import com.callassistant.di.AppModule_ProvideSpamRuleRepositoryFactory;
+import com.callassistant.di.AppModule_ProvideSpamRuleDaoFactory;
 import com.callassistant.incall.CallAssistantInCallService;
 import com.callassistant.incall.CallAssistantInCallService_MembersInjector;
 import com.callassistant.incall.CallSessionManager;
@@ -28,18 +35,18 @@ import com.callassistant.incall.InCallActivity_MembersInjector;
 import com.callassistant.service.CallScreeningServiceImpl;
 import com.callassistant.service.CallScreeningServiceImpl_MembersInjector;
 import com.callassistant.sms.SmsActivity;
-import com.callassistant.ui.CallLogViewModel;
-import com.callassistant.ui.CallLogViewModel_HiltModules;
-import com.callassistant.ui.ContactsViewModel;
-import com.callassistant.ui.ContactsViewModel_HiltModules;
-import com.callassistant.ui.DialPadViewModel;
-import com.callassistant.ui.DialPadViewModel_HiltModules;
 import com.callassistant.ui.MainViewModel;
 import com.callassistant.ui.MainViewModel_HiltModules;
 import com.callassistant.ui.MessagesViewModel;
 import com.callassistant.ui.MessagesViewModel_HiltModules;
 import com.callassistant.ui.SpamRulesViewModel;
 import com.callassistant.ui.SpamRulesViewModel_HiltModules;
+import com.callassistant.ui.notes.NotesViewModel;
+import com.callassistant.ui.notes.NotesViewModel_HiltModules;
+import com.callassistant.ui.phonebook.PhoneBookViewModel;
+import com.callassistant.ui.phonebook.PhoneBookViewModel_HiltModules;
+import com.callassistant.ui.recordings.RecordingsViewModel;
+import com.callassistant.ui.recordings.RecordingsViewModel_HiltModules;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
@@ -409,7 +416,7 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(6).put(LazyClassKeyProvider.com_callassistant_ui_CallLogViewModel, CallLogViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_ContactsViewModel, ContactsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_DialPadViewModel, DialPadViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_MainViewModel, MainViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_MessagesViewModel, MessagesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_SpamRulesViewModel, SpamRulesViewModel_HiltModules.KeyModule.provide()).build());
+      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(6).put(LazyClassKeyProvider.com_callassistant_ui_MainViewModel, MainViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_MessagesViewModel, MessagesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_notes_NotesViewModel, NotesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_phonebook_PhoneBookViewModel, PhoneBookViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_recordings_RecordingsViewModel, RecordingsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_callassistant_ui_SpamRulesViewModel, SpamRulesViewModel_HiltModules.KeyModule.provide()).build());
     }
 
     @Override
@@ -434,35 +441,35 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_callassistant_ui_DialPadViewModel = "com.callassistant.ui.DialPadViewModel";
-
-      static String com_callassistant_ui_SpamRulesViewModel = "com.callassistant.ui.SpamRulesViewModel";
-
-      static String com_callassistant_ui_ContactsViewModel = "com.callassistant.ui.ContactsViewModel";
+      static String com_callassistant_ui_recordings_RecordingsViewModel = "com.callassistant.ui.recordings.RecordingsViewModel";
 
       static String com_callassistant_ui_MainViewModel = "com.callassistant.ui.MainViewModel";
 
+      static String com_callassistant_ui_phonebook_PhoneBookViewModel = "com.callassistant.ui.phonebook.PhoneBookViewModel";
+
       static String com_callassistant_ui_MessagesViewModel = "com.callassistant.ui.MessagesViewModel";
 
-      static String com_callassistant_ui_CallLogViewModel = "com.callassistant.ui.CallLogViewModel";
+      static String com_callassistant_ui_SpamRulesViewModel = "com.callassistant.ui.SpamRulesViewModel";
+
+      static String com_callassistant_ui_notes_NotesViewModel = "com.callassistant.ui.notes.NotesViewModel";
 
       @KeepFieldType
-      DialPadViewModel com_callassistant_ui_DialPadViewModel2;
-
-      @KeepFieldType
-      SpamRulesViewModel com_callassistant_ui_SpamRulesViewModel2;
-
-      @KeepFieldType
-      ContactsViewModel com_callassistant_ui_ContactsViewModel2;
+      RecordingsViewModel com_callassistant_ui_recordings_RecordingsViewModel2;
 
       @KeepFieldType
       MainViewModel com_callassistant_ui_MainViewModel2;
 
       @KeepFieldType
+      PhoneBookViewModel com_callassistant_ui_phonebook_PhoneBookViewModel2;
+
+      @KeepFieldType
       MessagesViewModel com_callassistant_ui_MessagesViewModel2;
 
       @KeepFieldType
-      CallLogViewModel com_callassistant_ui_CallLogViewModel2;
+      SpamRulesViewModel com_callassistant_ui_SpamRulesViewModel2;
+
+      @KeepFieldType
+      NotesViewModel com_callassistant_ui_notes_NotesViewModel2;
     }
   }
 
@@ -473,15 +480,15 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
-    private Provider<CallLogViewModel> callLogViewModelProvider;
-
-    private Provider<ContactsViewModel> contactsViewModelProvider;
-
-    private Provider<DialPadViewModel> dialPadViewModelProvider;
-
     private Provider<MainViewModel> mainViewModelProvider;
 
     private Provider<MessagesViewModel> messagesViewModelProvider;
+
+    private Provider<NotesViewModel> notesViewModelProvider;
+
+    private Provider<PhoneBookViewModel> phoneBookViewModelProvider;
+
+    private Provider<RecordingsViewModel> recordingsViewModelProvider;
 
     private Provider<SpamRulesViewModel> spamRulesViewModelProvider;
 
@@ -498,17 +505,17 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.callLogViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
-      this.contactsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
-      this.dialPadViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
-      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
-      this.messagesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.messagesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.notesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.phoneBookViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+      this.recordingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
       this.spamRulesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(6).put(LazyClassKeyProvider.com_callassistant_ui_CallLogViewModel, ((Provider) callLogViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_ContactsViewModel, ((Provider) contactsViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_DialPadViewModel, ((Provider) dialPadViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_MainViewModel, ((Provider) mainViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_MessagesViewModel, ((Provider) messagesViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_SpamRulesViewModel, ((Provider) spamRulesViewModelProvider)).build());
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(6).put(LazyClassKeyProvider.com_callassistant_ui_MainViewModel, ((Provider) mainViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_MessagesViewModel, ((Provider) messagesViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_notes_NotesViewModel, ((Provider) notesViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_phonebook_PhoneBookViewModel, ((Provider) phoneBookViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_recordings_RecordingsViewModel, ((Provider) recordingsViewModelProvider)).put(LazyClassKeyProvider.com_callassistant_ui_SpamRulesViewModel, ((Provider) spamRulesViewModelProvider)).build());
     }
 
     @Override
@@ -518,35 +525,35 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_callassistant_ui_MainViewModel = "com.callassistant.ui.MainViewModel";
-
-      static String com_callassistant_ui_DialPadViewModel = "com.callassistant.ui.DialPadViewModel";
-
-      static String com_callassistant_ui_CallLogViewModel = "com.callassistant.ui.CallLogViewModel";
-
-      static String com_callassistant_ui_ContactsViewModel = "com.callassistant.ui.ContactsViewModel";
-
       static String com_callassistant_ui_MessagesViewModel = "com.callassistant.ui.MessagesViewModel";
 
       static String com_callassistant_ui_SpamRulesViewModel = "com.callassistant.ui.SpamRulesViewModel";
 
-      @KeepFieldType
-      MainViewModel com_callassistant_ui_MainViewModel2;
+      static String com_callassistant_ui_phonebook_PhoneBookViewModel = "com.callassistant.ui.phonebook.PhoneBookViewModel";
 
-      @KeepFieldType
-      DialPadViewModel com_callassistant_ui_DialPadViewModel2;
+      static String com_callassistant_ui_notes_NotesViewModel = "com.callassistant.ui.notes.NotesViewModel";
 
-      @KeepFieldType
-      CallLogViewModel com_callassistant_ui_CallLogViewModel2;
+      static String com_callassistant_ui_MainViewModel = "com.callassistant.ui.MainViewModel";
 
-      @KeepFieldType
-      ContactsViewModel com_callassistant_ui_ContactsViewModel2;
+      static String com_callassistant_ui_recordings_RecordingsViewModel = "com.callassistant.ui.recordings.RecordingsViewModel";
 
       @KeepFieldType
       MessagesViewModel com_callassistant_ui_MessagesViewModel2;
 
       @KeepFieldType
       SpamRulesViewModel com_callassistant_ui_SpamRulesViewModel2;
+
+      @KeepFieldType
+      PhoneBookViewModel com_callassistant_ui_phonebook_PhoneBookViewModel2;
+
+      @KeepFieldType
+      NotesViewModel com_callassistant_ui_notes_NotesViewModel2;
+
+      @KeepFieldType
+      MainViewModel com_callassistant_ui_MainViewModel2;
+
+      @KeepFieldType
+      RecordingsViewModel com_callassistant_ui_recordings_RecordingsViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -570,23 +577,23 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.callassistant.ui.CallLogViewModel 
-          return (T) new CallLogViewModel(singletonCImpl.callLogRepositoryImplProvider.get(), singletonCImpl.contactRepositoryImplProvider.get(), singletonCImpl.provideSpamRuleRepositoryProvider.get());
+          case 0: // com.callassistant.ui.MainViewModel 
+          return (T) new MainViewModel(singletonCImpl.settingsRepositoryImplProvider.get());
 
-          case 1: // com.callassistant.ui.ContactsViewModel 
-          return (T) new ContactsViewModel(singletonCImpl.contactRepositoryImplProvider.get(), singletonCImpl.callLogRepositoryImplProvider.get(), singletonCImpl.provideSpamRuleRepositoryProvider.get());
-
-          case 2: // com.callassistant.ui.DialPadViewModel 
-          return (T) new DialPadViewModel(singletonCImpl.contactRepositoryImplProvider.get(), singletonCImpl.callLogRepositoryImplProvider.get());
-
-          case 3: // com.callassistant.ui.MainViewModel 
-          return (T) new MainViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
-
-          case 4: // com.callassistant.ui.MessagesViewModel 
+          case 1: // com.callassistant.ui.MessagesViewModel 
           return (T) new MessagesViewModel(singletonCImpl.smsRepositoryImplProvider.get(), singletonCImpl.contactRepositoryImplProvider.get());
 
+          case 2: // com.callassistant.ui.notes.NotesViewModel 
+          return (T) new NotesViewModel(singletonCImpl.contactRepositoryImplProvider.get(), singletonCImpl.notesRepositoryImplProvider.get());
+
+          case 3: // com.callassistant.ui.phonebook.PhoneBookViewModel 
+          return (T) new PhoneBookViewModel(singletonCImpl.contactRepositoryImplProvider.get(), singletonCImpl.callLogRepositoryImplProvider.get(), singletonCImpl.spamRuleRepositoryImplProvider.get());
+
+          case 4: // com.callassistant.ui.recordings.RecordingsViewModel 
+          return (T) new RecordingsViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
           case 5: // com.callassistant.ui.SpamRulesViewModel 
-          return (T) new SpamRulesViewModel(singletonCImpl.provideSpamRuleRepositoryProvider.get());
+          return (T) new SpamRulesViewModel(singletonCImpl.spamRuleRepositoryImplProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -681,8 +688,8 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     private CallScreeningServiceImpl injectCallScreeningServiceImpl2(
         CallScreeningServiceImpl instance) {
-      CallScreeningServiceImpl_MembersInjector.injectRepo(instance, singletonCImpl.provideSpamRuleRepositoryProvider.get());
-      CallScreeningServiceImpl_MembersInjector.injectDb(instance, singletonCImpl.provideAppDatabaseProvider.get());
+      CallScreeningServiceImpl_MembersInjector.injectRepo(instance, singletonCImpl.spamRuleRepositoryImplProvider.get());
+      CallScreeningServiceImpl_MembersInjector.injectCallLogRepository(instance, singletonCImpl.callLogRepositoryImplProvider.get());
       return instance;
     }
   }
@@ -694,15 +701,19 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     private Provider<AppDatabase> provideAppDatabaseProvider;
 
-    private Provider<SpamRuleRepository> provideSpamRuleRepositoryProvider;
+    private Provider<SpamRuleRepositoryImpl> spamRuleRepositoryImplProvider;
+
+    private Provider<SmsRepositoryImpl> smsRepositoryImplProvider;
 
     private Provider<CallSessionManager> provideCallSessionManagerProvider;
 
-    private Provider<CallLogRepositoryImpl> callLogRepositoryImplProvider;
+    private Provider<SettingsRepositoryImpl> settingsRepositoryImplProvider;
 
     private Provider<ContactRepositoryImpl> contactRepositoryImplProvider;
 
-    private Provider<SmsRepositoryImpl> smsRepositoryImplProvider;
+    private Provider<NotesRepositoryImpl> notesRepositoryImplProvider;
+
+    private Provider<CallLogRepositoryImpl> callLogRepositoryImplProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
@@ -710,26 +721,36 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     }
 
-    private CallLogSyncer callLogSyncer() {
-      return AppModule_ProvideCallLogSyncerFactory.provideCallLogSyncer(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
+    private SpamRuleDao spamRuleDao() {
+      return AppModule_ProvideSpamRuleDaoFactory.provideSpamRuleDao(provideAppDatabaseProvider.get());
     }
 
-    private ContactSyncer contactSyncer() {
-      return AppModule_ProvideContactSyncerFactory.provideContactSyncer(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
+    private BlockedNumberDao blockedNumberDao() {
+      return AppModule_ProvideBlockedNumberDaoFactory.provideBlockedNumberDao(provideAppDatabaseProvider.get());
     }
 
     private SmsSyncer smsSyncer() {
       return AppModule_ProvideSmsSyncerFactory.provideSmsSyncer(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
     }
 
+    private ContactSyncer contactSyncer() {
+      return AppModule_ProvideContactSyncerFactory.provideContactSyncer(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
+    }
+
+    private CallLogSyncer callLogSyncer() {
+      return AppModule_ProvideCallLogSyncerFactory.provideCallLogSyncer(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
+    }
+
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 0));
-      this.provideSpamRuleRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SpamRuleRepository>(singletonCImpl, 1));
-      this.provideCallSessionManagerProvider = DoubleCheck.provider(new SwitchingProvider<CallSessionManager>(singletonCImpl, 2));
-      this.callLogRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<CallLogRepositoryImpl>(singletonCImpl, 3));
-      this.contactRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<ContactRepositoryImpl>(singletonCImpl, 4));
-      this.smsRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<SmsRepositoryImpl>(singletonCImpl, 5));
+      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 1));
+      this.spamRuleRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<SpamRuleRepositoryImpl>(singletonCImpl, 0));
+      this.smsRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<SmsRepositoryImpl>(singletonCImpl, 2));
+      this.provideCallSessionManagerProvider = DoubleCheck.provider(new SwitchingProvider<CallSessionManager>(singletonCImpl, 3));
+      this.settingsRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<SettingsRepositoryImpl>(singletonCImpl, 4));
+      this.contactRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<ContactRepositoryImpl>(singletonCImpl, 5));
+      this.notesRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<NotesRepositoryImpl>(singletonCImpl, 6));
+      this.callLogRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<CallLogRepositoryImpl>(singletonCImpl, 7));
     }
 
     @Override
@@ -738,13 +759,13 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
     }
 
     @Override
-    public AppDatabase appDatabase() {
-      return provideAppDatabaseProvider.get();
+    public SpamRuleRepository spamRuleRepository() {
+      return spamRuleRepositoryImplProvider.get();
     }
 
     @Override
-    public SpamRuleRepository spamRuleRepository() {
-      return provideSpamRuleRepositoryProvider.get();
+    public SmsRepository smsRepository() {
+      return smsRepositoryImplProvider.get();
     }
 
     @Override
@@ -769,7 +790,7 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
 
     private CallAssistantApplication injectCallAssistantApplication2(
         CallAssistantApplication instance) {
-      CallAssistantApplication_MembersInjector.injectDatabase(instance, provideAppDatabaseProvider.get());
+      CallAssistantApplication_MembersInjector.injectSpamRuleRepository(instance, spamRuleRepositoryImplProvider.get());
       return instance;
     }
 
@@ -787,23 +808,29 @@ public final class DaggerCallAssistantApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.callassistant.data.db.AppDatabase 
+          case 0: // com.callassistant.data.repository.SpamRuleRepositoryImpl 
+          return (T) new SpamRuleRepositoryImpl(singletonCImpl.spamRuleDao(), singletonCImpl.blockedNumberDao());
+
+          case 1: // com.callassistant.data.db.AppDatabase 
           return (T) AppModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 1: // com.callassistant.data.repository.SpamRuleRepository 
-          return (T) AppModule_ProvideSpamRuleRepositoryFactory.provideSpamRuleRepository(singletonCImpl.provideAppDatabaseProvider.get());
+          case 2: // com.callassistant.data.repository.SmsRepositoryImpl 
+          return (T) new SmsRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideAppDatabaseProvider.get(), singletonCImpl.smsSyncer());
 
-          case 2: // com.callassistant.incall.CallSessionManager 
+          case 3: // com.callassistant.incall.CallSessionManager 
           return (T) AppModule_ProvideCallSessionManagerFactory.provideCallSessionManager();
 
-          case 3: // com.callassistant.data.repository.CallLogRepositoryImpl 
-          return (T) new CallLogRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideAppDatabaseProvider.get(), singletonCImpl.callLogSyncer());
+          case 4: // com.callassistant.data.repository.SettingsRepositoryImpl 
+          return (T) new SettingsRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 4: // com.callassistant.data.repository.ContactRepositoryImpl 
+          case 5: // com.callassistant.data.repository.ContactRepositoryImpl 
           return (T) new ContactRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideAppDatabaseProvider.get(), singletonCImpl.contactSyncer());
 
-          case 5: // com.callassistant.data.repository.SmsRepositoryImpl 
-          return (T) new SmsRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideAppDatabaseProvider.get(), singletonCImpl.smsSyncer());
+          case 6: // com.callassistant.data.repository.NotesRepositoryImpl 
+          return (T) new NotesRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 7: // com.callassistant.data.repository.CallLogRepositoryImpl 
+          return (T) new CallLogRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideAppDatabaseProvider.get(), singletonCImpl.callLogSyncer());
 
           default: throw new AssertionError(id);
         }

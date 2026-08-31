@@ -1,17 +1,15 @@
 package com.callassistant.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Message
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Dialpad
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -33,10 +31,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callassistant.R
+import com.callassistant.ui.navigation.AppRoute
+import com.callassistant.ui.navigation.mainBottomTabs
+import com.callassistant.ui.navigation.settingsMenuRoutes
+import com.callassistant.ui.notes.NotesViewModel
+import com.callassistant.ui.phonebook.PhoneBookViewModel
+import com.callassistant.ui.recordings.RecordingsViewModel
+import com.callassistant.ui.screens.AboutScreen
 import com.callassistant.ui.screens.CallLogScreen
 import com.callassistant.ui.screens.ContactsScreen
 import com.callassistant.ui.screens.DialPadScreen
@@ -44,20 +50,8 @@ import com.callassistant.ui.screens.MessagesScreen
 import com.callassistant.ui.screens.NotesScreen
 import com.callassistant.ui.screens.RecorderSettingsScreen
 import com.callassistant.ui.screens.RecordingsScreen
-import com.callassistant.ui.SetupScreen
 import com.callassistant.ui.screens.SpamRulesScreen
 import com.callassistant.ui.theme.ThemeMode
-
-sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
-    object Contacts : Screen("contacts", "Contacts", Icons.Default.Person)
-    object CallLog : Screen("call_log", "Call Log", Icons.Default.Call)
-    object DialPad : Screen("dial_pad", "Dial", Icons.Default.Dialpad)
-    object SpamRules : Screen("spam_rules", "Spam", Icons.Default.Shield)
-    object Messages : Screen("messages", "Msg", Icons.AutoMirrored.Filled.Message)
-    object Recordings : Screen("recordings", "Records", Icons.Default.Mic)
-    object RecorderSettings : Screen("recorder_settings", "Recorder", Icons.Default.Settings)
-    object Settings : Screen("settings", "Settings", Icons.Default.Settings)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,21 +66,33 @@ fun MainApp(
     openAccessibility: () -> Unit,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    val screens = listOf(Screen.CallLog, Screen.Contacts, Screen.DialPad, Screen.Messages)
     val selectedRoute by viewModel.selectedRoute.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
-
-    val contactsViewModel: ContactsViewModel = hiltViewModel()
-    val callLogViewModel: CallLogViewModel = hiltViewModel()
-    val dialPadViewModel: DialPadViewModel = hiltViewModel()
+    val phoneBookViewModel: PhoneBookViewModel = hiltViewModel()
     val messagesViewModel: MessagesViewModel = hiltViewModel()
-    val spamRulesViewModel: SpamRulesViewModel = hiltViewModel()
+
+    val openInAppMessage: (String) -> Unit = remember(messagesViewModel, viewModel) {
+        { number ->
+            messagesViewModel.openThread(number)
+            viewModel.selectRoute(AppRoute.Messages)
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Call Assistant", style = MaterialTheme.typography.titleMedium) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_app_logo),
+                            contentDescription = "Call Assistant",
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text("Call Assistant", style = MaterialTheme.typography.titleMedium)
+                    }
+                },
                 actions = {
                     var menuExpanded by remember { mutableStateOf(false) }
                     Box {
@@ -101,7 +107,7 @@ fun MainApp(
                                 text = { Text("Notes") },
                                 onClick = {
                                     menuExpanded = false
-                                    viewModel.selectRoute("notes")
+                                    viewModel.selectRoute(AppRoute.Notes)
                                 }
                             )
                             DropdownMenuItem(
@@ -112,33 +118,21 @@ fun MainApp(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Spam & Block Numbers") },
+                                text = { Text("About") },
                                 onClick = {
                                     menuExpanded = false
-                                    viewModel.selectRoute(Screen.SpamRules.route)
+                                    viewModel.selectRoute(AppRoute.About)
                                 }
                             )
-                            DropdownMenuItem(
-                                text = { Text("Records") },
-                                onClick = {
-                                    menuExpanded = false
-                                    viewModel.selectRoute(Screen.Recordings.route)
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Recorder settings") },
-                                onClick = {
-                                    menuExpanded = false
-                                    viewModel.selectRoute(Screen.RecorderSettings.route)
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Settings") },
-                                onClick = {
-                                    menuExpanded = false
-                                    viewModel.selectRoute(Screen.Settings.route)
-                                }
-                            )
+                            settingsMenuRoutes.forEach { (route, label) ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        viewModel.selectRoute(route)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -146,12 +140,12 @@ fun MainApp(
         },
         bottomBar = {
             NavigationBar {
-                screens.forEach { screen ->
+                mainBottomTabs.forEach { tab ->
                     NavigationBarItem(
-                        selected = selectedRoute == screen.route,
-                        onClick = { viewModel.selectRoute(screen.route) },
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
-                        label = { Text(screen.title) }
+                        selected = selectedRoute == tab.route,
+                        onClick = { viewModel.selectRoute(tab.route) },
+                        icon = { Icon(tab.icon, contentDescription = tab.title) },
+                        label = { Text(tab.title) }
                     )
                 }
             }
@@ -159,39 +153,57 @@ fun MainApp(
     ) { padding ->
         val modifier = Modifier.padding(padding)
         when (selectedRoute) {
-            Screen.Contacts.route -> ContactsScreen(
-                viewModel = contactsViewModel,
-                hasPermission = hasPermission,
-                requestPermissions = requestPermissions,
-                modifier = modifier
-            )
-            Screen.CallLog.route -> CallLogScreen(
-                viewModel = callLogViewModel,
-                hasPermission = hasPermission,
-                requestPermissions = requestPermissions,
-                modifier = modifier
-            )
-            Screen.DialPad.route -> DialPadScreen(
-                viewModel = dialPadViewModel,
-                hasPermission = hasPermission,
-                requestPermissions = requestPermissions,
-                modifier = modifier
-            )
-            Screen.SpamRules.route -> SpamRulesScreen(
-                viewModel = spamRulesViewModel,
-                modifier = modifier
-            )
-            Screen.Messages.route -> MessagesScreen(
-                viewModel = messagesViewModel,
-                hasPermission = hasPermission,
-                requestPermissions = requestPermissions,
-                modifier = modifier
-            )
-            Screen.Recordings.route -> RecordingsScreen(
-                modifier = modifier
-            )
-            Screen.RecorderSettings.route -> RecorderSettingsScreen(modifier = modifier)
-            Screen.Settings.route -> SetupScreen(
+            AppRoute.Contacts -> {
+                ContactsScreen(
+                    viewModel = phoneBookViewModel,
+                    hasPermission = hasPermission,
+                    requestPermissions = requestPermissions,
+                    onOpenMessage = openInAppMessage,
+                    modifier = modifier
+                )
+            }
+            AppRoute.CallLog -> {
+                CallLogScreen(
+                    viewModel = phoneBookViewModel,
+                    hasPermission = hasPermission,
+                    requestPermissions = requestPermissions,
+                    onOpenMessage = openInAppMessage,
+                    modifier = modifier
+                )
+            }
+            AppRoute.DialPad -> {
+                DialPadScreen(
+                    viewModel = phoneBookViewModel,
+                    hasPermission = hasPermission,
+                    requestPermissions = requestPermissions,
+                    onOpenMessage = openInAppMessage,
+                    modifier = modifier
+                )
+            }
+            AppRoute.Messages -> {
+                MessagesScreen(
+                    viewModel = messagesViewModel,
+                    hasPermission = hasPermission,
+                    requestPermissions = requestPermissions,
+                    modifier = modifier
+                )
+            }
+            AppRoute.SpamRules -> {
+                val spamRulesViewModel: SpamRulesViewModel = hiltViewModel()
+                SpamRulesScreen(
+                    viewModel = spamRulesViewModel,
+                    modifier = modifier
+                )
+            }
+            AppRoute.Recordings -> {
+                val recordingsViewModel: RecordingsViewModel = hiltViewModel()
+                RecordingsScreen(
+                    viewModel = recordingsViewModel,
+                    modifier = modifier
+                )
+            }
+            AppRoute.RecorderSettings -> RecorderSettingsScreen(modifier = modifier)
+            AppRoute.Settings -> SetupScreen(
                 hasPermission = hasPermission,
                 onRequestPermissions = requestPermissions,
                 onOpenAppSettings = openAppSettings,
@@ -200,12 +212,16 @@ fun MainApp(
                 isBatteryOptimizationIgnored = isBatteryIgnored,
                 onRequestBatteryOpt = requestBatteryOpt,
                 onOpenBatterySettings = openBatterySettings,
-                onContinue = { viewModel.selectRoute(Screen.DialPad.route) }
+                onContinue = { viewModel.selectRoute(AppRoute.DialPad) }
             )
-            "notes" -> NotesScreen(
-                viewModel = contactsViewModel,
-                modifier = modifier
-            )
+            AppRoute.Notes -> {
+                val notesViewModel: NotesViewModel = hiltViewModel()
+                NotesScreen(
+                    viewModel = notesViewModel,
+                    modifier = modifier
+                )
+            }
+            AppRoute.About -> AboutScreen(modifier = modifier)
         }
     }
 
@@ -229,7 +245,7 @@ private fun ThemeDialog(
         title = { Text("Theme") },
         text = {
             Column {
-                ThemeMode.values().forEach { mode ->
+                ThemeMode.entries.forEach { mode ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(vertical = 4.dp)

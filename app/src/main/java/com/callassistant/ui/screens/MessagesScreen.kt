@@ -1,6 +1,7 @@
 package com.callassistant.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,27 +14,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -43,16 +45,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callassistant.data.entity.SmsDirection
+import com.callassistant.data.entity.SmsMessage
 import com.callassistant.permission.Permissions
 import com.callassistant.ui.MessagesViewModel
+import com.callassistant.ui.components.MessageEmptyState
+import com.callassistant.ui.components.MessageThreadListSkeleton
+import com.callassistant.ui.components.MessageSectionHeader
+import com.callassistant.ui.components.formatMessagePreview
+import com.callassistant.ui.components.formatThreadListTime
 import com.callassistant.ui.components.PermissionGuard
 import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.ui.util.rememberScrollPagination
-import com.callassistant.data.entity.SmsMessage
 import java.util.Calendar
 
 private enum class MessageSortMode(val label: String) {
@@ -67,8 +77,10 @@ private enum class MessageDayCategory { TODAY, YESTERDAY, OLDER }
 private data class ThreadSummary(
     val number: String,
     val name: String,
+    val photoUri: String?,
     val lastBody: String,
     val lastTimestamp: Long,
+    val lastDirection: SmsDirection,
     val messages: List<SmsMessage> = emptyList()
 )
 
@@ -82,6 +94,14 @@ fun MessagesScreen(
 ) {
     var selectedThread by remember { mutableStateOf<String?>(null) }
     var showNewMessage by remember { mutableStateOf(false) }
+    val pendingThread by viewModel.pendingThreadNumber.collectAsStateWithLifecycle()
+
+    LaunchedEffect(pendingThread) {
+        pendingThread?.let { number ->
+            selectedThread = number
+            viewModel.clearPendingThread()
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         PermissionGuard(
@@ -107,30 +127,33 @@ fun MessagesScreen(
                         .groupBy { it.number }
                         .map { (number, list) ->
                             val last = list.maxByOrNull { it.timestamp } ?: list.first()
-                            val name = contacts.find { it.phoneNumber == number }?.name?.ifBlank { null }
+                            val contact = contacts.find { it.phoneNumber == number }
+                            val name = contact?.name?.ifBlank { null }
                                 ?: last.name?.ifBlank { null }
                                 ?: number
                             ThreadSummary(
                                 number = number,
                                 name = name,
+                                photoUri = contact?.photoUri,
                                 lastBody = last.body,
                                 lastTimestamp = last.timestamp,
+                                lastDirection = last.direction,
                                 messages = list
                             )
                         }
                         .filter { thread ->
                             val query = searchQuery.trim()
                             query.isEmpty() ||
-                            thread.number.contains(query, ignoreCase = true) ||
-                            thread.name.contains(query, ignoreCase = true) ||
-                            thread.messages.any { it.body.contains(query, ignoreCase = true) }
+                                thread.number.contains(query, ignoreCase = true) ||
+                                thread.name.contains(query, ignoreCase = true) ||
+                                thread.messages.any { it.body.contains(query, ignoreCase = true) }
                         }
-                        .let { threads ->
+                        .let { sorted ->
                             when (sortMode) {
-                                MessageSortMode.NEWEST -> threads.sortedByDescending { it.lastTimestamp }
-                                MessageSortMode.OLDEST -> threads.sortedBy { it.lastTimestamp }
-                                MessageSortMode.NAME_ASC -> threads.sortedBy { it.name.lowercase() }
-                                MessageSortMode.NAME_DESC -> threads.sortedByDescending { it.name.lowercase() }
+                                MessageSortMode.NEWEST -> sorted.sortedByDescending { it.lastTimestamp }
+                                MessageSortMode.OLDEST -> sorted.sortedBy { it.lastTimestamp }
+                                MessageSortMode.NAME_ASC -> sorted.sortedBy { it.name.lowercase() }
+                                MessageSortMode.NAME_DESC -> sorted.sortedByDescending { it.name.lowercase() }
                             }
                         }
                 }
@@ -157,7 +180,7 @@ fun MessagesScreen(
 
             LaunchedEffect(Unit, hasReadSms) {
                 if (hasReadSms) {
-                    viewModel.syncSms()
+                    viewModel.ensureSmsSynced()
                 }
             }
 
@@ -188,16 +211,16 @@ fun MessagesScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 0.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        label = { Text("Search messages") },
+                        placeholder = { Text("Search conversations") },
                         singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
+                        shape = RoundedCornerShape(28.dp),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Search
@@ -216,6 +239,10 @@ fun MessagesScreen(
                                 }
                             }
                         },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                     var expanded by remember { mutableStateOf(false) }
@@ -230,7 +257,7 @@ fun MessagesScreen(
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
                         ) {
-                            MessageSortMode.values().forEach { mode ->
+                            MessageSortMode.entries.forEach { mode ->
                                 DropdownMenuItem(
                                     text = { Text(mode.label) },
                                     onClick = {
@@ -247,13 +274,15 @@ fun MessagesScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f))
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             "${selectedNumbers.size} selected",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -279,103 +308,85 @@ fun MessagesScreen(
                     }
                 }
 
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(bottom = 88.dp)
-                ) {
-                    if (todayThreads.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "Today",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
+                if (uiState.showMessagesSkeleton) {
+                    MessageThreadListSkeleton(
+                        modifier = Modifier.weight(1f)
+                    )
+                } else if (threads.isEmpty()) {
+                    MessageEmptyState(
+                        title = if (searchQuery.isBlank()) "No messages yet" else "No results",
+                        subtitle = if (searchQuery.isBlank()) {
+                            "Tap New message to start a conversation"
+                        } else {
+                            "Try a different name, number, or keyword"
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    )
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(bottom = 88.dp)
+                    ) {
+                        if (todayThreads.isNotEmpty()) {
+                            item { MessageSectionHeader("Today") }
+                            items(todayThreads, key = { "today-${it.number}" }) { thread ->
+                                ThreadListItem(
+                                    thread = thread,
+                                    inSelectionMode = inSelectionMode,
+                                    isSelected = thread.number in selectedNumbers,
+                                    onClick = threadClickHandler(
+                                        thread, inSelectionMode, selectedNumbers,
+                                        onSelect = { selectedNumbers = it },
+                                        onOpen = { selectedThread = thread.number }
+                                    ),
+                                    onLongClick = { selectedNumbers = selectedNumbers + thread.number }
+                                )
+                            }
                         }
-                        items(todayThreads, key = { it.number }) { thread ->
-                            ThreadListItem(
-                                thread = thread,
-                                inSelectionMode = inSelectionMode,
-                                isSelected = thread.number in selectedNumbers,
-                                onClick = {
-                                    if (inSelectionMode) {
-                                        selectedNumbers = if (thread.number in selectedNumbers) {
-                                            selectedNumbers - thread.number
-                                        } else {
-                                            selectedNumbers + thread.number
-                                        }
-                                    } else {
-                                        selectedThread = thread.number
+                        if (yesterdayThreads.isNotEmpty()) {
+                            item { MessageSectionHeader("Yesterday") }
+                            items(yesterdayThreads, key = { "yesterday-${it.number}" }) { thread ->
+                                ThreadListItem(
+                                    thread = thread,
+                                    inSelectionMode = inSelectionMode,
+                                    isSelected = thread.number in selectedNumbers,
+                                    onClick = threadClickHandler(
+                                        thread, inSelectionMode, selectedNumbers,
+                                        onSelect = { selectedNumbers = it },
+                                        onOpen = { selectedThread = thread.number }
+                                    ),
+                                    onLongClick = { selectedNumbers = selectedNumbers + thread.number }
+                                )
+                            }
+                        }
+                        if (olderThreads.isNotEmpty()) {
+                            item { MessageSectionHeader("Older") }
+                            items(displayedOlderThreads, key = { "older-${it.number}" }) { thread ->
+                                ThreadListItem(
+                                    thread = thread,
+                                    inSelectionMode = inSelectionMode,
+                                    isSelected = thread.number in selectedNumbers,
+                                    onClick = threadClickHandler(
+                                        thread, inSelectionMode, selectedNumbers,
+                                        onSelect = { selectedNumbers = it },
+                                        onOpen = { selectedThread = thread.number }
+                                    ),
+                                    onLongClick = { selectedNumbers = selectedNumbers + thread.number }
+                                )
+                            }
+                            if (hasMoreOlderThreads) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
                                     }
-                                },
-                                onLongClick = { selectedNumbers = selectedNumbers + thread.number }
-                            )
-                        }
-                    }
-                    if (yesterdayThreads.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "Yesterday",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                        items(yesterdayThreads, key = { it.number }) { thread ->
-                            ThreadListItem(
-                                thread = thread,
-                                inSelectionMode = inSelectionMode,
-                                isSelected = thread.number in selectedNumbers,
-                                onClick = {
-                                    if (inSelectionMode) {
-                                        selectedNumbers = if (thread.number in selectedNumbers) {
-                                            selectedNumbers - thread.number
-                                        } else {
-                                            selectedNumbers + thread.number
-                                        }
-                                    } else {
-                                        selectedThread = thread.number
-                                    }
-                                },
-                                onLongClick = { selectedNumbers = selectedNumbers + thread.number }
-                            )
-                        }
-                    }
-                    if (olderThreads.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "Older",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                        items(displayedOlderThreads, key = { it.number }) { thread ->
-                            ThreadListItem(
-                                thread = thread,
-                                inSelectionMode = inSelectionMode,
-                                isSelected = thread.number in selectedNumbers,
-                                onClick = {
-                                    if (inSelectionMode) {
-                                        selectedNumbers = if (thread.number in selectedNumbers) {
-                                            selectedNumbers - thread.number
-                                        } else {
-                                            selectedNumbers + thread.number
-                                        }
-                                    } else {
-                                        selectedThread = thread.number
-                                    }
-                                },
-                                onLongClick = { selectedNumbers = selectedNumbers + thread.number }
-                            )
-                        }
-                        if (hasMoreOlderThreads) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
                                 }
                             }
                         }
@@ -384,17 +395,14 @@ fun MessagesScreen(
             }
         }
 
-        FloatingActionButton(
+        ExtendedFloatingActionButton(
             onClick = { showNewMessage = true },
+            icon = { Icon(Icons.Default.Add, contentDescription = null) },
+            text = { Text("New message") },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "New SMS"
-            )
-        }
+        )
 
         selectedThread?.let { number ->
             MessageThreadScreen(
@@ -419,6 +427,26 @@ fun MessagesScreen(
     }
 }
 
+private fun threadClickHandler(
+    thread: ThreadSummary,
+    inSelectionMode: Boolean,
+    selectedNumbers: Set<String>,
+    onSelect: (Set<String>) -> Unit,
+    onOpen: () -> Unit
+): () -> Unit = {
+    if (inSelectionMode) {
+        onSelect(
+            if (thread.number in selectedNumbers) {
+                selectedNumbers - thread.number
+            } else {
+                selectedNumbers + thread.number
+            }
+        )
+    } else {
+        onOpen()
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ThreadListItem(
@@ -428,25 +456,25 @@ private fun ThreadListItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    Card(
+    val preview = formatMessagePreview(thread.lastBody, thread.lastDirection)
+    val background = if (isSelected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            ),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-        )
+            .background(background)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             if (inSelectionMode) {
                 Checkbox(
@@ -454,18 +482,48 @@ private fun ThreadListItem(
                     onCheckedChange = { onClick() }
                 )
             }
-            Column(modifier = Modifier.weight(1f)) {
+            ContactAvatar(
+                name = thread.name,
+                photoUri = thread.photoUri,
+                size = 52.dp
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = thread.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = formatThreadListTime(thread.lastTimestamp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
                 Text(
-                    text = thread.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = thread.lastBody,
+                    text = preview,
                     style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
+        HorizontalDivider(
+            modifier = Modifier.padding(start = if (inSelectionMode) 16.dp else 82.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     }
 }
 
@@ -477,7 +535,7 @@ private fun Long.messageIsSameDay(other: Long): Boolean {
     val c1 = Calendar.getInstance().apply { timeInMillis = this@messageIsSameDay }
     val c2 = Calendar.getInstance().apply { timeInMillis = other }
     return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) &&
-            c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR)
+        c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR)
 }
 
 private fun Long.toMessageDayCategory(): MessageDayCategory = when {

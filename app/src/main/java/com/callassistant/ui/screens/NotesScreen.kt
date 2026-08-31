@@ -42,9 +42,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.data.entity.Contact
-import com.callassistant.ui.ContactsViewModel
+import com.callassistant.ui.notes.NotesViewModel
 import com.callassistant.util.CallNote
-import com.callassistant.util.CallNotesStore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -56,13 +55,12 @@ private enum class NotesSortMode(val label: String) {
 
 @Composable
 fun NotesScreen(
-    viewModel: ContactsViewModel,
+    viewModel: NotesViewModel,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val allNotes = remember(context) { CallNotesStore.getAllNotes(context) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val contacts = uiState.contacts
+    val allNotes = uiState.notesByNumber
     var query by remember { mutableStateOf("") }
     var sortMode by remember { mutableStateOf(NotesSortMode.NEWEST) }
 

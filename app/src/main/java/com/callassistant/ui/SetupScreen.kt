@@ -2,6 +2,7 @@ package com.callassistant.ui
 
 import android.Manifest
 import android.os.Build
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.callassistant.R
 
 @Composable
 fun SetupScreen(
@@ -41,6 +45,11 @@ fun SetupScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(R.drawable.ic_app_logo),
+            contentDescription = "Call Assistant",
+            modifier = Modifier.size(96.dp)
+        )
         Text("Setup Call Assistant", style = MaterialTheme.typography.headlineSmall)
         Text(
             "Grant the items below so the app can record calls.",

@@ -5,8 +5,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import com.callassistant.data.entity.SmsDirection
-import com.callassistant.data.entity.SmsMessage
 import com.callassistant.di.AppEntryPoint
 import com.callassistant.util.CallNotificationManager
 import dagger.hilt.android.EntryPointAccessors
@@ -27,8 +25,8 @@ class SmsReceiver : BroadcastReceiver() {
             context.applicationContext,
             AppEntryPoint::class.java
         )
-        val repo = entryPoint.spamRuleRepository()
-        val db = entryPoint.appDatabase()
+        val spamRuleRepository = entryPoint.spamRuleRepository()
+        val smsRepository = entryPoint.smsRepository()
 
         val number = messages.firstOrNull()?.originatingAddress?.replace(" ", "")?.trim() ?: return
         val body = messages.joinToString("") { it.messageBody }
@@ -36,28 +34,20 @@ class SmsReceiver : BroadcastReceiver() {
         val dateSent = messages.firstOrNull()?.timestampMillis ?: timestamp
 
         val isSenderBlocked = runBlocking(Dispatchers.IO) {
-            repo.isNumberBlocked(number)
+            spamRuleRepository.isNumberBlocked(number)
         }
         val matchedRule = if (isSenderBlocked) null else runBlocking(Dispatchers.IO) {
-            repo.matchesAny(body)
+            spamRuleRepository.matchesAny(body)
         }
 
         if (isSenderBlocked || matchedRule != null) {
-            // Best-effort: aborting SMS_RECEIVED only works when app is default SMS handler.
             abortBroadcast()
         }
 
         if (isSenderBlocked) return
 
         CoroutineScope(Dispatchers.IO).launch {
-            db.smsDao().insert(
-                SmsMessage(
-                    number = number,
-                    body = body,
-                    timestamp = timestamp,
-                    direction = SmsDirection.IN
-                )
-            )
+            smsRepository.saveIncomingMessage(number, body, timestamp)
             try {
                 val values = ContentValues().apply {
                     put(Telephony.Sms.ADDRESS, number)

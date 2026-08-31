@@ -86,7 +86,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.R
 import com.callassistant.data.entity.CallLogEntry
 import com.callassistant.data.entity.Contact
-import com.callassistant.ui.DialPadViewModel
+import com.callassistant.ui.phonebook.PhoneBookViewModel
 import com.callassistant.ui.components.AddContactDialog
 import com.callassistant.ui.theme.MessageBlue
 import com.callassistant.util.telCallUri
@@ -94,15 +94,17 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun DialPadScreen(
-    viewModel: DialPadViewModel,
+    viewModel: PhoneBookViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
+    onOpenMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     DialPadContent(
         viewModel = viewModel,
         hasPermission = hasPermission,
         requestPermissions = requestPermissions,
+        onOpenMessage = onOpenMessage,
         modifier = modifier
     )
 }
@@ -240,9 +242,10 @@ private fun T9Contact.match(digits: String): ContactMatch? {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DialPadContent(
-    viewModel: DialPadViewModel,
+    viewModel: PhoneBookViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
+    onOpenMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -491,11 +494,7 @@ private fun DialPadContent(
                             ActionIconButton(
                                 icon = Icons.AutoMirrored.Filled.Message,
                                 color = MessageBlue,
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${match.contact.phoneNumber}"))
-                                    )
-                                }
+                                onClick = { onOpenMessage(match.contact.phoneNumber) }
                             )
                             Box {
                                 var expanded by remember { mutableStateOf(false) }

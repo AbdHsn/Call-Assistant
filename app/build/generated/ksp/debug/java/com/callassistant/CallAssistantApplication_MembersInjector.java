@@ -1,6 +1,6 @@
 package com.callassistant;
 
-import com.callassistant.data.db.AppDatabase;
+import com.callassistant.data.repository.SpamRuleRepository;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
@@ -22,24 +22,26 @@ import javax.inject.Provider;
     "cast"
 })
 public final class CallAssistantApplication_MembersInjector implements MembersInjector<CallAssistantApplication> {
-  private final Provider<AppDatabase> databaseProvider;
+  private final Provider<SpamRuleRepository> spamRuleRepositoryProvider;
 
-  public CallAssistantApplication_MembersInjector(Provider<AppDatabase> databaseProvider) {
-    this.databaseProvider = databaseProvider;
+  public CallAssistantApplication_MembersInjector(
+      Provider<SpamRuleRepository> spamRuleRepositoryProvider) {
+    this.spamRuleRepositoryProvider = spamRuleRepositoryProvider;
   }
 
   public static MembersInjector<CallAssistantApplication> create(
-      Provider<AppDatabase> databaseProvider) {
-    return new CallAssistantApplication_MembersInjector(databaseProvider);
+      Provider<SpamRuleRepository> spamRuleRepositoryProvider) {
+    return new CallAssistantApplication_MembersInjector(spamRuleRepositoryProvider);
   }
 
   @Override
   public void injectMembers(CallAssistantApplication instance) {
-    injectDatabase(instance, databaseProvider.get());
+    injectSpamRuleRepository(instance, spamRuleRepositoryProvider.get());
   }
 
-  @InjectedFieldSignature("com.callassistant.CallAssistantApplication.database")
-  public static void injectDatabase(CallAssistantApplication instance, AppDatabase database) {
-    instance.database = database;
+  @InjectedFieldSignature("com.callassistant.CallAssistantApplication.spamRuleRepository")
+  public static void injectSpamRuleRepository(CallAssistantApplication instance,
+      SpamRuleRepository spamRuleRepository) {
+    instance.spamRuleRepository = spamRuleRepository;
   }
 }

@@ -80,9 +80,20 @@ import kotlinx.coroutines.launch
 import com.callassistant.data.entity.Contact
 import com.callassistant.data.entity.ContactSource
 import com.callassistant.permission.Permissions
-import com.callassistant.ui.ContactsViewModel
+import com.callassistant.ui.phonebook.PhoneBookViewModel
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.text.style.TextOverflow
 import com.callassistant.ui.components.AddContactDialog
+import com.callassistant.ui.components.MessageEmptyState
+import com.callassistant.ui.components.PhoneBookListSkeleton
 import com.callassistant.ui.components.PermissionGuard
+import com.callassistant.ui.components.PhoneBookListDivider
+import com.callassistant.ui.components.PhoneBookSearchRow
+import com.callassistant.ui.components.PhoneBookSelectionBar
+import com.callassistant.ui.components.PhoneBookTonalActionButton
 import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.ui.theme.MessageBlue
 import com.callassistant.ui.util.rememberScrollPagination
@@ -100,9 +111,10 @@ private enum class ContactSortMode(val label: String) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactsScreen(
-    viewModel: ContactsViewModel,
+    viewModel: PhoneBookViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
+    onOpenMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     PermissionGuard(
@@ -207,7 +219,7 @@ fun ContactsScreen(
 
         LaunchedEffect(hasContacts) {
             if (hasContacts) {
-                viewModel.syncContacts()
+                viewModel.ensureContactsSynced()
             }
         }
 
@@ -274,243 +286,219 @@ fun ContactsScreen(
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 0.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = query,
-                        onValueChange = { query = it },
-                        label = { Text("Search contacts") },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Search
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                Icons.Filled.Search,
-                                contentDescription = "Search",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        trailingIcon = {
-                            if (query.isNotEmpty()) {
-                                IconButton(onClick = { query = "" }) {
-                                    Icon(Icons.Filled.Clear, contentDescription = "Clear search")
-                                }
+                PhoneBookSearchRow(
+                    query = query,
+                    onQueryChange = { query = it },
+                    placeholder = "Search contacts",
+                    sortOptions = ContactSortMode.entries.map { it to it.label },
+                    onSortSelected = { selected ->
+                        sortMode = selected as ContactSortMode
+                    },
+                    trailingActions = {
+                        Box {
+                            var exportMenuExpanded by remember { mutableStateOf(false) }
+                            IconButton(onClick = { exportMenuExpanded = true }) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "Import / Export")
                             }
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                    var expanded by remember { mutableStateOf(false) }
-                    Box {
-                        IconButton(onClick = { expanded = true }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = "Sort"
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            ContactSortMode.values().forEach { mode ->
+                            DropdownMenu(
+                                expanded = exportMenuExpanded,
+                                onDismissRequest = { exportMenuExpanded = false }
+                            ) {
                                 DropdownMenuItem(
-                                    text = { Text(mode.label) },
+                                    text = { Text("Import") },
                                     onClick = {
-                                        sortMode = mode
-                                        expanded = false
+                                        exportMenuExpanded = false
+                                        importLauncher.launch(
+                                            arrayOf(
+                                                "text/csv",
+                                                "text/vcard",
+                                                "text/x-vcard",
+                                                "text/comma-separated-values",
+                                                "text/*"
+                                            )
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Export CSV") },
+                                    onClick = {
+                                        exportMenuExpanded = false
+                                        exportCsvLauncher.launch("contacts.csv")
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Export vCard") },
+                                    onClick = {
+                                        exportMenuExpanded = false
+                                        exportVCardLauncher.launch("contacts.vcf")
                                     }
                                 )
                             }
                         }
                     }
-                    Box {
-                        var exportMenuExpanded by remember { mutableStateOf(false) }
-                        IconButton(onClick = { exportMenuExpanded = true }) {
-                            Icon(Icons.Filled.MoreVert, contentDescription = "Import / Export")
-                        }
-                        DropdownMenu(
-                            expanded = exportMenuExpanded,
-                            onDismissRequest = { exportMenuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Import") },
-                                onClick = {
-                                    exportMenuExpanded = false
-                                    importLauncher.launch(arrayOf("text/csv", "text/vcard", "text/x-vcard", "text/comma-separated-values", "text/*"))
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Export CSV") },
-                                onClick = {
-                                    exportMenuExpanded = false
-                                    exportCsvLauncher.launch("contacts.csv")
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Export vCard") },
-                                onClick = {
-                                    exportMenuExpanded = false
-                                    exportVCardLauncher.launch("contacts.vcf")
-                                }
-                            )
-                        }
-                    }
-                }
+                )
+
                 if (inSelectionMode) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            "${selectedIds.size} selected",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            TextButton(onClick = {
-                                selectedIds = filteredContacts.map { it.id }.toSet()
-                            }) { Text("Select all") }
-                            IconButton(onClick = { showDeleteDialog = true }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = ErrorRed)
-                            }
-                            IconButton(onClick = { showBlockDialog = true }) {
-                                Icon(Icons.Filled.Block, contentDescription = "Block", tint = ErrorRed)
-                            }
-                            IconButton(onClick = { selectedIds = emptySet() }) {
-                                Icon(Icons.Filled.Clear, contentDescription = "Cancel")
-                            }
-                        }
-                    }
+                    PhoneBookSelectionBar(
+                        selectedCount = selectedIds.size,
+                        onSelectAll = { selectedIds = filteredContacts.map { it.id }.toSet() },
+                        onDelete = { showDeleteDialog = true },
+                        onBlock = { showBlockDialog = true },
+                        onCancel = { selectedIds = emptySet() }
+                    )
                 }
 
-                LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
-                    items(displayedContacts, key = { it.id }) { contact ->
-                    val isSelected = contact.id in selectedIds
-                    ContactListItem(
-                        name = contact.name,
-                        photoUri = contact.photoUri,
+                if (uiState.showContactsSkeleton) {
+                    PhoneBookListSkeleton(
+                        modifier = Modifier.weight(1f)
+                    )
+                } else if (filteredContacts.isEmpty()) {
+                    MessageEmptyState(
+                        title = if (query.isBlank()) "No contacts" else "No results",
+                        subtitle = if (query.isBlank()) {
+                            "Tap Add contact to create one or import from file"
+                        } else {
+                            "Try a different name or phone number"
+                        },
                         modifier = Modifier
-                            .animateItemPlacement()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        selected = isSelected,
-                        inSelectionMode = inSelectionMode,
-                        onToggleSelected = { checked ->
-                            selectedIds = if (checked) selectedIds + contact.id else selectedIds - contact.id
-                        },
-                        onClick = {
-                            if (inSelectionMode) {
-                                selectedIds = if (isSelected) selectedIds - contact.id else selectedIds + contact.id
-                            } else {
-                                selectedContact = contact
-                            }
-                        },
-                        onLongClick = {
-                            selectedIds = selectedIds + contact.id
-                        },
-                        header = { Text(contact.name, style = MaterialTheme.typography.titleMedium) },
-                        subHeader = { Text(contact.phoneNumber, style = MaterialTheme.typography.bodyMedium) },
-                        trailing = {
-                            if (!inSelectionMode) {
-                                ActionIconButton(
-                                    icon = Icons.Filled.Call,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    onClick = {
-                                        if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                            context.startActivity(
-                                                Intent(Intent.ACTION_CALL, Uri.parse("tel:${contact.phoneNumber}"))
-                                            )
-                                        } else {
-                                            requestPermissions()
+                            .weight(1f)
+                            .fillMaxWidth()
+                    )
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(bottom = 88.dp)
+                    ) {
+                        items(displayedContacts, key = { it.id }) { contact ->
+                            val isSelected = contact.id in selectedIds
+                            ContactListItem(
+                                name = contact.name,
+                                photoUri = contact.photoUri,
+                                modifier = Modifier.animateItemPlacement(),
+                                selected = isSelected,
+                                inSelectionMode = inSelectionMode,
+                                onToggleSelected = { checked ->
+                                    selectedIds = if (checked) selectedIds + contact.id else selectedIds - contact.id
+                                },
+                                onClick = {
+                                    if (inSelectionMode) {
+                                        selectedIds = if (isSelected) selectedIds - contact.id else selectedIds + contact.id
+                                    } else {
+                                        selectedContact = contact
+                                    }
+                                },
+                                onLongClick = { selectedIds = selectedIds + contact.id },
+                                header = {
+                                    Text(
+                                        text = contact.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                subHeader = {
+                                    Text(
+                                        text = contact.phoneNumber,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                trailing = {
+                                    if (!inSelectionMode) {
+                                        PhoneBookTonalActionButton(
+                                            icon = Icons.Filled.Call,
+                                            contentDescription = "Call",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            onClick = {
+                                                if (hasPermission(Manifest.permission.CALL_PHONE)) {
+                                                    context.startActivity(
+                                                        Intent(Intent.ACTION_CALL, Uri.parse("tel:${contact.phoneNumber}"))
+                                                    )
+                                                } else {
+                                                    requestPermissions()
+                                                }
+                                            }
+                                        )
+                                        PhoneBookTonalActionButton(
+                                            icon = Icons.AutoMirrored.Filled.Message,
+                                            contentDescription = "Message",
+                                            tint = MessageBlue,
+                                            onClick = { onOpenMessage(contact.phoneNumber) }
+                                        )
+                                        Box {
+                                            var expanded by remember { mutableStateOf(false) }
+                                            IconButton(onClick = { expanded = true }) {
+                                                Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+                                            }
+                                            DropdownMenu(
+                                                expanded = expanded,
+                                                onDismissRequest = { expanded = false }
+                                            ) {
+                                                DropdownMenuItem(
+                                                    text = { Text("Edit") },
+                                                    onClick = {
+                                                        expanded = false
+                                                        editingContact = contact
+                                                        showContactDialog = true
+                                                    }
+                                                )
+                                                DropdownMenuItem(
+                                                    text = { Text("Share") },
+                                                    onClick = {
+                                                        expanded = false
+                                                        shareContact(context, contact)
+                                                    }
+                                                )
+                                                DropdownMenuItem(
+                                                    text = { Text("WhatsApp") },
+                                                    onClick = {
+                                                        expanded = false
+                                                        openWhatsApp(context, contact.phoneNumber)
+                                                    }
+                                                )
+                                                DropdownMenuItem(
+                                                    text = { Text("IMO") },
+                                                    onClick = {
+                                                        expanded = false
+                                                        openImo(context, contact.phoneNumber)
+                                                    }
+                                                )
+                                            }
                                         }
                                     }
-                                )
-                                ActionIconButton(
-                                    icon = Icons.AutoMirrored.Filled.Message,
-                                    color = MessageBlue,
-                                    onClick = {
-                                        context.startActivity(
-                                            Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${contact.phoneNumber}"))
-                                        )
-                                    }
-                                )
-                                Box {
-                                    var expanded by remember { mutableStateOf(false) }
-                                    IconButton(onClick = { expanded = true }) {
-                                        Icon(Icons.Filled.MoreVert, contentDescription = "More options")
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text("Edit") },
-                                            onClick = {
-                                                expanded = false
-                                                editingContact = contact
-                                                showContactDialog = true
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("Share") },
-                                            onClick = {
-                                                expanded = false
-                                                shareContact(context, contact)
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("WhatsApp") },
-                                            onClick = {
-                                                expanded = false
-                                                openWhatsApp(context, contact.phoneNumber)
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("IMO") },
-                                            onClick = {
-                                                expanded = false
-                                                openImo(context, contact.phoneNumber)
-                                            }
-                                        )
-                                    }
+                                }
+                            )
+                        }
+                        if (hasMoreContacts) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
                                 }
                             }
                         }
-                    )
-                }
-                    if (hasMoreContacts) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
                     }
+                }
             }
-            }
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = {
                     editingContact = null
                     showContactDialog = true
                 },
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("Add contact") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add contact")
-            }
+            )
 
             selectedContact?.let { selected ->
                 val liveContact = contacts.find { it.id == selected.id }?.let { fromDb ->
@@ -537,6 +525,10 @@ fun ContactsScreen(
                     onDeleteContact = { contact -> viewModel.deleteContacts(listOf(contact)) },
                     onDeleteCallLogs = viewModel::deleteCallLogs,
                     onBlockNumber = { number, name -> viewModel.blockNumber(number, name = name) },
+                    onOpenMessage = { number ->
+                        selectedContact = null
+                        onOpenMessage(number)
+                    },
                     hasPermission = hasPermission,
                     requestPermissions = requestPermissions,
                     modifier = Modifier.fillMaxSize()
@@ -644,36 +636,47 @@ internal fun ContactListItem(
     onLongClick: () -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {}
 ) {
-    Card(
+    val background = if (selected && inSelectionMode) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val dividerInset = if (inSelectionMode) 16.dp else 82.dp
+
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
-        colors = if (selected && inSelectionMode)
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-        else CardDefaults.cardColors()
+            .background(background)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             if (inSelectionMode) {
                 Checkbox(
                     checked = selected,
-                    onCheckedChange = onToggleSelected,
-                    modifier = Modifier.padding(end = 4.dp)
+                    onCheckedChange = onToggleSelected
                 )
             }
-            ContactAvatar(name = name, photoUri = photoUri)
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
+            ContactAvatar(name = name, photoUri = photoUri, size = 52.dp)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 header()
                 subHeader()
             }
-            trailing()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                content = trailing
+            )
         }
+        PhoneBookListDivider(leadingInset = dividerInset)
     }
 }
 

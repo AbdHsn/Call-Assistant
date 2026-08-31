@@ -2,7 +2,8 @@ package com.callassistant.di
 
 import android.content.Context
 import com.callassistant.data.db.AppDatabase
-import com.callassistant.data.repository.SpamRuleRepository
+import com.callassistant.data.db.BlockedNumberDao
+import com.callassistant.data.db.SpamRuleDao
 import com.callassistant.data.sync.CallLogSyncer
 import com.callassistant.data.sync.ContactSyncer
 import com.callassistant.data.sync.SmsSyncer
@@ -24,9 +25,10 @@ object AppModule {
         AppDatabase.getDatabase(context)
 
     @Provides
-    @Singleton
-    fun provideSpamRuleRepository(db: AppDatabase): SpamRuleRepository =
-        SpamRuleRepository(db.spamRuleDao(), db.blockedNumberDao())
+    fun provideSpamRuleDao(db: AppDatabase): SpamRuleDao = db.spamRuleDao()
+
+    @Provides
+    fun provideBlockedNumberDao(db: AppDatabase): BlockedNumberDao = db.blockedNumberDao()
 
     @Provides
     @Singleton

@@ -2,4 +2,16 @@
 <resources>
     <string name="app_name">Call Assistant</string>
     <string name="accessibility_service_description">Enables reliable two-way call audio capture on supported devices.</string>
+
+    <string name="about_name">Abdullah Bin Hasan</string>
+    <string name="about_title">Senior Software Engineer</string>
+    <string name="about_skills">Python (FastAPI) · C# / .NET Core · React &amp; Angular</string>
+    <string name="about_location">Dhaka, Bangladesh</string>
+    <string name="about_phone">01767439445</string>
+    <string name="about_email">abdullah279279@gmail.com</string>
+    <string name="about_linkedin">linkedin.com/in/abdullahbinhasan</string>
+    <string name="about_bkash">01767439445</string>
+    <string name="about_donation_title">Donation (bKash)</string>
+    <string name="about_donation_hint">Tap to dial · Send to this personal bKash number</string>
+    <string name="about_app_credit">Call Assistant — built with care by Abdullah Bin Hasan</string>
 </resources>

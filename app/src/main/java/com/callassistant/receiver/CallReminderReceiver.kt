@@ -56,7 +56,7 @@ class CallReminderReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Call back reminder")
             .setContentText("Call back ${name ?: number}")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

@@ -142,7 +142,7 @@ class CallRecordingService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Call Assistant")
             .setContentText(text)
-            .setSmallIcon(com.callassistant.R.drawable.ic_launcher_foreground)
+            .setSmallIcon(com.callassistant.R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setSilent(true)

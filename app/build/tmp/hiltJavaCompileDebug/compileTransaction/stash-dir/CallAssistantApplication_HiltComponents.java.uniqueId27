@@ -7,12 +7,12 @@ import com.callassistant.incall.CallAssistantInCallService_GeneratedInjector;
 import com.callassistant.incall.InCallActivity_GeneratedInjector;
 import com.callassistant.service.CallScreeningServiceImpl_GeneratedInjector;
 import com.callassistant.sms.SmsActivity_GeneratedInjector;
-import com.callassistant.ui.CallLogViewModel_HiltModules;
-import com.callassistant.ui.ContactsViewModel_HiltModules;
-import com.callassistant.ui.DialPadViewModel_HiltModules;
 import com.callassistant.ui.MainViewModel_HiltModules;
 import com.callassistant.ui.MessagesViewModel_HiltModules;
 import com.callassistant.ui.SpamRulesViewModel_HiltModules;
+import com.callassistant.ui.notes.NotesViewModel_HiltModules;
+import com.callassistant.ui.phonebook.PhoneBookViewModel_HiltModules;
+import com.callassistant.ui.recordings.RecordingsViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -170,13 +170,13 @@ public final class CallAssistantApplication_HiltComponents {
       modules = {
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
-          CallLogViewModel_HiltModules.KeyModule.class,
-          ContactsViewModel_HiltModules.KeyModule.class,
-          DialPadViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
           MainViewModel_HiltModules.KeyModule.class,
           MessagesViewModel_HiltModules.KeyModule.class,
+          NotesViewModel_HiltModules.KeyModule.class,
+          PhoneBookViewModel_HiltModules.KeyModule.class,
+          RecordingsViewModel_HiltModules.KeyModule.class,
           SpamRulesViewModel_HiltModules.KeyModule.class
       }
   )
@@ -215,12 +215,12 @@ public final class CallAssistantApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
-          CallLogViewModel_HiltModules.BindsModule.class,
-          ContactsViewModel_HiltModules.BindsModule.class,
-          DialPadViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           MainViewModel_HiltModules.BindsModule.class,
           MessagesViewModel_HiltModules.BindsModule.class,
+          NotesViewModel_HiltModules.BindsModule.class,
+          PhoneBookViewModel_HiltModules.BindsModule.class,
+          RecordingsViewModel_HiltModules.BindsModule.class,
           SpamRulesViewModel_HiltModules.BindsModule.class
       }
   )

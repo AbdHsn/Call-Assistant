@@ -2,7 +2,7 @@ package com.callassistant.service
 
 import android.telecom.Call
 import android.telecom.CallScreeningService
-import com.callassistant.data.db.AppDatabase
+import com.callassistant.data.repository.CallLogRepository
 import com.callassistant.data.repository.SpamRuleRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -18,7 +18,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
     lateinit var repo: SpamRuleRepository
 
     @Inject
-    lateinit var db: AppDatabase
+    lateinit var callLogRepository: CallLogRepository
 
     override fun onScreenCall(callDetails: Call.Details) {
         val handle = callDetails.handle
@@ -39,7 +39,7 @@ class CallScreeningServiceImpl : CallScreeningService() {
 
         if (isBlocked) {
             CoroutineScope(Dispatchers.IO).launch {
-                db.callLogDao().markBlocked(number)
+                callLogRepository.markBlocked(number)
                 repo.recordBlockedAttempt(number)
             }
         }

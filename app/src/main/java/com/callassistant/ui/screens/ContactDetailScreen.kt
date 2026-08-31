@@ -85,6 +85,7 @@ fun ContactDetailScreen(
     onDeleteContact: (Contact) -> Unit,
     onDeleteCallLogs: (List<CallLogEntry>) -> Unit,
     onBlockNumber: (String, String?) -> Unit,
+    onOpenMessage: (String) -> Unit,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     modifier: Modifier = Modifier
@@ -313,11 +314,7 @@ fun ContactDetailScreen(
                             icon = Icons.AutoMirrored.Filled.Message,
                             label = "SMS",
                             color = MessageBlue,
-                            onClick = {
-                                context.startActivity(
-                                    Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phoneNumber"))
-                                )
-                            }
+                            onClick = { onOpenMessage(phoneNumber) }
                         )
                         DetailActionChip(
                             label = "WA",

@@ -15,6 +15,7 @@ interface CallLogRepository {
     fun observeCallLogs(): Flow<List<CallLogEntry>>
     suspend fun syncCallLogs()
     suspend fun deleteCallLogs(entries: List<CallLogEntry>)
+    suspend fun markBlocked(number: String)
 }
 
 @Singleton
@@ -52,5 +53,9 @@ class CallLogRepositoryImpl @Inject constructor(
             } catch (_: SecurityException) {}
         }
         db.callLogDao().deleteByIds(entries.map { it.id })
+    }
+
+    override suspend fun markBlocked(number: String) {
+        db.callLogDao().markBlocked(number)
     }
 }
