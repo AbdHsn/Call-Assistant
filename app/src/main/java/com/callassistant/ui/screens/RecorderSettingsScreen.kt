@@ -32,10 +32,10 @@ fun RecorderSettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("recorder_settings", Context.MODE_PRIVATE) }
 
-    var autoRecord by remember { mutableStateOf(prefs.getBoolean("auto_record_enabled", true)) }
-    var recordIncoming by remember { mutableStateOf(prefs.getBoolean("record_incoming", true)) }
-    var recordOutgoing by remember { mutableStateOf(prefs.getBoolean("record_outgoing", true)) }
-    var recordUnknown by remember { mutableStateOf(prefs.getBoolean("record_unknown", true)) }
+    var autoRecord by remember { mutableStateOf(prefs.getBoolean("auto_record_enabled", false)) }
+    var recordIncoming by remember { mutableStateOf(prefs.getBoolean("record_incoming", false)) }
+    var recordOutgoing by remember { mutableStateOf(prefs.getBoolean("record_outgoing", false)) }
+    var recordUnknown by remember { mutableStateOf(prefs.getBoolean("record_unknown", false)) }
     var audioSource by remember { mutableStateOf(prefs.getString("audio_source_override", "auto") ?: "auto") }
 
     val hasRecordAudio = ContextCompat.checkSelfPermission(
@@ -60,6 +60,12 @@ fun RecorderSettingsScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text("Recorder settings", style = MaterialTheme.typography.headlineSmall)
+
+        Text(
+            text = "Recording is off by default. Turn on auto-record below, or tap Record during a call.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(8.dp)) {

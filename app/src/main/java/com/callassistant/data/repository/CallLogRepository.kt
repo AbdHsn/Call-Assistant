@@ -4,8 +4,10 @@ import android.content.Context
 import android.provider.CallLog
 import com.callassistant.data.db.AppDatabase
 import com.callassistant.data.entity.CallLogEntry
+import com.callassistant.data.entity.CallType
 import com.callassistant.data.sync.CallLogSyncer
 import com.callassistant.util.DeletedEntriesStore
+import com.callassistant.util.MissedCallReadStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,6 +37,8 @@ class CallLogRepositoryImpl @Inject constructor(
             .filterNot { callLogKey(it.number, it.timestamp) in deletedKeys }
         db.callLogDao().deleteAll()
         db.callLogDao().insertAll(logs)
+        MissedCallReadStore.initializeIfNeeded(context, logs)
+        MissedCallReadStore.refreshNotification(context, logs.filter { it.type == CallType.MISSED })
     }
 
     override suspend fun deleteCallLogs(entries: List<CallLogEntry>) {

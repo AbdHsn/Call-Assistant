@@ -78,7 +78,7 @@ class MessagesViewModel @Inject constructor(
             messagesLoading = !ready,
             messagesSyncing = syncing
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MessagesUiState())
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, MessagesUiState())
 
     fun ensureSmsSynced() {
         if (didAutoSyncSms) return

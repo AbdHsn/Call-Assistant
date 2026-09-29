@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.callassistant.app-mergeDebugResources-60:/values-kk/values-kk.xml",
+            "outputFile": "com.callassistant.app-mergeDebugResources-63:/values-kk/values-kk.xml",
             "map": [
                 {
                     "source": "/home/abdullahbinhasan/.gradle/caches/transforms-3/a2fa909366b0dfbd539b3c1602340088/transformed/foundation-release/res/values-kk/values-kk.xml",

@@ -31,6 +31,8 @@ fun SetupScreen(
     hasPermission: (String) -> Boolean,
     onRequestPermissions: () -> Unit,
     onOpenAppSettings: () -> Unit,
+    isDefaultDialer: () -> Boolean,
+    onRequestDefaultDialer: () -> Unit,
     isAccessibilityEnabled: () -> Boolean,
     onOpenAccessibility: () -> Unit,
     isBatteryOptimizationIgnored: () -> Boolean,
@@ -52,8 +54,15 @@ fun SetupScreen(
         )
         Text("Setup Call Assistant", style = MaterialTheme.typography.headlineSmall)
         Text(
-            "Grant the items below so the app can record calls.",
+            "Grant the items below so Call Assistant can handle calls and show one incoming-call notification.",
             style = MaterialTheme.typography.bodyMedium
+        )
+
+        SetupItem(
+            title = "Default phone app",
+            granted = isDefaultDialer(),
+            onAction = onRequestDefaultDialer,
+            actionLabel = "Set as default"
         )
 
         val permissions = rememberPermissionsToRequest()

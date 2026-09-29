@@ -303,10 +303,9 @@ fun ContactDetailScreen(
                             label = "Call",
                             color = MaterialTheme.colorScheme.primary,
                             onClick = {
-                                if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                    context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(phoneNumber)))
-                                } else {
-                                    requestPermissions()
+                                when (com.callassistant.util.CallPlacer.placeCallWithFeedback(context, phoneNumber)) {
+                                    com.callassistant.util.CallPlaceResult.NeedPermission -> requestPermissions()
+                                    else -> Unit
                                 }
                             }
                         )

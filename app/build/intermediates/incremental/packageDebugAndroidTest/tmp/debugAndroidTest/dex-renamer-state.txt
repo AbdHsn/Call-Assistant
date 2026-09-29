@@ -1,0 +1,10 @@
+#Tue Sep 01 20:23:27 BDT 2026
+base.2=/home/abdullahbinhasan/Working/Personal/CallAssistant/app/build/intermediates/dex/debugAndroidTest/mergeProjectDexDebugAndroidTest/11/classes.dex
+path.2=11/classes.dex
+base.1=/home/abdullahbinhasan/Working/Personal/CallAssistant/app/build/intermediates/dex/debugAndroidTest/mergeProjectDexDebugAndroidTest/0/classes.dex
+path.1=0/classes.dex
+base.0=/home/abdullahbinhasan/Working/Personal/CallAssistant/app/build/intermediates/dex/debugAndroidTest/mergeExtDexDebugAndroidTest/classes.dex
+renamed.2=classes3.dex
+renamed.1=classes2.dex
+renamed.0=classes.dex
+path.0=classes.dex

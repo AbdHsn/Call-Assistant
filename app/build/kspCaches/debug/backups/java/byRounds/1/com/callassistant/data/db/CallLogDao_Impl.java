@@ -1,6 +1,7 @@
 package com.callassistant.data.db;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.room.CoroutinesRoom;
 import androidx.room.EntityInsertionAdapter;
@@ -207,6 +208,59 @@ public final class CallLogDao_Impl implements CallLogDao {
         _statement.release();
       }
     });
+  }
+
+  @Override
+  public Object getMissedEntries(final Continuation<? super List<CallLogEntry>> $completion) {
+    final String _sql = "SELECT * FROM call_logs WHERE type = 'MISSED' ORDER BY timestamp DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<CallLogEntry>>() {
+      @Override
+      @NonNull
+      public List<CallLogEntry> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfNumber = CursorUtil.getColumnIndexOrThrow(_cursor, "number");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfDuration = CursorUtil.getColumnIndexOrThrow(_cursor, "duration");
+          final int _cursorIndexOfBlocked = CursorUtil.getColumnIndexOrThrow(_cursor, "blocked");
+          final List<CallLogEntry> _result = new ArrayList<CallLogEntry>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final CallLogEntry _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpNumber;
+            _tmpNumber = _cursor.getString(_cursorIndexOfNumber);
+            final String _tmpName;
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _tmpName = null;
+            } else {
+              _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
+            final CallType _tmpType;
+            _tmpType = __CallType_stringToEnum(_cursor.getString(_cursorIndexOfType));
+            final long _tmpTimestamp;
+            _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final long _tmpDuration;
+            _tmpDuration = _cursor.getLong(_cursorIndexOfDuration);
+            final boolean _tmpBlocked;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfBlocked);
+            _tmpBlocked = _tmp != 0;
+            _item = new CallLogEntry(_tmpId,_tmpNumber,_tmpName,_tmpType,_tmpTimestamp,_tmpDuration,_tmpBlocked);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
   }
 
   @Override

@@ -21,6 +21,7 @@ sealed class AppRoute(val route: String) {
     data object RecorderSettings : AppRoute("recorder_settings")
     data object Notes : AppRoute("notes")
     data object About : AppRoute("about")
+    data object AiSettings : AppRoute("ai_settings")
     data object Settings : AppRoute("settings")
 
     val isBottomTab: Boolean
@@ -39,6 +40,7 @@ sealed class AppRoute(val route: String) {
             RecorderSettings.route -> RecorderSettings
             Notes.route -> Notes
             About.route -> About
+            AiSettings.route -> AiSettings
             Settings.route -> Settings
             else -> DialPad
         }
@@ -63,5 +65,6 @@ val settingsMenuRoutes = listOf(
     AppRoute.SpamRules to "Spam & Block Numbers",
     AppRoute.Recordings to "Records",
     AppRoute.RecorderSettings to "Recorder settings",
+    AppRoute.AiSettings to "AI Assistant",
     AppRoute.Settings to "Settings"
 )

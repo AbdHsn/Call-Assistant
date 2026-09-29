@@ -10,13 +10,14 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.callassistant.MainActivity
-import com.callassistant.R
+import com.callassistant.util.AppNotificationIcons.applyAppIcons
 
 class CallReminderReceiver : BroadcastReceiver() {
 
     companion object {
         const val EXTRA_NUMBER = "extra_number"
         const val EXTRA_NAME = "extra_name"
+        const val EXTRA_PLACE_CALL = "place_call_number"
         private const val CHANNEL_ID = "call_reminders"
         private const val CHANNEL_NAME = "Call Reminders"
     }
@@ -35,8 +36,9 @@ class CallReminderReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number")).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val callIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(EXTRA_PLACE_CALL, number)
         }
         val callPendingIntent = PendingIntent.getActivity(
             context,
@@ -56,7 +58,7 @@ class CallReminderReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .applyAppIcons(context)
             .setContentTitle("Call back reminder")
             .setContentText("Call back ${name ?: number}")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

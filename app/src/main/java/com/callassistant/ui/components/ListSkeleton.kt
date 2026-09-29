@@ -30,22 +30,30 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.callassistant.ui.util.rememberListLayoutMetrics
 
 @Composable
 fun PhoneBookListSkeleton(
     modifier: Modifier = Modifier,
     itemCount: Int = 8,
     showTrailingActions: Boolean = false,
-    contentPadding: PaddingValues = PaddingValues(bottom = 88.dp)
+    contentPadding: PaddingValues? = null
 ) {
+    val metrics = rememberListLayoutMetrics(inSelectionMode = false)
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = contentPadding,
+        contentPadding = contentPadding ?: PaddingValues(bottom = metrics.fabClearance),
         userScrollEnabled = false
     ) {
         items(itemCount) {
-            PhoneBookListSkeletonItem(showTrailingActions = showTrailingActions)
-            PhoneBookListDivider(leadingInset = 82.dp)
+            PhoneBookListSkeletonItem(
+                showTrailingActions = showTrailingActions,
+                avatarSize = metrics.avatarSize,
+                horizontalPadding = metrics.horizontalPadding,
+                itemVerticalPadding = metrics.itemVerticalPadding,
+                rowGap = metrics.rowGap
+            )
+            PhoneBookListDivider(leadingInset = metrics.dividerInset)
         }
     }
 }
@@ -54,16 +62,22 @@ fun PhoneBookListSkeleton(
 fun MessageThreadListSkeleton(
     modifier: Modifier = Modifier,
     itemCount: Int = 8,
-    contentPadding: PaddingValues = PaddingValues(bottom = 88.dp)
+    contentPadding: PaddingValues? = null
 ) {
+    val metrics = rememberListLayoutMetrics(inSelectionMode = false)
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = contentPadding,
+        contentPadding = contentPadding ?: PaddingValues(bottom = metrics.fabClearance),
         userScrollEnabled = false
     ) {
         items(itemCount) {
-            MessageThreadSkeletonItem()
-            PhoneBookListDivider(leadingInset = 82.dp)
+            MessageThreadSkeletonItem(
+                avatarSize = metrics.avatarSize,
+                horizontalPadding = metrics.horizontalPadding,
+                itemVerticalPadding = metrics.itemVerticalPadding,
+                rowGap = metrics.rowGap
+            )
+            PhoneBookListDivider(leadingInset = metrics.dividerInset)
         }
     }
 }
@@ -71,14 +85,17 @@ fun MessageThreadListSkeleton(
 @Composable
 private fun PhoneBookListSkeletonItem(
     showTrailingActions: Boolean,
-    avatarSize: Dp = 52.dp
+    avatarSize: Dp,
+    horizontalPadding: Dp,
+    itemVerticalPadding: Dp,
+    rowGap: Dp
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = horizontalPadding, vertical = itemVerticalPadding),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
+        horizontalArrangement = Arrangement.spacedBy(rowGap)
     ) {
         SkeletonBox(
             modifier = Modifier
@@ -112,7 +129,7 @@ private fun PhoneBookListSkeletonItem(
         }
         if (showTrailingActions) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                repeat(3) {
+                repeat(2) {
                     SkeletonBox(
                         modifier = Modifier
                             .size(28.dp)
@@ -125,17 +142,22 @@ private fun PhoneBookListSkeletonItem(
 }
 
 @Composable
-private fun MessageThreadSkeletonItem() {
+private fun MessageThreadSkeletonItem(
+    avatarSize: Dp,
+    horizontalPadding: Dp,
+    itemVerticalPadding: Dp,
+    rowGap: Dp
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = horizontalPadding, vertical = itemVerticalPadding),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
+        horizontalArrangement = Arrangement.spacedBy(rowGap)
     ) {
         SkeletonBox(
             modifier = Modifier
-                .size(52.dp)
+                .size(avatarSize)
                 .clip(CircleShape)
         )
         Column(

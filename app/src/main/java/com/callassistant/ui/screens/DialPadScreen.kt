@@ -1,7 +1,6 @@
 package com.callassistant.ui.screens
 
 import android.Manifest
-import android.app.role.RoleManager
 import android.content.Context
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -9,7 +8,6 @@ import android.net.Uri
 import android.widget.Toast
 import android.os.Build
 import android.provider.ContactsContract
-import android.telecom.TelecomManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -25,7 +23,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -88,8 +90,13 @@ import com.callassistant.data.entity.CallLogEntry
 import com.callassistant.data.entity.Contact
 import com.callassistant.ui.phonebook.PhoneBookViewModel
 import com.callassistant.ui.components.AddContactDialog
+import com.callassistant.ui.components.PhoneBookContactActions
+import com.callassistant.ui.components.PhoneBookOverflowAction
 import com.callassistant.ui.theme.MessageBlue
-import com.callassistant.util.telCallUri
+import com.callassistant.ui.util.rememberDialPadMetrics
+import com.callassistant.ui.components.DefaultDialerBanner
+import com.callassistant.util.CallPlaceResult
+import com.callassistant.util.CallPlacer
 import kotlinx.coroutines.delay
 
 @Composable
@@ -105,7 +112,7 @@ fun DialPadScreen(
         hasPermission = hasPermission,
         requestPermissions = requestPermissions,
         onOpenMessage = onOpenMessage,
-        modifier = modifier
+        modifier = modifier.fillMaxSize()
     )
 }
 
@@ -181,6 +188,8 @@ private fun com.callassistant.data.entity.Contact.toT9Contact(score: Pair<Int, L
 }
 
 private fun T9Contact.match(digits: String): ContactMatch? {
+    if (digits.isEmpty()) return null
+    
     val nameHighlights = mutableListOf<IntRange>()
     val numberHighlights = mutableListOf<IntRange>()
     var matched = false
@@ -196,25 +205,34 @@ private fun T9Contact.match(digits: String): ContactMatch? {
         while (true) {
             val idx = normalizedNumber.indexOf(digits, start)
             if (idx < 0) break
-            val originalStart = digitToOriginal[idx]
-            val originalEnd = digitToOriginal[idx + digits.length - 1] + 1
-            numberHighlights.add(originalStart until originalEnd)
+            val endIdx = idx + digits.length - 1
+            // Bounds check to prevent IndexOutOfBoundsException
+            if (idx < digitToOriginal.size && endIdx < digitToOriginal.size) {
+                val originalStart = digitToOriginal[idx]
+                val originalEnd = digitToOriginal[endIdx] + 1
+                numberHighlights.add(originalStart until originalEnd)
+            }
             start = idx + 1
         }
     }
 
-    if (initialsT9.startsWith(digits)) {
+    if (initialsT9.startsWith(digits) && digits.length <= initialIndices.size) {
         matched = true
         for (i in digits.indices) {
             val index = initialIndices[i]
-            nameHighlights.add(index..index)
+            if (index < contact.name.length) {
+                nameHighlights.add(index..index)
+            }
         }
     } else {
         for ((t9, range) in wordT9s) {
             if (t9.startsWith(digits)) {
                 matched = true
                 for (i in digits.indices) {
-                    nameHighlights.add(range.first + i..range.first + i)
+                    val highlightIdx = range.first + i
+                    if (highlightIdx < contact.name.length) {
+                        nameHighlights.add(highlightIdx..highlightIdx)
+                    }
                 }
                 break
             }
@@ -226,13 +244,21 @@ private fun T9Contact.match(digits: String): ContactMatch? {
     val annotatedName = buildAnnotatedString {
         append(contact.name)
         nameHighlights.forEach {
-            addStyle(SpanStyle(fontWeight = FontWeight.Bold), it.first, it.last + 1)
+            val start = it.first.coerceIn(0, contact.name.length)
+            val end = (it.last + 1).coerceIn(0, contact.name.length)
+            if (start < end) {
+                addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
+            }
         }
     }
     val annotatedNumber = buildAnnotatedString {
         append(phoneNumber)
         numberHighlights.forEach {
-            addStyle(SpanStyle(fontWeight = FontWeight.Bold), it.first, it.last + 1)
+            val start = it.first.coerceIn(0, phoneNumber.length)
+            val end = (it.last + 1).coerceIn(0, phoneNumber.length)
+            if (start < end) {
+                addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
+            }
         }
     }
 
@@ -252,7 +278,6 @@ private fun DialPadContent(
     var number by remember { mutableStateOf(TextFieldValue("")) }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingContact by remember { mutableStateOf<Contact?>(null) }
-    var isDefaultDialer by remember { mutableStateOf(isDefaultDialerApp(context)) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val contacts = uiState.contacts
     val callLogs = uiState.callLogs
@@ -293,18 +318,10 @@ private fun DialPadContent(
             .take(20)
     }
 
-    val roleLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        isDefaultDialer = isDefaultDialerApp(context)
-    }
-
     fun placeCall(target: String = number.text) {
-        if (target.isBlank()) return
-        if (hasPermission(Manifest.permission.CALL_PHONE)) {
-            context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(target)))
-        } else {
-            requestPermissions()
+        when (CallPlacer.placeCallWithFeedback(context, target)) {
+            CallPlaceResult.NeedPermission -> requestPermissions()
+            else -> Unit
         }
     }
 
@@ -413,54 +430,26 @@ private fun DialPadContent(
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize()
     ) {
-        AnimatedVisibility(visible = !isDefaultDialer) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Filled.PhoneAndroid,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = "Set Call Assistant as your default dialer",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.weight(1f)
-                    )
-                    TextButton(
-                        onClick = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
-                                roleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER))
-                            }
-                        }
-                    ) {
-                        Text("Set", fontWeight = FontWeight.SemiBold)
+        val metrics = rememberDialPadMetrics(maxWidth = maxWidth, maxHeight = maxHeight)
+        val scrollState = rememberScrollState()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (metrics.useVerticalScroll) {
+                        Modifier.verticalScroll(scrollState)
+                    } else {
+                        Modifier
                     }
-                }
-            }
-        }
+                )
+                .padding(horizontal = metrics.horizontalPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+        DefaultDialerBanner(modifier = Modifier.padding(top = 12.dp))
 
         if (suggestions.isNotEmpty()) {
             Text(
@@ -473,8 +462,18 @@ private fun DialPadContent(
             )
             LazyColumn(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                    .then(
+                        if (metrics.useVerticalScroll) {
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = metrics.suggestionsMaxHeight)
+                        } else {
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .heightIn(max = metrics.suggestionsMaxHeight)
+                        }
+                    ),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(suggestions, key = { it.contact.id }) { match ->
@@ -486,55 +485,24 @@ private fun DialPadContent(
                         header = { Text(match.name, style = MaterialTheme.typography.titleMedium) },
                         subHeader = { Text(match.number, style = MaterialTheme.typography.bodyMedium) },
                         trailing = {
-                            ActionIconButton(
-                                icon = Icons.Filled.Call,
-                                color = MaterialTheme.colorScheme.primary,
-                                onClick = { placeCall(match.contact.phoneNumber) }
+                            PhoneBookContactActions(
+                                onCall = { placeCall(match.contact.phoneNumber) },
+                                onMessage = { onOpenMessage(match.contact.phoneNumber) },
+                                overflowActions = listOf(
+                                    PhoneBookOverflowAction("Edit") {
+                                        editingContact = match.contact
+                                    },
+                                    PhoneBookOverflowAction("Share") {
+                                        shareContact(context, match.contact)
+                                    },
+                                    PhoneBookOverflowAction("WhatsApp") {
+                                        openWhatsApp(context, match.contact.phoneNumber)
+                                    },
+                                    PhoneBookOverflowAction("IMO") {
+                                        openImo(context, match.contact.phoneNumber)
+                                    }
+                                )
                             )
-                            ActionIconButton(
-                                icon = Icons.AutoMirrored.Filled.Message,
-                                color = MessageBlue,
-                                onClick = { onOpenMessage(match.contact.phoneNumber) }
-                            )
-                            Box {
-                                var expanded by remember { mutableStateOf(false) }
-                                IconButton(onClick = { expanded = true }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "More options")
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("Edit") },
-                                        onClick = {
-                                            expanded = false
-                                            editingContact = match.contact
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("Share") },
-                                        onClick = {
-                                            expanded = false
-                                            shareContact(context, match.contact)
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("WhatsApp") },
-                                        onClick = {
-                                            expanded = false
-                                            openWhatsApp(context, match.contact.phoneNumber)
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("IMO") },
-                                        onClick = {
-                                            expanded = false
-                                            openImo(context, match.contact.phoneNumber)
-                                        }
-                                    )
-                                }
-                            }
                         }
                     )
                 }
@@ -542,8 +510,17 @@ private fun DialPadContent(
         } else if (number.text.isNotEmpty()) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                    .then(
+                        if (metrics.useVerticalScroll) {
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 48.dp, max = metrics.suggestionsMaxHeight)
+                        } else {
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -552,15 +529,14 @@ private fun DialPadContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        } else {
+        } else if (!metrics.useVerticalScroll) {
             Spacer(modifier = Modifier.weight(1f))
         }
 
         Row(
             modifier = Modifier
-                .widthIn(max = 340.dp)
                 .fillMaxWidth()
-                .padding(bottom = 20.dp),
+                .padding(bottom = if (metrics.useVerticalScroll) 12.dp else 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
@@ -569,7 +545,7 @@ private fun DialPadContent(
                 shape = CircleShape,
                 color = if (number.text.isNotBlank()) MaterialTheme.colorScheme.secondaryContainer
                 else MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(44.dp)
+                modifier = Modifier.size(metrics.addContactButtonSize)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -619,24 +595,27 @@ private fun DialPadContent(
         }
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(metrics.rowGap),
             modifier = Modifier
-                .weight(1f)
                 .fillMaxWidth()
+                .padding(vertical = 8.dp)
         ) {
             dialKeys.chunked(3).forEach { row ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(metrics.keyGap),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     row.forEach { (digit, letters, _) ->
                         DialKey(
                             digit = digit,
                             letters = letters,
+                            digitStyle = metrics.digitStyle,
+                            letterStyle = metrics.letterStyle,
                             onClick = { insertDigit(digit) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(metrics.keyHeight)
                         )
                     }
                 }
@@ -646,16 +625,18 @@ private fun DialPadContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 28.dp),
+                .padding(bottom = metrics.bottomPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.spacedBy(metrics.keyGap)
         ) {
             Surface(
                 onClick = { placeWhatsAppCall() },
                 enabled = number.text.isNotBlank(),
                 shape = CircleShape,
                 color = Color.Transparent,
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .height(metrics.actionButtonSize)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -663,7 +644,7 @@ private fun DialPadContent(
                         contentDescription = "WhatsApp call",
                         tint = if (number.text.isNotBlank()) Color.Unspecified
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(metrics.actionButtonSize * 0.58f)
                     )
                 }
             }
@@ -675,8 +656,8 @@ private fun DialPadContent(
                 color = if (number.text.isNotBlank()) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(56.dp)
+                    .weight(1.6f)
+                    .height(metrics.callButtonHeight)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -684,7 +665,7 @@ private fun DialPadContent(
                         contentDescription = "Call",
                         tint = if (number.text.isNotBlank()) MaterialTheme.colorScheme.onPrimary
                         else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(metrics.callButtonHeight * 0.42f)
                     )
                 }
             }
@@ -693,7 +674,8 @@ private fun DialPadContent(
                 shape = CircleShape,
                 color = Color.Transparent,
                 modifier = Modifier
-                    .size(56.dp)
+                    .weight(1f)
+                    .height(metrics.actionButtonSize)
                     .combinedClickable(
                         enabled = number.text.isNotEmpty(),
                         onClick = { deleteDigit() },
@@ -706,10 +688,11 @@ private fun DialPadContent(
                         contentDescription = "Delete (hold to clear)",
                         tint = if (number.text.isNotEmpty()) MaterialTheme.colorScheme.onSurfaceVariant
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(metrics.actionButtonSize * 0.4f)
                     )
                 }
             }
+        }
         }
     }
 }
@@ -718,6 +701,8 @@ private fun DialPadContent(
 private fun DialKey(
     digit: String,
     letters: String,
+    digitStyle: androidx.compose.ui.text.TextStyle,
+    letterStyle: androidx.compose.ui.text.TextStyle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -738,22 +723,20 @@ private fun DialKey(
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         interactionSource = interactionSource,
-        modifier = modifier
-            .height(64.dp)
-            .scale(scale)
+        modifier = modifier.scale(scale)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = digit,
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = digitStyle,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 if (letters.isNotEmpty()) {
                     Text(
                         text = letters,
-                        fontSize = 9.sp,
+                        style = letterStyle,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         letterSpacing = 1.sp
                     )
@@ -763,13 +746,3 @@ private fun DialKey(
     }
 }
 
-
-private fun isDefaultDialerApp(context: Context): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
-        roleManager.isRoleHeld(RoleManager.ROLE_DIALER)
-    } else {
-        val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
-        telecomManager.defaultDialerPackage == context.packageName
-    }
-}

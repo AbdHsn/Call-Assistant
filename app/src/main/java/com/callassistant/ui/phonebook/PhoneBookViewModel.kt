@@ -1,5 +1,6 @@
 package com.callassistant.ui.phonebook
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.callassistant.data.entity.CallLogEntry
@@ -7,7 +8,9 @@ import com.callassistant.data.entity.Contact
 import com.callassistant.data.repository.CallLogRepository
 import com.callassistant.data.repository.ContactRepository
 import com.callassistant.data.repository.SpamRuleRepository
+import com.callassistant.util.MissedCallReadStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +29,9 @@ data class PhoneBookUiState(
     val contactsLoading: Boolean = true,
     val callLogsLoading: Boolean = true,
     val contactsSyncing: Boolean = false,
-    val callLogsSyncing: Boolean = false
+    val callLogsSyncing: Boolean = false,
+    val unseenMissedCount: Int = 0,
+    val missedCallsLastSeenAt: Long = 0L
 ) {
     val showContactsSkeleton: Boolean
         get() = contactsLoading || (contactsSyncing && contacts.isEmpty())
@@ -37,6 +42,7 @@ data class PhoneBookUiState(
 
 @HiltViewModel
 class PhoneBookViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val contactRepository: ContactRepository,
     private val callLogRepository: CallLogRepository,
     private val spamRuleRepository: SpamRuleRepository
@@ -46,6 +52,7 @@ class PhoneBookViewModel @Inject constructor(
     private val callLogsSyncing = MutableStateFlow(false)
     private val contactsReady = MutableStateFlow(false)
     private val callLogsReady = MutableStateFlow(false)
+    private val missedReadRevision = MutableStateFlow(0)
 
     private var stickyContacts: List<Contact> = emptyList()
     private var stickyCallLogs: List<CallLogEntry> = emptyList()
@@ -63,8 +70,9 @@ class PhoneBookViewModel @Inject constructor(
             DataBundle(contacts, callLogs, syncingContacts, syncingCallLogs)
         },
         contactsReady,
-        callLogsReady
-    ) { bundle, readyContacts, readyCallLogs ->
+        callLogsReady,
+        missedReadRevision
+    ) { bundle, readyContacts, readyCallLogs, _ ->
         val (contacts, callLogs, syncingContacts, syncingCallLogs) = bundle
         if (contacts.isNotEmpty()) stickyContacts = contacts
         if (callLogs.isNotEmpty()) stickyCallLogs = callLogs
@@ -80,15 +88,20 @@ class PhoneBookViewModel @Inject constructor(
             callLogs
         }
 
+        val lastSeenAt = MissedCallReadStore.getLastSeenAt(context)
+        val unseenMissedCount = MissedCallReadStore.getUnseenMissedCalls(context, displayCallLogs).size
+
         PhoneBookUiState(
             contacts = displayContacts,
             callLogs = displayCallLogs,
             contactsLoading = !readyContacts,
             callLogsLoading = !readyCallLogs,
             contactsSyncing = syncingContacts,
-            callLogsSyncing = syncingCallLogs
+            callLogsSyncing = syncingCallLogs,
+            unseenMissedCount = unseenMissedCount,
+            missedCallsLastSeenAt = lastSeenAt
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PhoneBookUiState())
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, PhoneBookUiState())
 
     fun ensureContactsSynced() {
         if (didAutoSyncContacts) return
@@ -147,6 +160,13 @@ class PhoneBookViewModel @Inject constructor(
     fun blockNumber(number: String, reason: String = "Manually blocked", name: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             spamRuleRepository.blockNumber(number, reason, name)
+        }
+    }
+
+    fun markAllMissedCallsSeen() {
+        viewModelScope.launch(Dispatchers.IO) {
+            MissedCallReadStore.markAllSeen(context, uiState.value.callLogs)
+            missedReadRevision.value++
         }
     }
 }

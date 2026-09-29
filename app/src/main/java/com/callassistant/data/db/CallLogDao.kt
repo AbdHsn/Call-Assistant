@@ -23,4 +23,7 @@ interface CallLogDao {
 
     @Query("UPDATE call_logs SET blocked = 1 WHERE number = :number")
     suspend fun markBlocked(number: String)
+
+    @Query("SELECT * FROM call_logs WHERE type = 'MISSED' ORDER BY timestamp DESC")
+    suspend fun getMissedEntries(): List<CallLogEntry>
 }

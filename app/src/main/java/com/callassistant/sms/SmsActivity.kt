@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import com.callassistant.ui.MessagesViewModel
+import com.callassistant.ui.messageai.MessageAiViewModel
 import com.callassistant.ui.screens.MessageThreadScreen
 import com.callassistant.ui.theme.CallAssistantTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class SmsActivity : ComponentActivity() {
 
     private val viewModel: MessagesViewModel by viewModels()
+    private val aiViewModel: MessageAiViewModel by viewModels()
 
     companion object {
         const val EXTRA_NUMBER = "extra_number"
@@ -38,6 +40,7 @@ class SmsActivity : ComponentActivity() {
                     MessageThreadScreen(
                         number = number,
                         viewModel = viewModel,
+                        aiViewModel = aiViewModel,
                         hasPermission = { permission ->
                             ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
                         },

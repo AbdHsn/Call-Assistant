@@ -5,9 +5,22 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+
+fun String.escapeForBuildConfig(): String =
+    replace("\\", "\\\\").replace("\"", "\\\"")
+
 android {
     namespace = "com.callassistant"
     compileSdk = 34
+    ndkVersion = "27.1.12297006"
 
     defaultConfig {
         applicationId = "com.callassistant"
@@ -19,6 +32,48 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
+
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_ENDPOINT",
+            "\"${localProperties.getProperty("azure.openai.endpoint", "").escapeForBuildConfig()}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_API_KEY",
+            "\"${localProperties.getProperty("azure.openai.api.key", "").escapeForBuildConfig()}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_MODEL",
+            "\"${localProperties.getProperty("azure.openai.model", "gpt-5.4-mini").escapeForBuildConfig()}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_OPENAI_API_VERSION",
+            "\"${localProperties.getProperty("azure.openai.api.version", "2025-04-01-preview").escapeForBuildConfig()}\""
+        )
+
+        externalNativeBuild {
+            cmake {
+                arguments += listOf(
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DBUILD_SHARED_LIBS=ON",
+                    "-DLLAMA_BUILD_APP=OFF",
+                    "-DLLAMA_BUILD_COMMON=ON",
+                    "-DLLAMA_OPENSSL=OFF",
+                    "-DGGML_NATIVE=OFF",
+                    // Static CPU backend — dynamic plugins (GGML_BACKEND_DL) fail to
+                    // dlopen from APK on many Android devices.
+                    "-DGGML_BACKEND_DL=OFF",
+                    "-DGGML_LLAMAFILE=OFF"
+                )
+            }
         }
     }
 
@@ -40,9 +95,16 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
     packaging {
         resources {
@@ -78,6 +140,9 @@ dependencies {
     ksp("androidx.room:room-compiler:$roomVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     implementation("org.osmdroid:osmdroid-android:6.1.18")
 

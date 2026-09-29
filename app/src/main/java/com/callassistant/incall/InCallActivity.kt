@@ -52,8 +52,7 @@ import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Sms
-import androidx.compose.material.icons.filled.VolumeOff
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,6 +62,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -103,8 +103,11 @@ import com.callassistant.ui.theme.ErrorRed
 import com.callassistant.ui.theme.SuccessGreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import com.callassistant.service.CallRecordingService
+import com.callassistant.util.CallNotificationManager
 import com.callassistant.util.CallNotesStore
-import com.callassistant.util.CallRecorder
+import com.callassistant.util.CallRecordingState
+import com.callassistant.util.ProximityWakeLockHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -119,10 +122,12 @@ class InCallActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private val phoneBookViewModel: PhoneBookViewModel by viewModels()
+    private lateinit var proximityWakeLock: ProximityWakeLockHelper
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        proximityWakeLock = ProximityWakeLockHelper(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -132,7 +137,6 @@ class InCallActivity : ComponentActivity() {
                         WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
         }
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContent {
             val themeMode by viewModel.themeMode.collectAsState()
@@ -141,10 +145,23 @@ class InCallActivity : ComponentActivity() {
             val callState by session.callState.collectAsState()
             val connectTimestamp by session.callConnectTimestamp.collectAsState()
             val isMuted by session.isMuted.collectAsState()
-            val isSpeakerOn by session.isSpeakerOn.collectAsState()
+            val audioRoute by session.audioRoute.collectAsState()
+            val supportedAudioRoutes by session.supportedAudioRoutes.collectAsState()
+            val bluetoothDeviceName by session.bluetoothDeviceName.collectAsState()
 
+            SideEffect {
+                updateProximityScreenBehavior(callState, audioRoute)
+            }
+
+            var hasSeenLiveCall by remember { mutableStateOf(false) }
             LaunchedEffect(callState) {
-                if (callState is CallState.Ended) finish()
+                when (callState) {
+                    is CallState.Incoming,
+                    is CallState.Active,
+                    is CallState.Connecting,
+                    CallState.None -> hasSeenLiveCall = true
+                    is CallState.Ended -> if (hasSeenLiveCall) finish()
+                }
             }
 
             CallAssistantTheme(themeMode = themeMode) {
@@ -153,14 +170,72 @@ class InCallActivity : ComponentActivity() {
                     callState = callState,
                     connectTimestamp = connectTimestamp,
                     isMuted = isMuted,
-                    isSpeakerOn = isSpeakerOn,
+                    audioRoute = audioRoute,
+                    supportedAudioRoutes = supportedAudioRoutes,
+                    bluetoothDeviceName = bluetoothDeviceName,
                     onAnswer = { session.answer() },
                     onReject = { session.reject() },
                     onHangUp = { session.hangUp() },
                     onToggleMute = { session.setMuted(!isMuted) },
-                    onToggleSpeaker = { session.setSpeakerOn(!isSpeakerOn) },
+                    onSelectAudioRoute = { session.setAudioRoute(it) },
                     onSendDigit = { digit -> session.sendDtmf(digit) }
                 )
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        publishOngoingCallNotificationIfNeeded()
+    }
+
+    override fun onDestroy() {
+        proximityWakeLock.release()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        super.onDestroy()
+    }
+
+    private fun publishOngoingCallNotificationIfNeeded() {
+        when (val state = session.callState.value) {
+            is CallState.Active -> CallNotificationManager.showOngoingCallNotification(
+                this,
+                state.number,
+                state.displayName
+            )
+            is CallState.Connecting -> CallNotificationManager.showOngoingCallNotification(
+                this,
+                state.number,
+                state.displayName
+            )
+            is CallState.Incoming -> CallNotificationManager.showIncomingCallNotification(
+                this,
+                state.number,
+                state.displayName
+            )
+            CallState.None -> if (session.activeCall != null) {
+                CallNotificationManager.showOngoingCallNotification(this, "", null)
+            }
+            else -> Unit
+        }
+    }
+
+    private fun updateProximityScreenBehavior(callState: CallState, audioRoute: Int) {
+        when {
+            !isEarpieceAudioRoute(audioRoute) -> {
+                proximityWakeLock.release()
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+            callState is CallState.Active || callState is CallState.Connecting -> {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                proximityWakeLock.acquire()
+            }
+            callState is CallState.Incoming -> {
+                proximityWakeLock.release()
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+            else -> {
+                proximityWakeLock.release()
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
     }
@@ -172,12 +247,14 @@ private fun InCallScreen(
     callState: CallState,
     connectTimestamp: Long?,
     isMuted: Boolean,
-    isSpeakerOn: Boolean,
+    audioRoute: Int,
+    supportedAudioRoutes: Int,
+    bluetoothDeviceName: String?,
     onAnswer: () -> Unit,
     onReject: () -> Unit,
     onHangUp: () -> Unit,
     onToggleMute: () -> Unit,
-    onToggleSpeaker: () -> Unit,
+    onSelectAudioRoute: (Int) -> Unit,
     onSendDigit: (Char) -> Unit
 ) {
     val context = LocalContext.current
@@ -193,49 +270,97 @@ private fun InCallScreen(
         is CallState.Connecting -> callState.displayName
         else -> null
     }
-    val contact = contacts.find { it.phoneNumber == number }
+    // Strip USSD/MMI characters for contact matching
+    val sanitizedNumber = number.filter { it.isDigit() || it == '+' }
+    val contact = contacts.find { 
+        it.phoneNumber == number || 
+        (sanitizedNumber.isNotBlank() && it.phoneNumber.filter { c -> c.isDigit() || c == '+' } == sanitizedNumber)
+    }
     val resolvedPhotoUri = contact?.photoUri
     val resolvedName = displayName ?: contact?.name ?: number.ifBlank { "Unknown" }
     var showDialpad by remember { mutableStateOf(false) }
+    var showAudioRouteDialog by remember { mutableStateOf(false) }
     var showNoteDialog by remember { mutableStateOf(false) }
     var showReminderDialog by remember { mutableStateOf(false) }
     var noteText by remember { mutableStateOf("") }
 
-    val recorder = remember { CallRecorder(context) }
-    var isRecording by remember { mutableStateOf(false) }
+    var isRecording by remember { mutableStateOf(CallRecordingService.isRecording) }
+    var isAutoRecording by remember { mutableStateOf(CallRecordingState.isAutoRecording) }
+    var recordingSeconds by remember { mutableStateOf(0) }
+    var wasRecording by remember { mutableStateOf(false) }
+    var lastFailureShown by remember { mutableStateOf<String?>(null) }
 
     val recordPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            isRecording = recorder.start(number)
-            if (!isRecording) Toast.makeText(context, "Couldn't start recording", Toast.LENGTH_SHORT).show()
+            CallRecordingService.start(
+                context,
+                number,
+                isIncoming = callState is CallState.Incoming,
+                manual = true
+            )
         } else {
             Toast.makeText(context, "Microphone permission is required to record", Toast.LENGTH_SHORT).show()
         }
     }
 
     fun toggleRecording() {
-        if (isRecording) {
-            val path = recorder.stop()
-            isRecording = false
-            Toast.makeText(
-                context,
-                if (path != null) "Recording saved" else "Recording stopped",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (CallRecordingService.isRecording) {
+            CallRecordingService.stop(context)
+            Toast.makeText(context, "Recording saved", Toast.LENGTH_SHORT).show()
         } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            isRecording = recorder.start(number)
-            if (!isRecording) Toast.makeText(context, "Couldn't start recording", Toast.LENGTH_SHORT).show()
+            CallRecordingService.start(
+                context,
+                number,
+                isIncoming = callState is CallState.Incoming,
+                manual = true
+            )
         } else {
             recordPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 
     LaunchedEffect(callState) {
-        if (callState is CallState.Ended && isRecording) {
-            recorder.stop()
+        while (callState is CallState.Active ||
+            callState is CallState.Connecting ||
+            callState is CallState.Incoming
+        ) {
+            val recordingNow = CallRecordingService.isRecording
+            val autoNow = CallRecordingState.isAutoRecording
+            if (recordingNow && !wasRecording) {
+                Toast.makeText(
+                    context,
+                    if (autoNow) "Auto-recording started" else "Recording started",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            CallRecordingState.lastFailureMessage?.let { message ->
+                if (message != lastFailureShown) {
+                    lastFailureShown = message
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
+            }
+            isRecording = recordingNow
+            isAutoRecording = autoNow
+            recordingSeconds = if (recordingNow && CallRecordingState.startedAtMillis > 0L) {
+                ((System.currentTimeMillis() - CallRecordingState.startedAtMillis) / 1000L).toInt()
+            } else {
+                0
+            }
+            wasRecording = recordingNow
+            delay(500)
+        }
+    }
+
+    LaunchedEffect(callState) {
+        if (callState is CallState.Ended) {
+            if (CallRecordingService.isRecording) {
+                CallRecordingService.stop(context)
+            }
             isRecording = false
+            isAutoRecording = false
+            wasRecording = false
         }
     }
 
@@ -333,6 +458,13 @@ private fun InCallScreen(
                 )
                 Spacer(modifier = Modifier.height(14.dp))
                 StatusPill(callState = callState, elapsedSeconds = elapsedSeconds)
+                if (isRecording) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    RecordingIndicator(
+                        isAutoRecording = isAutoRecording,
+                        recordingSeconds = recordingSeconds
+                    )
+                }
             }
 
             Column(
@@ -342,9 +474,11 @@ private fun InCallScreen(
                 when (callState) {
                     is CallState.Incoming -> {
                         CallToolsRow(
-                            isSpeakerOn = isSpeakerOn,
-                            onToggleSpeaker = onToggleSpeaker,
+                            audioRoute = audioRoute,
+                            bluetoothDeviceName = bluetoothDeviceName,
+                            onAudioClick = { showAudioRouteDialog = true },
                             isRecording = isRecording,
+                            isAutoRecording = isAutoRecording,
                             onToggleRecording = { toggleRecording() },
                             onNoteClick = { noteText = ""; showNoteDialog = true },
                             modifier = Modifier.padding(bottom = 20.dp)
@@ -391,9 +525,11 @@ private fun InCallScreen(
                             )
                         }
                         CallToolsRow(
-                            isSpeakerOn = isSpeakerOn,
-                            onToggleSpeaker = onToggleSpeaker,
+                            audioRoute = audioRoute,
+                            bluetoothDeviceName = bluetoothDeviceName,
+                            onAudioClick = { showAudioRouteDialog = true },
                             isRecording = isRecording,
+                            isAutoRecording = isAutoRecording,
                             onToggleRecording = { toggleRecording() },
                             onNoteClick = { noteText = ""; showNoteDialog = true },
                             modifier = Modifier.padding(bottom = 20.dp)
@@ -411,18 +547,20 @@ private fun InCallScreen(
                         }
                         CallButton(Icons.Filled.CallEnd, ErrorRed, "End", onHangUp)
                     }
-                    is CallState.Connecting -> {
+                    is CallState.Connecting, CallState.None -> {
                         CallToolsRow(
-                            isSpeakerOn = isSpeakerOn,
-                            onToggleSpeaker = onToggleSpeaker,
+                            audioRoute = audioRoute,
+                            bluetoothDeviceName = bluetoothDeviceName,
+                            onAudioClick = { showAudioRouteDialog = true },
                             isRecording = isRecording,
+                            isAutoRecording = isAutoRecording,
                             onToggleRecording = { toggleRecording() },
                             onNoteClick = { noteText = ""; showNoteDialog = true },
                             modifier = Modifier.padding(bottom = 24.dp)
                         )
                         CallButton(Icons.Filled.CallEnd, ErrorRed, "Cancel", onHangUp)
                     }
-                    else -> {}
+                    is CallState.Ended -> {}
                 }
             }
         }
@@ -433,6 +571,19 @@ private fun InCallScreen(
                 onDismiss = { showDialpad = false }
             )
         }
+    }
+
+    if (showAudioRouteDialog) {
+        AudioRoutePickerDialog(
+            currentRoute = audioRoute,
+            supportedRoutes = supportedAudioRoutes,
+            bluetoothDeviceName = bluetoothDeviceName,
+            onSelectRoute = {
+                onSelectAudioRoute(it)
+                showAudioRouteDialog = false
+            },
+            onDismiss = { showAudioRouteDialog = false }
+        )
     }
 
     if (showNoteDialog) {
@@ -557,7 +708,7 @@ private fun StatusPill(callState: CallState, elapsedSeconds: Int) {
     val (dotColor, label) = when (callState) {
         is CallState.Incoming -> AccentTealStart to "Incoming call"
         is CallState.Active -> AccentTealEnd to formatDuration(elapsedSeconds)
-        is CallState.Connecting -> ConnectingAmber to "Connecting..."
+        is CallState.Connecting, CallState.None -> ConnectingAmber to "Connecting..."
         else -> MaterialTheme.colorScheme.onSurfaceVariant to ""
     }
     Row(
@@ -617,27 +768,139 @@ private fun RoundActionButton(
 }
 
 @Composable
+private fun AudioRoutePickerDialog(
+    currentRoute: Int,
+    supportedRoutes: Int,
+    bluetoothDeviceName: String?,
+    onSelectRoute: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val options = supportedCallAudioRoutes(supportedRoutes, bluetoothDeviceName)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Audio output") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (options.isEmpty()) {
+                    Text("No audio outputs available")
+                } else {
+                    options.forEach { option ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { onSelectRoute(option.route) }
+                                .background(
+                                    if (option.route == currentRoute) {
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                )
+                                .padding(horizontal = 12.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = option.icon,
+                                contentDescription = option.label,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Text(
+                                text = option.label,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 16.sp
+                            )
+                            if (option.route == currentRoute) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = "Selected",
+                                    tint = AccentTealStart
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
+}
+
+@Composable
+private fun RecordingIndicator(
+    isAutoRecording: Boolean,
+    recordingSeconds: Int
+) {
+    Row(
+        modifier = Modifier
+            .background(ErrorRed.copy(alpha = 0.14f), CircleShape)
+            .padding(horizontal = 14.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(ErrorRed)
+        )
+        Text(
+            text = buildString {
+                append("REC ")
+                append(formatRecordingDuration(recordingSeconds))
+                if (isAutoRecording) append(" · Auto")
+            },
+            color = ErrorRed,
+            fontWeight = FontWeight.Bold,
+            fontSize = 13.sp
+        )
+    }
+}
+
+private fun formatRecordingDuration(totalSeconds: Int): String {
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "%d:%02d".format(minutes, seconds)
+}
+
+@Composable
 private fun CallToolsRow(
-    isSpeakerOn: Boolean,
-    onToggleSpeaker: () -> Unit,
+    audioRoute: Int,
+    bluetoothDeviceName: String?,
+    onAudioClick: () -> Unit,
     isRecording: Boolean,
+    isAutoRecording: Boolean,
     onToggleRecording: () -> Unit,
     onNoteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val audioLabel = callAudioRouteLabel(audioRoute, bluetoothDeviceName)
+    val audioIcon = callAudioRouteIcon(audioRoute)
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(40.dp),
         modifier = modifier
     ) {
         SecondaryControlButton(
-            icon = if (isSpeakerOn) Icons.Filled.VolumeUp else Icons.Filled.VolumeOff,
-            label = "Speaker",
-            active = isSpeakerOn,
-            onClick = onToggleSpeaker
+            icon = audioIcon,
+            label = audioLabel,
+            active = audioRoute != android.telecom.CallAudioState.ROUTE_EARPIECE,
+            onClick = onAudioClick
         )
         SecondaryControlButton(
             icon = Icons.Filled.FiberManualRecord,
-            label = if (isRecording) "Stop" else "Record",
+            label = when {
+                isRecording && isAutoRecording -> "Stop auto"
+                isRecording -> "Stop rec"
+                else -> "Record"
+            },
             active = isRecording,
             activeColor = ErrorRed,
             onClick = onToggleRecording

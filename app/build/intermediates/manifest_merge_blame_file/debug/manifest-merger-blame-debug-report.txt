@@ -9,599 +9,847 @@
 9        android:targetSdkVersion="34" />
 10
 11    <uses-feature
-11-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:4:5-6:36
+11-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:5:5-7:36
 12        android:name="android.hardware.telephony"
-12-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:5:9-50
+12-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:6:9-50
 13        android:required="false" />
-13-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:6:9-33
-14
-15    <uses-permission android:name="android.permission.READ_CONTACTS" />
-15-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:8:5-72
-15-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:8:22-69
-16    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-16-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:9:5-73
-16-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:9:22-70
-17    <uses-permission android:name="android.permission.READ_CALL_LOG" />
-17-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:10:5-72
-17-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:10:22-69
-18    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
-18-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:11:5-73
-18-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:11:22-70
-19    <uses-permission android:name="android.permission.READ_SMS" />
-19-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:12:5-67
-19-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:12:22-64
-20    <uses-permission android:name="android.permission.SEND_SMS" />
-20-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:13:5-67
-20-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:13:22-64
-21    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-21-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:14:5-70
-21-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:14:22-67
-22    <uses-permission android:name="android.permission.CALL_PHONE" />
-22-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:15:5-69
-22-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:15:22-66
-23    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
-23-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:16:5-75
-23-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:16:22-72
-24    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-24-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:17:5-71
-24-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:17:22-68
-25    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-25-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:18:5-77
-25-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:18:22-74
-26    <uses-permission android:name="android.permission.WAKE_LOCK" />
-26-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:19:5-68
-26-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:19:22-65
-27    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-27-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:20:5-81
-27-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:20:22-78
-28    <uses-permission android:name="android.permission.INTERNET" />
-28-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:21:5-67
-28-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:21:22-64
-29    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-29-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:22:5-79
-29-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:22:22-76
-30    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-30-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:23:5-79
-30-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:23:22-76
-31    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-31-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:24:5-81
-31-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:24:22-78
-32
-33    <queries>
-33-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:26:5-51:15
-34        <package android:name="com.whatsapp" />
-34-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:27:9-48
-34-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:27:18-45
-35        <package android:name="com.imo.android.imoim" />
-35-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:28:9-57
-35-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:28:18-54
-36
-37        <intent>
-37-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:29:9-32:18
-38            <action android:name="android.intent.action.VIEW" />
-38-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:30:13-65
-38-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:30:21-62
-39
-40            <data
-40-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-41                android:host="wa.me"
-41-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:42-62
-42                android:scheme="https" />
-42-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-43        </intent>
-44        <intent>
-44-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:33:9-36:18
-45            <action android:name="android.intent.action.VIEW" />
-45-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:30:13-65
-45-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:30:21-62
-46
-47            <data
-47-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-48                android:host="user"
-48-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:42-62
-49                android:scheme="imo" />
-49-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-50        </intent>
-51        <intent>
-51-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:37:9-39:18
-52            <action android:name="android.settings.ACCESSIBILITY_SETTINGS" />
-52-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:38:13-78
-52-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:38:21-75
-53        </intent>
-54        <intent>
-54-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:9-43:18
-55            <action android:name="android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-55-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-92
-55-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:21-89
-56
-57            <data android:scheme="package" />
-57-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-57-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
+13-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:7:9-33
+14    <uses-feature
+14-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:9:5-11:36
+15        android:name="android.hardware.sensor.proximity"
+15-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:10:9-57
+16        android:required="false" />
+16-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:11:9-33
+17
+18    <uses-permission android:name="android.permission.READ_CONTACTS" />
+18-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:13:5-72
+18-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:13:22-69
+19    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+19-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:14:5-73
+19-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:14:22-70
+20    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+20-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:15:5-72
+20-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:15:22-69
+21    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+21-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:16:5-73
+21-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:16:22-70
+22    <uses-permission android:name="android.permission.READ_SMS" />
+22-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:17:5-67
+22-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:17:22-64
+23    <uses-permission android:name="android.permission.SEND_SMS" />
+23-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:18:5-67
+23-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:18:22-64
+24    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+24-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:19:5-70
+24-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:19:22-67
+25    <uses-permission android:name="android.permission.CALL_PHONE" />
+25-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:20:5-69
+25-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:20:22-66
+26    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+26-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:21:5-75
+26-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:21:22-72
+27    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
+27-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:22:5-75
+27-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:22:22-72
+28    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+28-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:23:5-71
+28-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:23:22-68
+29    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+29-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:24:5-77
+29-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:24:22-74
+30    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+30-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:25:5-77
+30-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:25:22-74
+31    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+31-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:26:5-88
+31-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:26:22-85
+32    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+32-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:27:5-88
+32-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:27:22-85
+33    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+33-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:28:5-87
+33-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:28:22-84
+34    <uses-permission android:name="android.permission.WAKE_LOCK" />
+34-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:29:5-68
+34-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:29:22-65
+35    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+35-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:30:5-81
+35-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:30:22-78
+36    <uses-permission android:name="android.permission.INTERNET" />
+36-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:5-67
+36-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:22-64
+37    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+37-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:32:5-79
+37-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:32:22-76
+38    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+38-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:33:5-79
+38-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:33:22-76
+39    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+39-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:34:5-81
+39-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:34:22-78
+40
+41    <queries>
+41-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:36:5-61:15
+42        <package android:name="com.whatsapp" />
+42-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:37:9-48
+42-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:37:18-45
+43        <package android:name="com.imo.android.imoim" />
+43-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:38:9-57
+43-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:38:18-54
+44
+45        <intent>
+45-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:39:9-42:18
+46            <action android:name="android.intent.action.VIEW" />
+46-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:13-65
+46-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:21-62
+47
+48            <data
+48-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+49                android:host="wa.me"
+49-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:42-62
+50                android:scheme="https" />
+50-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+51        </intent>
+52        <intent>
+52-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:43:9-46:18
+53            <action android:name="android.intent.action.VIEW" />
+53-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:13-65
+53-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:21-62
+54
+55            <data
+55-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+56                android:host="user"
+56-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:42-62
+57                android:scheme="imo" />
+57-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
 58        </intent>
 59        <intent>
-59-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:44:9-46:18
-60            <action android:name="android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS" />
-60-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:45:13-92
-60-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:45:21-89
+59-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:47:9-49:18
+60            <action android:name="android.settings.ACCESSIBILITY_SETTINGS" />
+60-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:13-78
+60-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:21-75
 61        </intent>
 62        <intent>
-62-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:47:9-50:18
-63            <action android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
-63-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:13-84
-63-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:48:21-81
+62-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:50:9-53:18
+63            <action android:name="android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+63-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:51:13-92
+63-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:51:21-89
 64
 65            <data android:scheme="package" />
-65-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-65-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
+65-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+65-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
 66        </intent>
-67    </queries>
-68
-69    <permission
-69-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
-70        android:name="com.callassistant.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-70-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
-71        android:protectionLevel="signature" />
-71-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+67        <intent>
+67-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:54:9-56:18
+68            <action android:name="android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS" />
+68-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:55:13-92
+68-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:55:21-89
+69        </intent>
+70        <intent>
+70-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:57:9-60:18
+71            <action android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+71-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:58:13-84
+71-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:58:21-81
 72
-73    <uses-permission android:name="com.callassistant.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-73-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
-73-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
-74
-75    <supports-screens
-75-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:9:5-12:40
-76        android:anyDensity="true"
-76-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:10:9-34
-77        android:largeScreens="true"
-77-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:11:9-36
-78        android:normalScreens="true" />
-78-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:12:9-37
-79
-80    <uses-feature
-80-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:14:5-16:36
-81        android:name="android.hardware.location.network"
-81-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:15:9-57
-82        android:required="false" />
-82-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:16:9-33
-83    <uses-feature
-83-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:17:5-19:36
-84        android:name="android.hardware.location.gps"
-84-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:18:9-53
-85        android:required="false" />
-85-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:19:9-33
-86    <uses-feature
-86-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:23:5-25:36
-87        android:name="android.hardware.wifi"
-87-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:24:9-45
-88        android:required="false" />
-88-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:25:9-33
+73            <data android:scheme="package" />
+73-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+73-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+74        </intent>
+75    </queries>
+76
+77    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+77-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:25:5-81
+77-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:25:22-78
+78
+79    <permission
+79-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+80        android:name="com.callassistant.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+80-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+81        android:protectionLevel="signature" />
+81-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+82
+83    <uses-permission android:name="com.callassistant.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+83-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+83-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+84
+85    <supports-screens
+85-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:9:5-12:40
+86        android:anyDensity="true"
+86-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:10:9-34
+87        android:largeScreens="true"
+87-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:11:9-36
+88        android:normalScreens="true" />
+88-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:12:9-37
 89
-90    <application
-90-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:53:5-222:19
-91        android:name="com.callassistant.CallAssistantApplication"
-91-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:54:9-49
-92        android:allowBackup="true"
-92-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:55:9-35
-93        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-93-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
-94        android:debuggable="true"
-95        android:extractNativeLibs="false"
-96        android:icon="@mipmap/ic_launcher"
-96-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:56:9-43
-97        android:label="@string/app_name"
-97-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:57:9-41
-98        android:roundIcon="@mipmap/ic_launcher_round"
-98-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:58:9-54
-99        android:supportsRtl="true"
-99-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:59:9-35
-100        android:testOnly="true"
-101        android:theme="@style/Theme.CallAssistant" >
-101-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:60:9-51
-102        <activity
-102-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:62:9-79:20
-103            android:name="com.callassistant.MainActivity"
-103-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:63:13-41
-104            android:exported="true"
-104-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:64:13-36
-105            android:theme="@style/Theme.CallAssistant" >
-105-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:65:13-55
-106            <intent-filter>
-106-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:66:13-69:29
-107                <action android:name="android.intent.action.MAIN" />
-107-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:17-69
-107-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:25-66
-108
-109                <category android:name="android.intent.category.LAUNCHER" />
-109-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:68:17-77
-109-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:68:27-74
-110            </intent-filter>
-111            <intent-filter>
-111-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:70:13-73:29
-112                <action android:name="android.intent.action.DIAL" />
-112-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:17-69
-112-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:25-66
-113
-114                <category android:name="android.intent.category.DEFAULT" />
-114-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-76
-114-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:27-73
-115            </intent-filter>
+90    <uses-feature
+90-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:14:5-16:36
+91        android:name="android.hardware.location.network"
+91-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:15:9-57
+92        android:required="false" />
+92-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:16:9-33
+93    <uses-feature
+93-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:17:5-19:36
+94        android:name="android.hardware.location.gps"
+94-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:18:9-53
+95        android:required="false" />
+95-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:19:9-33
+96    <uses-feature
+96-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:23:5-25:36
+97        android:name="android.hardware.wifi"
+97-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:24:9-45
+98        android:required="false" />
+98-->[org.osmdroid:osmdroid-android:6.1.18] /home/abdullahbinhasan/.gradle/caches/transforms-3/4a1bcf5a8367af2b9524231f761cb1b7/transformed/osmdroid-android-6.1.18/AndroidManifest.xml:25:9-33
+99
+100    <application
+100-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:63:5-252:19
+101        android:name="com.callassistant.CallAssistantApplication"
+101-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:64:9-49
+102        android:allowBackup="true"
+102-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:65:9-35
+103        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+103-->[androidx.core:core:1.12.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/aa279d3e5f606bd6383ce5e7f478003d/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+104        android:debuggable="true"
+105        android:extractNativeLibs="true"
+105-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:66:9-41
+106        android:icon="@mipmap/ic_launcher"
+106-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:9-43
+107        android:label="@string/app_name"
+107-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:68:9-41
+108        android:roundIcon="@mipmap/ic_launcher_round"
+108-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:69:9-54
+109        android:supportsRtl="true"
+109-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:70:9-35
+110        android:theme="@style/Theme.CallAssistant" >
+110-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:9-51
+111        <activity
+111-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:73:9-98:20
+112            android:name="com.callassistant.MainActivity"
+112-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:74:13-41
+113            android:exported="true"
+113-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:75:13-36
+114            android:theme="@style/Theme.CallAssistant"
+114-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:77:13-55
+115            android:windowSoftInputMode="adjustResize" >
+115-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:76:13-55
 116            <intent-filter>
-116-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:74:13-78:29
-117                <action android:name="android.intent.action.DIAL" />
-117-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:17-69
-117-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:71:25-66
+116-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:78:13-81:29
+117                <action android:name="android.intent.action.MAIN" />
+117-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:79:17-69
+117-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:79:25-66
 118
-119                <category android:name="android.intent.category.DEFAULT" />
-119-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-76
-119-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:27-73
-120
-121                <data android:scheme="tel" />
-121-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-121-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-122            </intent-filter>
-123        </activity>
-124
-125        <service
-125-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:81:9-91:19
-126            android:name="com.callassistant.incall.CallAssistantInCallService"
-126-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:82:13-62
-127            android:exported="true"
-127-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:13-36
-128            android:permission="android.permission.BIND_INCALL_SERVICE" >
-128-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:13-72
-129            <meta-data
-129-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:85:13-87:40
-130                android:name="android.telecom.IN_CALL_SERVICE_UI"
-130-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:86:17-66
-131                android:value="true" />
-131-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:87:17-37
-132
+119                <category android:name="android.intent.category.LAUNCHER" />
+119-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:80:17-77
+119-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:80:27-74
+120            </intent-filter>
+121            <intent-filter>
+121-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:82:13-85:29
+122                <action android:name="android.intent.action.DIAL" />
+122-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:17-69
+122-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:25-66
+123
+124                <category android:name="android.intent.category.DEFAULT" />
+124-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-76
+124-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:27-73
+125            </intent-filter>
+126            <intent-filter>
+126-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:86:13-90:29
+127                <action android:name="android.intent.action.DIAL" />
+127-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:17-69
+127-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:25-66
+128
+129                <category android:name="android.intent.category.DEFAULT" />
+129-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-76
+129-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:27-73
+130
+131                <data android:scheme="tel" />
+131-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+131-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+132            </intent-filter>
 133            <intent-filter>
-133-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:88:13-90:29
-134                <action android:name="android.telecom.InCallService" />
-134-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:89:17-72
-134-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:89:25-69
-135            </intent-filter>
-136        </service>
-137        <service
-137-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:93:9-100:19
-138            android:name="com.callassistant.service.CallScreeningServiceImpl"
-138-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:94:13-61
-139            android:exported="true"
-139-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:95:13-36
-140            android:permission="android.permission.BIND_SCREENING_SERVICE" >
-140-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:96:13-75
-141            <intent-filter>
-141-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:97:13-99:29
-142                <action android:name="android.telecom.CallScreeningService" />
-142-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:98:17-79
-142-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:98:25-76
-143            </intent-filter>
-144        </service>
-145        <service
-145-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:102:9-114:19
-146            android:name="com.callassistant.sms.HeadlessSmsSendService"
-146-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:103:13-55
-147            android:exported="true"
-147-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:104:13-36
-148            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
-148-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:105:13-77
-149            <intent-filter>
-149-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:106:13-113:29
-150                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
-150-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:17-84
-150-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:25-81
-151
-152                <category android:name="android.intent.category.DEFAULT" />
-152-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-76
-152-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:27-73
-153
-154                <data android:scheme="sms" />
-154-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-154-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-155                <data android:scheme="smsto" />
-155-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-155-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-156                <data android:scheme="mms" />
-156-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-156-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-157                <data android:scheme="mmsto" />
-157-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-157-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
+133-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:91:13-97:29
+134                <action android:name="android.intent.action.VIEW" />
+134-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:13-65
+134-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:40:21-62
+135                <action android:name="android.intent.action.DIAL" />
+135-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:17-69
+135-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:83:25-66
+136
+137                <category android:name="android.intent.category.DEFAULT" />
+137-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-76
+137-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:27-73
+138                <category android:name="android.intent.category.BROWSABLE" />
+138-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:95:17-78
+138-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:95:27-75
+139
+140                <data android:scheme="tel" />
+140-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+140-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+141            </intent-filter>
+142        </activity>
+143
+144        <service
+144-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:100:9-114:19
+145            android:name="com.callassistant.incall.CallAssistantInCallService"
+145-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:101:13-62
+146            android:exported="true"
+146-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:102:13-36
+147            android:foregroundServiceType="phoneCall"
+147-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:103:13-54
+148            android:permission="android.permission.BIND_INCALL_SERVICE" >
+148-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:104:13-72
+149            <meta-data
+149-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:105:13-107:40
+150                android:name="android.telecom.IN_CALL_SERVICE_UI"
+150-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:106:17-66
+151                android:value="true" />
+151-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:107:17-37
+152            <meta-data
+152-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:108:13-110:40
+153                android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+153-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:109:17-71
+154                android:value="true" />
+154-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:110:17-37
+155
+156            <intent-filter>
+156-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:111:13-113:29
+157                <action android:name="android.telecom.InCallService" />
+157-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:112:17-72
+157-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:112:25-69
 158            </intent-filter>
 159        </service>
 160        <service
-160-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:116:9-126:19
-161            android:name="com.callassistant.keyboard.CustomKeyboardService"
-161-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:117:13-59
+160-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:116:9-123:19
+161            android:name="com.callassistant.service.CallScreeningServiceImpl"
+161-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:117:13-61
 162            android:exported="true"
 162-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:118:13-36
-163            android:permission="android.permission.BIND_INPUT_METHOD" >
-163-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:119:13-70
+163            android:permission="android.permission.BIND_SCREENING_SERVICE" >
+163-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:119:13-75
 164            <intent-filter>
 164-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:120:13-122:29
-165                <action android:name="android.view.InputMethod" />
-165-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:17-67
-165-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:25-64
+165                <action android:name="android.telecom.CallScreeningService" />
+165-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:17-79
+165-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:121:25-76
 166            </intent-filter>
-167
-168            <meta-data
-168-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:123:13-125:50
-169                android:name="android.view.im"
-169-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:124:17-47
-170                android:resource="@xml/method" />
-170-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:125:17-47
-171        </service>
-172
-173        <receiver
-173-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:128:9-138:20
-174            android:name="com.callassistant.sms.SmsReceiver"
-174-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:129:13-44
-175            android:exported="true"
-175-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:130:13-36
-176            android:permission="android.permission.BROADCAST_SMS" >
-176-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:131:13-66
-177            <intent-filter android:priority="999" >
-177-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:132:13-134:29
-177-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:132:28-50
-178                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-178-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:133:17-82
-178-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:133:25-79
-179            </intent-filter>
-180            <intent-filter android:priority="999" >
-180-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:135:13-137:29
-180-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:135:28-50
-181                <action android:name="android.provider.Telephony.SMS_DELIVER" />
-181-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:136:17-81
-181-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:136:25-78
-182            </intent-filter>
-183        </receiver>
-184        <receiver
-184-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:140:9-148:20
-185            android:name="com.callassistant.sms.WapPushReceiver"
-185-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:141:13-48
-186            android:exported="true"
-186-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:142:13-36
-187            android:permission="android.permission.BROADCAST_WAP_PUSH" >
-187-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:143:13-71
-188            <intent-filter>
-188-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:144:13-147:29
-189                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
-189-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:145:17-86
-189-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:145:25-83
+167        </service>
+168        <service
+168-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:125:9-137:19
+169            android:name="com.callassistant.sms.HeadlessSmsSendService"
+169-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:126:13-55
+170            android:exported="true"
+170-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:127:13-36
+171            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
+171-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:128:13-77
+172            <intent-filter>
+172-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:129:13-136:29
+173                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+173-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:130:17-84
+173-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:130:25-81
+174
+175                <category android:name="android.intent.category.DEFAULT" />
+175-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-76
+175-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:27-73
+176
+177                <data android:scheme="sms" />
+177-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+177-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+178                <data android:scheme="smsto" />
+178-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+178-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+179                <data android:scheme="mms" />
+179-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+179-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+180                <data android:scheme="mmsto" />
+180-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+180-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+181            </intent-filter>
+182        </service>
+183        <service
+183-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:139:9-149:19
+184            android:name="com.callassistant.keyboard.CustomKeyboardService"
+184-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:140:13-59
+185            android:exported="true"
+185-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:141:13-36
+186            android:permission="android.permission.BIND_INPUT_METHOD" >
+186-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:142:13-70
+187            <intent-filter>
+187-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:143:13-145:29
+188                <action android:name="android.view.InputMethod" />
+188-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:144:17-67
+188-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:144:25-64
+189            </intent-filter>
 190
-191                <data android:mimeType="application/vnd.wap.mms-message" />
-191-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-191-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:146:23-73
-192            </intent-filter>
-193        </receiver>
-194        <receiver
-194-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:150:9-152:40
-195            android:name="com.callassistant.receiver.CallReminderReceiver"
-195-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:151:13-58
-196            android:exported="false" />
-196-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:152:13-37
-197        <receiver
-197-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:154:9-156:40
-198            android:name="com.callassistant.incall.CallActionReceiver"
-198-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:155:13-54
-199            android:exported="false" />
-199-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:156:13-37
-200
-201        <provider
-202            android:name="androidx.core.content.FileProvider"
-202-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:159:13-62
-203            android:authorities="com.callassistant.fileprovider"
-203-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:160:13-64
-204            android:exported="false"
-204-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:161:13-37
-205            android:grantUriPermissions="true" >
-205-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:162:13-47
-206            <meta-data
-206-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:163:13-165:54
-207                android:name="android.support.FILE_PROVIDER_PATHS"
-207-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:164:17-67
-208                android:resource="@xml/file_paths" />
-208-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:165:17-51
-209        </provider>
-210
-211        <service
-211-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:168:9-172:58
-212            android:name="com.callassistant.service.CallRecordingService"
-212-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:169:13-57
-213            android:enabled="true"
-213-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:170:13-35
-214            android:exported="false"
-214-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:171:13-37
-215            android:foregroundServiceType="microphone" />
-215-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:172:13-55
-216
+191            <meta-data
+191-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:146:13-148:50
+192                android:name="android.view.im"
+192-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:147:17-47
+193                android:resource="@xml/method" />
+193-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:148:17-47
+194        </service>
+195
+196        <receiver
+196-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:151:9-161:20
+197            android:name="com.callassistant.sms.SmsReceiver"
+197-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:152:13-44
+198            android:exported="true"
+198-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:153:13-36
+199            android:permission="android.permission.BROADCAST_SMS" >
+199-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:154:13-66
+200            <intent-filter android:priority="999" >
+200-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:155:13-157:29
+200-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:155:28-50
+201                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+201-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:156:17-82
+201-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:156:25-79
+202            </intent-filter>
+203            <intent-filter android:priority="999" >
+203-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:158:13-160:29
+203-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:158:28-50
+204                <action android:name="android.provider.Telephony.SMS_DELIVER" />
+204-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:159:17-81
+204-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:159:25-78
+205            </intent-filter>
+206        </receiver>
+207        <receiver
+207-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:163:9-171:20
+208            android:name="com.callassistant.sms.WapPushReceiver"
+208-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:164:13-48
+209            android:exported="true"
+209-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:165:13-36
+210            android:permission="android.permission.BROADCAST_WAP_PUSH" >
+210-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:166:13-71
+211            <intent-filter>
+211-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:167:13-170:29
+212                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+212-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:168:17-86
+212-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:168:25-83
+213
+214                <data android:mimeType="application/vnd.wap.mms-message" />
+214-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+214-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:169:23-73
+215            </intent-filter>
+216        </receiver>
 217        <receiver
-217-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:174:9-181:20
-218            android:name="com.callassistant.receiver.PhoneStateReceiver"
-218-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:175:13-56
-219            android:enabled="true"
-219-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:176:13-35
-220            android:exported="true" >
-220-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:177:13-36
-221            <intent-filter>
-221-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:178:13-180:29
-222                <action android:name="android.intent.action.PHONE_STATE" />
-222-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:179:17-76
-222-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:179:25-73
-223            </intent-filter>
-224        </receiver>
-225
-226        <service
-226-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:183:9-194:19
-227            android:name="com.callassistant.service.CallRecordingAccessibilityService"
-227-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:184:13-70
-228            android:enabled="true"
-228-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:185:13-35
-229            android:exported="true"
-229-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:186:13-36
-230            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
-230-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:187:13-79
-231            <intent-filter>
-231-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:188:13-190:29
-232                <action android:name="android.accessibilityservice.AccessibilityService" />
-232-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:189:17-92
-232-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:189:25-89
-233            </intent-filter>
-234
-235            <meta-data
-235-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:191:13-193:72
-236                android:name="android.accessibilityservice"
-236-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:192:17-60
-237                android:resource="@xml/accessibility_service_config" />
-237-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:193:17-69
-238        </service>
+217-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:173:9-175:40
+218            android:name="com.callassistant.receiver.CallReminderReceiver"
+218-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:174:13-58
+219            android:exported="false" />
+219-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:175:13-37
+220        <receiver
+220-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:177:9-179:40
+221            android:name="com.callassistant.incall.CallActionReceiver"
+221-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:178:13-54
+222            android:exported="false" />
+222-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:179:13-37
+223
+224        <provider
+225            android:name="androidx.core.content.FileProvider"
+225-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:182:13-62
+226            android:authorities="com.callassistant.fileprovider"
+226-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:183:13-64
+227            android:exported="false"
+227-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:184:13-37
+228            android:grantUriPermissions="true" >
+228-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:185:13-47
+229            <meta-data
+229-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:186:13-188:54
+230                android:name="android.support.FILE_PROVIDER_PATHS"
+230-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:187:17-67
+231                android:resource="@xml/file_paths" />
+231-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:188:17-51
+232        </provider>
+233
+234        <service
+234-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:191:9-195:56
+235            android:name="com.callassistant.service.CallRecordingService"
+235-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:192:13-57
+236            android:enabled="true"
+236-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:193:13-35
+237            android:exported="false"
+237-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:194:13-37
+238            android:foregroundServiceType="dataSync" />
+238-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:195:13-53
 239
-240        <activity
-240-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:196:9-203:58
-241            android:name="com.callassistant.incall.InCallActivity"
-241-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:197:13-50
-242            android:exported="false"
-242-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:198:13-37
-243            android:launchMode="singleInstance"
-243-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:202:13-48
-244            android:screenOrientation="portrait"
-244-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:201:13-49
-245            android:showWhenLocked="true"
-245-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:199:13-42
-246            android:theme="@style/Theme.CallAssistant"
-246-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:203:13-55
-247            android:turnScreenOn="true" />
-247-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:200:13-40
-248        <activity
-248-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:205:9-221:20
-249            android:name="com.callassistant.sms.SmsActivity"
-249-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:206:13-44
-250            android:exported="true" >
-250-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:207:13-36
-251            <intent-filter>
-251-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:208:13-212:29
-252                <action android:name="android.intent.action.MAIN" />
-252-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:17-69
-252-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:67:25-66
-253
-254                <category android:name="android.intent.category.DEFAULT" />
-254-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-76
-254-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:27-73
-255                <category android:name="android.intent.category.APP_MESSAGING" />
-255-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:211:17-82
-255-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:211:27-79
+240        <receiver
+240-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:197:9-204:20
+241            android:name="com.callassistant.receiver.PhoneStateReceiver"
+241-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:198:13-56
+242            android:enabled="true"
+242-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:199:13-35
+243            android:exported="true" >
+243-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:200:13-36
+244            <intent-filter>
+244-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:201:13-203:29
+245                <action android:name="android.intent.action.PHONE_STATE" />
+245-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:202:17-76
+245-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:202:25-73
+246            </intent-filter>
+247        </receiver>
+248
+249        <service
+249-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:206:9-217:19
+250            android:name="com.callassistant.service.CallRecordingAccessibilityService"
+250-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:207:13-70
+251            android:enabled="true"
+251-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:208:13-35
+252            android:exported="true"
+252-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:209:13-36
+253            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+253-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:210:13-79
+254            <intent-filter>
+254-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:211:13-213:29
+255                <action android:name="android.accessibilityservice.AccessibilityService" />
+255-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:212:17-92
+255-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:212:25-89
 256            </intent-filter>
-257            <intent-filter>
-257-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:213:13-220:29
-258                <action android:name="android.intent.action.SENDTO" />
-258-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:214:17-71
-258-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:214:25-68
-259
-260                <category android:name="android.intent.category.DEFAULT" />
-260-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:17-76
-260-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:72:27-73
-261
-262                <data android:scheme="sms" />
-262-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-262-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-263                <data android:scheme="smsto" />
-263-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-263-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-264                <data android:scheme="mms" />
-264-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-264-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-265                <data android:scheme="mmsto" />
-265-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:13-65
-265-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:31:19-41
-266            </intent-filter>
-267        </activity>
-268        <activity
-268-->[androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/837e76c921fc4035f70d73094bb9d92f/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:23:9-25:39
-269            android:name="androidx.activity.ComponentActivity"
-269-->[androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/837e76c921fc4035f70d73094bb9d92f/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:24:13-63
-270            android:exported="true" />
-270-->[androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/837e76c921fc4035f70d73094bb9d92f/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:25:13-36
-271        <activity
-271-->[androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/25629040087ab45d29ab97dd197ed381/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
-272            android:name="androidx.compose.ui.tooling.PreviewActivity"
-272-->[androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/25629040087ab45d29ab97dd197ed381/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
-273            android:exported="true" />
-273-->[androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/25629040087ab45d29ab97dd197ed381/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
-274
-275        <provider
-275-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
-276            android:name="androidx.startup.InitializationProvider"
-276-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
-277            android:authorities="com.callassistant.androidx-startup"
-277-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
-278            android:exported="false" >
-278-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
-279            <meta-data
-279-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
-280                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-280-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
-281                android:value="androidx.startup" />
-281-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
-282            <meta-data
-282-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/ac0b44c0eacf2402e16adcfaa03bcbea/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
-283                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-283-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/ac0b44c0eacf2402e16adcfaa03bcbea/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
-284                android:value="androidx.startup" />
-284-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/ac0b44c0eacf2402e16adcfaa03bcbea/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
-285            <meta-data
-285-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
-286                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-286-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
-287                android:value="androidx.startup" />
-287-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
-288        </provider>
-289
-290        <service
-290-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
-291            android:name="androidx.room.MultiInstanceInvalidationService"
-291-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
-292            android:directBootAware="true"
-292-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
-293            android:exported="false" />
-293-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+257
+258            <meta-data
+258-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:214:13-216:72
+259                android:name="android.accessibilityservice"
+259-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:215:17-60
+260                android:resource="@xml/accessibility_service_config" />
+260-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:216:17-69
+261        </service>
+262
+263        <activity
+263-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:219:9-226:58
+264            android:name="com.callassistant.incall.InCallActivity"
+264-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:220:13-50
+265            android:exported="true"
+265-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:221:13-36
+266            android:launchMode="singleInstance"
+266-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:225:13-48
+267            android:screenOrientation="portrait"
+267-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:224:13-49
+268            android:showWhenLocked="true"
+268-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:222:13-42
+269            android:theme="@style/Theme.CallAssistant"
+269-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:226:13-55
+270            android:turnScreenOn="true" />
+270-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:223:13-40
+271
+272        <!-- WorkManager foreground downloads require a declared service type (API 31+). -->
+273        <service
+273-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:229:9-232:34
+274            android:name="androidx.work.impl.foreground.SystemForegroundService"
+274-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:230:13-81
+275            android:directBootAware="false"
+275-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:55:13-44
+276            android:enabled="@bool/enable_system_foreground_service_default"
+276-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:56:13-77
+277            android:exported="false"
+277-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:57:13-37
+278            android:foregroundServiceType="dataSync" />
+278-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:231:13-53
+279
+280        <activity
+280-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:234:9-251:20
+281            android:name="com.callassistant.sms.SmsActivity"
+281-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:235:13-44
+282            android:exported="true"
+282-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:236:13-36
+283            android:windowSoftInputMode="adjustResize" >
+283-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:237:13-55
+284            <intent-filter>
+284-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:238:13-242:29
+285                <action android:name="android.intent.action.MAIN" />
+285-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:79:17-69
+285-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:79:25-66
+286
+287                <category android:name="android.intent.category.DEFAULT" />
+287-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-76
+287-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:27-73
+288                <category android:name="android.intent.category.APP_MESSAGING" />
+288-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:241:17-82
+288-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:241:27-79
+289            </intent-filter>
+290            <intent-filter>
+290-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:243:13-250:29
+291                <action android:name="android.intent.action.SENDTO" />
+291-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:244:17-71
+291-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:244:25-68
+292
+293                <category android:name="android.intent.category.DEFAULT" />
+293-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:17-76
+293-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:84:27-73
 294
-295        <receiver
-295-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
-296            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-296-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
-297            android:directBootAware="false"
-297-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
-298            android:enabled="true"
-298-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
-299            android:exported="true"
-299-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
-300            android:permission="android.permission.DUMP" >
-300-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
-301            <intent-filter>
-301-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
-302                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-302-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
-302-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
-303            </intent-filter>
-304            <intent-filter>
-304-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
-305                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-305-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
-305-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
-306            </intent-filter>
-307            <intent-filter>
-307-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
-308                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-308-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
-308-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
-309            </intent-filter>
-310            <intent-filter>
-310-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
-311                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-311-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
-311-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
-312            </intent-filter>
-313        </receiver>
-314    </application>
-315
-316</manifest>
+295                <data android:scheme="sms" />
+295-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+295-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+296                <data android:scheme="smsto" />
+296-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+296-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+297                <data android:scheme="mms" />
+297-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+297-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+298                <data android:scheme="mmsto" />
+298-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:13-65
+298-->/home/abdullahbinhasan/Working/Personal/CallAssistant/app/src/main/AndroidManifest.xml:41:19-41
+299            </intent-filter>
+300        </activity>
+301        <activity
+301-->[androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/837e76c921fc4035f70d73094bb9d92f/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:23:9-25:39
+302            android:name="androidx.activity.ComponentActivity"
+302-->[androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/837e76c921fc4035f70d73094bb9d92f/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:24:13-63
+303            android:exported="true" />
+303-->[androidx.compose.ui:ui-test-manifest:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/837e76c921fc4035f70d73094bb9d92f/transformed/ui-test-manifest-1.6.1/AndroidManifest.xml:25:13-36
+304        <activity
+304-->[androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/25629040087ab45d29ab97dd197ed381/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+305            android:name="androidx.compose.ui.tooling.PreviewActivity"
+305-->[androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/25629040087ab45d29ab97dd197ed381/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+306            android:exported="true" />
+306-->[androidx.compose.ui:ui-tooling-android:1.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/25629040087ab45d29ab97dd197ed381/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+307
+308        <provider
+308-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:29:9-37:20
+309            android:name="androidx.startup.InitializationProvider"
+309-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:30:13-67
+310            android:authorities="com.callassistant.androidx-startup"
+310-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:31:13-68
+311            android:exported="false" >
+311-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:32:13-37
+312            <meta-data
+312-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:34:13-36:52
+313                android:name="androidx.work.WorkManagerInitializer"
+313-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:35:17-68
+314                android:value="androidx.startup" />
+314-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:36:17-49
+315            <meta-data
+315-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+316                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+316-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+317                android:value="androidx.startup" />
+317-->[androidx.emoji2:emoji2:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/624808ca9603fd35f2a07bfbe8a4ce00/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+318            <meta-data
+318-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/ac0b44c0eacf2402e16adcfaa03bcbea/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+319                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+319-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/ac0b44c0eacf2402e16adcfaa03bcbea/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+320                android:value="androidx.startup" />
+320-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/ac0b44c0eacf2402e16adcfaa03bcbea/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+321            <meta-data
+321-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+322                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+322-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+323                android:value="androidx.startup" />
+323-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+324        </provider>
+325
+326        <service
+326-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:39:9-45:35
+327            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+327-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:40:13-88
+328            android:directBootAware="false"
+328-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:41:13-44
+329            android:enabled="@bool/enable_system_alarm_service_default"
+329-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:42:13-72
+330            android:exported="false" />
+330-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:43:13-37
+331        <service
+331-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:46:9-52:35
+332            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+332-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:47:13-84
+333            android:directBootAware="false"
+333-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:48:13-44
+334            android:enabled="@bool/enable_system_job_service_default"
+334-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:49:13-70
+335            android:exported="true"
+335-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:50:13-36
+336            android:permission="android.permission.BIND_JOB_SERVICE" />
+336-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:51:13-69
+337
+338        <receiver
+338-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:61:9-66:35
+339            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+339-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:62:13-88
+340            android:directBootAware="false"
+340-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:63:13-44
+341            android:enabled="true"
+341-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:64:13-35
+342            android:exported="false" />
+342-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:65:13-37
+343        <receiver
+343-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:67:9-77:20
+344            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+344-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:68:13-106
+345            android:directBootAware="false"
+345-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:69:13-44
+346            android:enabled="false"
+346-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:70:13-36
+347            android:exported="false" >
+347-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:71:13-37
+348            <intent-filter>
+348-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:73:13-76:29
+349                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+349-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:74:17-87
+349-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:74:25-84
+350                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+350-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:75:17-90
+350-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:75:25-87
+351            </intent-filter>
+352        </receiver>
+353        <receiver
+353-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:78:9-88:20
+354            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+354-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:79:13-104
+355            android:directBootAware="false"
+355-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:80:13-44
+356            android:enabled="false"
+356-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:81:13-36
+357            android:exported="false" >
+357-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:82:13-37
+358            <intent-filter>
+358-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:84:13-87:29
+359                <action android:name="android.intent.action.BATTERY_OKAY" />
+359-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:85:17-77
+359-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:85:25-74
+360                <action android:name="android.intent.action.BATTERY_LOW" />
+360-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:86:17-76
+360-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:86:25-73
+361            </intent-filter>
+362        </receiver>
+363        <receiver
+363-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:89:9-99:20
+364            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+364-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:90:13-104
+365            android:directBootAware="false"
+365-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:91:13-44
+366            android:enabled="false"
+366-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:92:13-36
+367            android:exported="false" >
+367-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:93:13-37
+368            <intent-filter>
+368-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:95:13-98:29
+369                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+369-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:96:17-83
+369-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:96:25-80
+370                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+370-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:97:17-82
+370-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:97:25-79
+371            </intent-filter>
+372        </receiver>
+373        <receiver
+373-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:100:9-109:20
+374            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+374-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:101:13-103
+375            android:directBootAware="false"
+375-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:102:13-44
+376            android:enabled="false"
+376-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:103:13-36
+377            android:exported="false" >
+377-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:104:13-37
+378            <intent-filter>
+378-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:106:13-108:29
+379                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+379-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:107:17-79
+379-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:107:25-76
+380            </intent-filter>
+381        </receiver>
+382        <receiver
+382-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:110:9-121:20
+383            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+383-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:111:13-88
+384            android:directBootAware="false"
+384-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:112:13-44
+385            android:enabled="false"
+385-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:113:13-36
+386            android:exported="false" >
+386-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:114:13-37
+387            <intent-filter>
+387-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:116:13-120:29
+388                <action android:name="android.intent.action.BOOT_COMPLETED" />
+388-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:117:17-79
+388-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:117:25-76
+389                <action android:name="android.intent.action.TIME_SET" />
+389-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:118:17-73
+389-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:118:25-70
+390                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+390-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:119:17-81
+390-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:119:25-78
+391            </intent-filter>
+392        </receiver>
+393        <receiver
+393-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:122:9-131:20
+394            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+394-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:123:13-99
+395            android:directBootAware="false"
+395-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:124:13-44
+396            android:enabled="@bool/enable_system_alarm_service_default"
+396-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:125:13-72
+397            android:exported="false" >
+397-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:126:13-37
+398            <intent-filter>
+398-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:128:13-130:29
+399                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+399-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:129:17-98
+399-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:129:25-95
+400            </intent-filter>
+401        </receiver>
+402        <receiver
+402-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:132:9-142:20
+403            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+403-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:133:13-78
+404            android:directBootAware="false"
+404-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:134:13-44
+405            android:enabled="true"
+405-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:135:13-35
+406            android:exported="true"
+406-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:136:13-36
+407            android:permission="android.permission.DUMP" >
+407-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:137:13-57
+408            <intent-filter>
+408-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:139:13-141:29
+409                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+409-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:140:17-88
+409-->[androidx.work:work-runtime:2.9.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/88d4efd811bedcbec7508ad02d97b895/transformed/work-runtime-2.9.0/AndroidManifest.xml:140:25-85
+410            </intent-filter>
+411        </receiver>
+412
+413        <service
+413-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+414            android:name="androidx.room.MultiInstanceInvalidationService"
+414-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+415            android:directBootAware="true"
+415-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+416            android:exported="false" />
+416-->[androidx.room:room-runtime:2.6.1] /home/abdullahbinhasan/.gradle/caches/transforms-3/0bcd4273320ee474a6cb4760b9f90f58/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+417
+418        <receiver
+418-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+419            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+419-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+420            android:directBootAware="false"
+420-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+421            android:enabled="true"
+421-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+422            android:exported="true"
+422-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+423            android:permission="android.permission.DUMP" >
+423-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+424            <intent-filter>
+424-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+425                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+425-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+425-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+426            </intent-filter>
+427            <intent-filter>
+427-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+428                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+428-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+428-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+429            </intent-filter>
+430            <intent-filter>
+430-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+431                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+431-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+431-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+432            </intent-filter>
+433            <intent-filter>
+433-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+434                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+434-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+434-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/abdullahbinhasan/.gradle/caches/transforms-3/44772001d1e56ed7133986fd45ab007d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+435            </intent-filter>
+436        </receiver>
+437    </application>
+438
+439</manifest>

@@ -55,6 +55,11 @@ import com.callassistant.data.entity.SmsDirection
 import com.callassistant.data.entity.SmsMessage
 import com.callassistant.permission.Permissions
 import com.callassistant.ui.MessagesViewModel
+import com.callassistant.ui.messageai.MessageAiViewModel
+import com.callassistant.ui.components.MessageContextMenuDialog
+import com.callassistant.ui.components.LinkifiedMessageText
+import com.callassistant.ui.util.ResponsiveScreenContainer
+import com.callassistant.ui.util.rememberListLayoutMetrics
 import com.callassistant.ui.components.MessageEmptyState
 import com.callassistant.ui.components.MessageThreadListSkeleton
 import com.callassistant.ui.components.MessageSectionHeader
@@ -88,13 +93,20 @@ private data class ThreadSummary(
 @Composable
 fun MessagesScreen(
     viewModel: MessagesViewModel,
+    aiViewModel: MessageAiViewModel,
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
+    onOpenAiSettings: () -> Unit = {},
+    onOverlayActiveChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedThread by remember { mutableStateOf<String?>(null) }
     var showNewMessage by remember { mutableStateOf(false) }
     val pendingThread by viewModel.pendingThreadNumber.collectAsStateWithLifecycle()
+
+    LaunchedEffect(showNewMessage, selectedThread) {
+        onOverlayActiveChange(showNewMessage || selectedThread != null)
+    }
 
     LaunchedEffect(pendingThread) {
         pendingThread?.let { number ->
@@ -118,6 +130,7 @@ fun MessagesScreen(
             var selectedNumbers by remember { mutableStateOf(setOf<String>()) }
             val inSelectionMode = selectedNumbers.isNotEmpty()
             var showDeleteDialog by remember { mutableStateOf(false) }
+            var contextMenuThread by remember { mutableStateOf<ThreadSummary?>(null) }
             val deleteProgress = uiState.deleteProgress
             val hasReadSms = hasPermission(Permissions.readSms.permission)
 
@@ -207,11 +220,19 @@ fun MessagesScreen(
                 )
             }
 
+            val listMetrics = rememberListLayoutMetrics(inSelectionMode)
+            val threadOpen = selectedThread != null || showNewMessage
+
+            if (!threadOpen) {
+            ResponsiveScreenContainer {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(
+                            horizontal = listMetrics.horizontalPadding,
+                            vertical = listMetrics.itemVerticalPadding
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -328,7 +349,7 @@ fun MessagesScreen(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(bottom = 88.dp)
+                        contentPadding = PaddingValues(bottom = listMetrics.fabClearance)
                     ) {
                         if (todayThreads.isNotEmpty()) {
                             item { MessageSectionHeader("Today") }
@@ -342,7 +363,7 @@ fun MessagesScreen(
                                         onSelect = { selectedNumbers = it },
                                         onOpen = { selectedThread = thread.number }
                                     ),
-                                    onLongClick = { selectedNumbers = selectedNumbers + thread.number }
+                                    onLongClick = { contextMenuThread = thread }
                                 )
                             }
                         }
@@ -358,7 +379,7 @@ fun MessagesScreen(
                                         onSelect = { selectedNumbers = it },
                                         onOpen = { selectedThread = thread.number }
                                     ),
-                                    onLongClick = { selectedNumbers = selectedNumbers + thread.number }
+                                    onLongClick = { contextMenuThread = thread }
                                 )
                             }
                         }
@@ -374,7 +395,7 @@ fun MessagesScreen(
                                         onSelect = { selectedNumbers = it },
                                         onOpen = { selectedThread = thread.number }
                                     ),
-                                    onLongClick = { selectedNumbers = selectedNumbers + thread.number }
+                                    onLongClick = { contextMenuThread = thread }
                                 )
                             }
                             if (hasMoreOlderThreads) {
@@ -393,24 +414,41 @@ fun MessagesScreen(
                     }
                 }
             }
+            }
+            }
+
+            contextMenuThread?.let { thread ->
+                MessageContextMenuDialog(
+                    messageText = thread.lastBody,
+                    title = thread.name,
+                    onDismiss = { contextMenuThread = null },
+                    onSelect = {
+                        selectedNumbers = selectedNumbers + thread.number
+                    }
+                )
+            }
         }
 
-        ExtendedFloatingActionButton(
-            onClick = { showNewMessage = true },
-            icon = { Icon(Icons.Default.Add, contentDescription = null) },
-            text = { Text("New message") },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        )
+        if (selectedThread == null && !showNewMessage) {
+            ExtendedFloatingActionButton(
+                onClick = { showNewMessage = true },
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("New message") },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
+        }
 
         selectedThread?.let { number ->
             MessageThreadScreen(
                 number = number,
                 viewModel = viewModel,
+                aiViewModel = aiViewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 onBack = { selectedThread = null },
+                onOpenAiSettings = onOpenAiSettings,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -418,9 +456,11 @@ fun MessagesScreen(
         if (showNewMessage) {
             NewMessageScreen(
                 viewModel = viewModel,
+                aiViewModel = aiViewModel,
                 hasPermission = hasPermission,
                 requestPermissions = requestPermissions,
                 onBack = { showNewMessage = false },
+                onOpenAiSettings = onOpenAiSettings,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -456,6 +496,7 @@ private fun ThreadListItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
+    val metrics = rememberListLayoutMetrics(inSelectionMode)
     val preview = formatMessagePreview(thread.lastBody, thread.lastDirection)
     val background = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
@@ -472,9 +513,12 @@ private fun ThreadListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(
+                    horizontal = metrics.horizontalPadding,
+                    vertical = metrics.itemVerticalPadding
+                ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            horizontalArrangement = Arrangement.spacedBy(metrics.rowGap)
         ) {
             if (inSelectionMode) {
                 Checkbox(
@@ -485,7 +529,7 @@ private fun ThreadListItem(
             ContactAvatar(
                 name = thread.name,
                 photoUri = thread.photoUri,
-                size = 52.dp
+                size = metrics.avatarSize
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -511,17 +555,18 @@ private fun ThreadListItem(
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
-                Text(
+                LinkifiedMessageText(
                     text = preview,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    onNonLinkClick = onClick
                 )
             }
         }
         HorizontalDivider(
-            modifier = Modifier.padding(start = if (inSelectionMode) 16.dp else 82.dp),
+            modifier = Modifier.padding(start = metrics.dividerInset),
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         )
     }

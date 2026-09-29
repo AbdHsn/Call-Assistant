@@ -91,6 +91,10 @@ import com.callassistant.ui.components.MessageEmptyState
 import com.callassistant.ui.components.PhoneBookListSkeleton
 import com.callassistant.ui.components.PermissionGuard
 import com.callassistant.ui.components.PhoneBookListDivider
+import com.callassistant.ui.components.PhoneBookContactActions
+import com.callassistant.ui.components.PhoneBookOverflowAction
+import com.callassistant.ui.util.ResponsiveScreenContainer
+import com.callassistant.ui.util.rememberListLayoutMetrics
 import com.callassistant.ui.components.PhoneBookSearchRow
 import com.callassistant.ui.components.PhoneBookSelectionBar
 import com.callassistant.ui.components.PhoneBookTonalActionButton
@@ -284,7 +288,10 @@ fun ContactsScreen(
             )
         }
 
+        val listMetrics = rememberListLayoutMetrics(inSelectionMode)
+
         Box(modifier = Modifier.fillMaxSize()) {
+            ResponsiveScreenContainer {
             Column(modifier = Modifier.fillMaxSize()) {
                 PhoneBookSearchRow(
                     query = query,
@@ -368,7 +375,7 @@ fun ContactsScreen(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(bottom = 88.dp)
+                        contentPadding = PaddingValues(bottom = listMetrics.fabClearance)
                     ) {
                         items(displayedContacts, key = { it.id }) { contact ->
                             val isSelected = contact.id in selectedIds
@@ -409,66 +416,34 @@ fun ContactsScreen(
                                 },
                                 trailing = {
                                     if (!inSelectionMode) {
-                                        PhoneBookTonalActionButton(
-                                            icon = Icons.Filled.Call,
-                                            contentDescription = "Call",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            onClick = {
-                                                if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                                    context.startActivity(
-                                                        Intent(Intent.ACTION_CALL, Uri.parse("tel:${contact.phoneNumber}"))
-                                                    )
-                                                } else {
-                                                    requestPermissions()
+                                        PhoneBookContactActions(
+                                            onCall = {
+                                                when (com.callassistant.util.CallPlacer.placeCallWithFeedback(
+                                                    context,
+                                                    contact.phoneNumber
+                                                )) {
+                                                    com.callassistant.util.CallPlaceResult.NeedPermission ->
+                                                        requestPermissions()
+                                                    else -> Unit
                                                 }
-                                            }
+                                            },
+                                            onMessage = { onOpenMessage(contact.phoneNumber) },
+                                            overflowActions = listOf(
+                                                PhoneBookOverflowAction("Edit") {
+                                                    editingContact = contact
+                                                    showContactDialog = true
+                                                },
+                                                PhoneBookOverflowAction("Share") {
+                                                    shareContact(context, contact)
+                                                },
+                                                PhoneBookOverflowAction("WhatsApp") {
+                                                    openWhatsApp(context, contact.phoneNumber)
+                                                },
+                                                PhoneBookOverflowAction("IMO") {
+                                                    openImo(context, contact.phoneNumber)
+                                                }
+                                            )
                                         )
-                                        PhoneBookTonalActionButton(
-                                            icon = Icons.AutoMirrored.Filled.Message,
-                                            contentDescription = "Message",
-                                            tint = MessageBlue,
-                                            onClick = { onOpenMessage(contact.phoneNumber) }
-                                        )
-                                        Box {
-                                            var expanded by remember { mutableStateOf(false) }
-                                            IconButton(onClick = { expanded = true }) {
-                                                Icon(Icons.Filled.MoreVert, contentDescription = "More options")
-                                            }
-                                            DropdownMenu(
-                                                expanded = expanded,
-                                                onDismissRequest = { expanded = false }
-                                            ) {
-                                                DropdownMenuItem(
-                                                    text = { Text("Edit") },
-                                                    onClick = {
-                                                        expanded = false
-                                                        editingContact = contact
-                                                        showContactDialog = true
-                                                    }
-                                                )
-                                                DropdownMenuItem(
-                                                    text = { Text("Share") },
-                                                    onClick = {
-                                                        expanded = false
-                                                        shareContact(context, contact)
-                                                    }
-                                                )
-                                                DropdownMenuItem(
-                                                    text = { Text("WhatsApp") },
-                                                    onClick = {
-                                                        expanded = false
-                                                        openWhatsApp(context, contact.phoneNumber)
-                                                    }
-                                                )
-                                                DropdownMenuItem(
-                                                    text = { Text("IMO") },
-                                                    onClick = {
-                                                        expanded = false
-                                                        openImo(context, contact.phoneNumber)
-                                                    }
-                                                )
-                                            }
-                                        }
                                     }
                                 }
                             )
@@ -487,6 +462,7 @@ fun ContactsScreen(
                         }
                     }
                 }
+            }
             }
             ExtendedFloatingActionButton(
                 onClick = {
@@ -636,12 +612,12 @@ internal fun ContactListItem(
     onLongClick: () -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {}
 ) {
+    val metrics = rememberListLayoutMetrics(inSelectionMode)
     val background = if (selected && inSelectionMode) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
     } else {
         MaterialTheme.colorScheme.surface
     }
-    val dividerInset = if (inSelectionMode) 16.dp else 82.dp
 
     Column(
         modifier = modifier
@@ -652,9 +628,12 @@ internal fun ContactListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(
+                    horizontal = metrics.horizontalPadding,
+                    vertical = metrics.itemVerticalPadding
+                ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            horizontalArrangement = Arrangement.spacedBy(metrics.rowGap)
         ) {
             if (inSelectionMode) {
                 Checkbox(
@@ -662,7 +641,7 @@ internal fun ContactListItem(
                     onCheckedChange = onToggleSelected
                 )
             }
-            ContactAvatar(name = name, photoUri = photoUri, size = 52.dp)
+            ContactAvatar(name = name, photoUri = photoUri, size = metrics.avatarSize)
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -676,7 +655,7 @@ internal fun ContactListItem(
                 content = trailing
             )
         }
-        PhoneBookListDivider(leadingInset = dividerInset)
+        PhoneBookListDivider(leadingInset = metrics.dividerInset)
     }
 }
 

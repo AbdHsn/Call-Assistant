@@ -7,114 +7,164 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
-import android.telephony.PhoneStateListener
-import android.telephony.TelephonyCallback
-import android.telephony.TelephonyManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.callassistant.MainActivity
+import com.callassistant.util.AppNotificationIcons.applyAppIcons
 import com.callassistant.util.CallRecorder
+import com.callassistant.util.CallRecordingPolicy
+import com.callassistant.util.CallRecordingState
 
 class CallRecordingService : Service() {
 
     private val callRecorder by lazy { CallRecorder(this) }
     private var currentNumber: String = ""
-
-    private var telephonyCallback: TelephonyCallback? = null
-    @Suppress("DEPRECATION")
-    private var phoneStateListener: PhoneStateListener? = null
+    private var currentIsIncoming: Boolean = false
+    private var isForegroundActive: Boolean = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        registerCallStateListener()
-        startForeground(NOTIFICATION_ID, buildNotification("Call recorder active"))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
                 currentNumber = intent.getStringExtra(EXTRA_NUMBER) ?: currentNumber
-                startForeground(NOTIFICATION_ID, buildNotification("Recording call..."))
-                startRecording(currentNumber)
+                currentIsIncoming = intent.getBooleanExtra(EXTRA_INCOMING, false)
+                val manual = intent.getBooleanExtra(EXTRA_MANUAL, false)
+                val requireBootstrap = intent.getBooleanExtra(EXTRA_REQUIRE_FGS_BOOTSTRAP, false)
+                if (requireBootstrap) {
+                    bootstrapForeground()
+                }
+                startRecording(currentNumber, currentIsIncoming, manual)
             }
             ACTION_SET_NUMBER -> {
                 currentNumber = intent.getStringExtra(EXTRA_NUMBER) ?: currentNumber
             }
-            ACTION_STOP -> stopRecording()
+            ACTION_STOP -> {
+                if (!isRecording && !callRecorder.isRecording) {
+                    shutdownIfIdle()
+                } else {
+                    stopRecording()
+                }
+            }
         }
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
-        stopRecording()
-        unregisterCallStateListener()
+        stopRecordingInternal(stopService = false)
         super.onDestroy()
     }
 
-    private fun registerCallStateListener() {
-        val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val callback = object : TelephonyCallback(), TelephonyCallback.CallStateListener {
-                override fun onCallStateChanged(state: Int) {
-                    when (state) {
-                        TelephonyManager.CALL_STATE_OFFHOOK -> startRecording(currentNumber)
-                        TelephonyManager.CALL_STATE_IDLE -> stopRecording()
-                    }
-                }
-            }
-            telephonyCallback = callback
-            tm.registerTelephonyCallback(ContextCompat.getMainExecutor(this), callback)
-        } else {
-            @Suppress("DEPRECATION")
-            val listener = object : PhoneStateListener() {
-                override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                    when (state) {
-                        TelephonyManager.CALL_STATE_OFFHOOK -> startRecording(phoneNumber ?: currentNumber)
-                        TelephonyManager.CALL_STATE_IDLE -> stopRecording()
-                    }
-                }
-            }
-            phoneStateListener = listener
-            @Suppress("DEPRECATION")
-            tm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
+    private fun startRecording(number: String, isIncoming: Boolean, manual: Boolean) {
+        if (isRecording || callRecorder.isRecording) return
+        if (!manual && !CallRecordingPolicy.shouldAutoRecord(this, number, isIncoming)) {
+            shutdownIfIdle()
+            return
         }
-    }
-
-    private fun unregisterCallStateListener() {
-        val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            telephonyCallback?.let { tm.unregisterTelephonyCallback(it) }
+        if (!CallRecordingPolicy.hasRecordAudioPermission(this)) {
+            CallRecordingState.onFailed("Microphone permission required")
+            shutdownIfIdle()
+            return
         }
-        @Suppress("DEPRECATION")
-        phoneStateListener?.let { tm.listen(it, PhoneStateListener.LISTEN_NONE) }
-    }
 
-    private fun startRecording(number: String) {
-        if (isRecording || !shouldRecord()) return
         val success = callRecorder.start(number)
         if (success) {
             isRecording = true
+            CallRecordingState.onStarted(auto = !manual)
+            ensureForeground(
+                if (manual) {
+                    "Recording call — tap Stop in call screen to end"
+                } else {
+                    "Auto-recording call — tap Stop in call screen to end"
+                }
+            )
         } else {
-            updateNotification("Call recording failed to start")
+            Log.w(TAG, "Call recording failed to start for $number")
+            CallRecordingState.onFailed("Could not start recording — try speakerphone")
+            shutdownIfIdle()
         }
     }
 
     private fun stopRecording() {
-        if (!isRecording && !callRecorder.isRecording) return
-        callRecorder.stop()
-        isRecording = false
-        stopForeground(Service.STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        stopRecordingInternal(stopService = true)
     }
 
-    private fun shouldRecord(): Boolean {
-        val prefs = getSharedPreferences("recorder_settings", Context.MODE_PRIVATE)
-        return prefs.getBoolean("auto_record_enabled", true)
+    private fun stopRecordingInternal(stopService: Boolean) {
+        if (callRecorder.isRecording) {
+            callRecorder.stop()
+        }
+        isRecording = false
+        CallRecordingState.onStopped()
+        if (isForegroundActive) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } else {
+                @Suppress("DEPRECATION")
+                stopForeground(true)
+            }
+            isForegroundActive = false
+        }
+        if (stopService) stopSelf()
+    }
+
+    private fun shutdownIfIdle() {
+        if (isForegroundActive) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } else {
+                @Suppress("DEPRECATION")
+                stopForeground(true)
+            }
+            isForegroundActive = false
+        }
+        if (!isRecording && !callRecorder.isRecording) {
+            stopSelf()
+        }
+    }
+
+    /** Satisfies the startForegroundService deadline without opening a microphone AppOp. */
+    private fun bootstrapForeground() {
+        if (isForegroundActive) return
+        val notification = buildNotification("Preparing recording...")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            startForeground(NOTIFICATION_ID, notification)
+        }
+        isForegroundActive = true
+    }
+
+    private fun ensureForeground(text: String) {
+        val notification = buildNotification(text)
+        if (!isForegroundActive) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                startForeground(NOTIFICATION_ID, notification)
+            }
+            isForegroundActive = true
+        } else {
+            getSystemService(NotificationManager::class.java)?.notify(NOTIFICATION_ID, notification)
+        }
     }
 
     private fun createNotificationChannel() {
@@ -127,8 +177,7 @@ class CallRecordingService : Service() {
                 description = "Notifications for ongoing call recording"
                 setSound(null, null)
             }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager?.createNotificationChannel(channel)
+            getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
         }
     }
 
@@ -140,21 +189,17 @@ class CallRecordingService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
+            .applyAppIcons(this)
             .setContentTitle("Call Assistant")
             .setContentText(text)
-            .setSmallIcon(com.callassistant.R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setSilent(true)
             .build()
     }
 
-    private fun updateNotification(text: String) {
-        val manager = getSystemService(NotificationManager::class.java)
-        manager?.notify(NOTIFICATION_ID, buildNotification(text))
-    }
-
     companion object {
+        private const val TAG = "CallRecordingService"
         private const val CHANNEL_ID = "call_recorder_channel"
         private const val NOTIFICATION_ID = 1001
 
@@ -166,25 +211,67 @@ class CallRecordingService : Service() {
         const val ACTION_STOP = "com.callassistant.action.STOP_RECORDING"
         const val ACTION_SET_NUMBER = "com.callassistant.action.SET_NUMBER"
         const val EXTRA_NUMBER = "number"
+        const val EXTRA_INCOMING = "is_incoming"
+        const val EXTRA_MANUAL = "manual"
+        const val EXTRA_REQUIRE_FGS_BOOTSTRAP = "require_fgs_bootstrap"
 
-        fun start(context: Context, number: String = "") {
+        fun start(
+            context: Context,
+            number: String = "",
+            isIncoming: Boolean = false,
+            manual: Boolean = false
+        ) {
+            if (!CallRecordingPolicy.hasRecordAudioPermission(context)) return
             val intent = Intent(context, CallRecordingService::class.java)
                 .setAction(ACTION_START)
                 .putExtra(EXTRA_NUMBER, number)
-            context.startForegroundService(intent)
+                .putExtra(EXTRA_INCOMING, isIncoming)
+                .putExtra(EXTRA_MANUAL, manual)
+            try {
+                // During an active in-call UI session a normal service start is enough and
+                // avoids opening a microphone AppOp before MediaRecorder is running.
+                context.startService(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Unable to start call recording service", e)
+            }
+        }
+
+        fun startFromBackground(
+            context: Context,
+            number: String = "",
+            isIncoming: Boolean = false
+        ) {
+            if (!CallRecordingPolicy.hasRecordAudioPermission(context)) return
+            val intent = Intent(context, CallRecordingService::class.java)
+                .setAction(ACTION_START)
+                .putExtra(EXTRA_NUMBER, number)
+                .putExtra(EXTRA_INCOMING, isIncoming)
+                .putExtra(EXTRA_MANUAL, false)
+                .putExtra(EXTRA_REQUIRE_FGS_BOOTSTRAP, true)
+            try {
+                ContextCompat.startForegroundService(context, intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Unable to start call recording service from background", e)
+            }
         }
 
         fun stop(context: Context) {
             val intent = Intent(context, CallRecordingService::class.java)
                 .setAction(ACTION_STOP)
-            context.startService(intent)
+            try {
+                context.startService(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Unable to stop call recording service", e)
+            }
         }
 
         fun setNumber(context: Context, number: String) {
-            val intent = Intent(context, CallRecordingService::class.java)
-                .setAction(ACTION_SET_NUMBER)
-                .putExtra(EXTRA_NUMBER, number)
-            context.startService(intent)
+            context.getSharedPreferences("recorder_settings", Context.MODE_PRIVATE)
+                .edit()
+                .putString(PENDING_NUMBER_KEY, number)
+                .apply()
         }
+
+        private const val PENDING_NUMBER_KEY = "pending_call_number"
     }
 }

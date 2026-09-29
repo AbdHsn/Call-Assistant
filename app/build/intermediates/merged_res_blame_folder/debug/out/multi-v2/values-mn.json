@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.callassistant.app-mergeDebugResources-60:/values-mn/values-mn.xml",
+            "outputFile": "com.callassistant.app-mergeDebugResources-63:/values-mn/values-mn.xml",
             "map": [
                 {
                     "source": "/home/abdullahbinhasan/.gradle/caches/transforms-3/1256858c87fd72bcdced513e0243bb24/transformed/material3-release/res/values-mn/values-mn.xml",

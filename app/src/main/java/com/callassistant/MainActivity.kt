@@ -8,9 +8,11 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.callassistant.service.CallRecordingAccessibilityService
 import com.callassistant.ui.SetupScreen
 import android.app.role.RoleManager
@@ -35,10 +37,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callassistant.ui.MainApp
 import com.callassistant.ui.MainViewModel
 import com.callassistant.ui.theme.CallAssistantTheme
+import com.callassistant.receiver.CallReminderReceiver
+import com.callassistant.util.CallNotificationManager
+import com.callassistant.util.CallPlacer
+import com.callassistant.util.DefaultDialerUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val intentVersion = MutableStateFlow(0)
 
     private val requiredPermissions = mutableListOf(
         Manifest.permission.READ_CONTACTS,
@@ -95,10 +103,18 @@ class MainActivity : ComponentActivity() {
         promptDefaultDialerIfNeeded()
         promptDefaultSmsAppIfNeeded()
         promptCallScreeningRoleIfNeeded()
+        handlePlaceCallIntent(intent)
         setContent {
             val viewModel: MainViewModel = hiltViewModel()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             var isReady by remember { mutableStateOf(isSetupCompleted()) }
+            val intentVersionState by intentVersion.collectAsStateWithLifecycle()
+            var openCallLogFromNotification by remember { mutableStateOf(false) }
+            LaunchedEffect(intentVersionState) {
+                if (intent.getBooleanExtra(CallNotificationManager.EXTRA_OPEN_CALL_LOG, false)) {
+                    openCallLogFromNotification = true
+                }
+            }
 
             CallAssistantTheme(themeMode = themeMode) {
                 Surface(
@@ -111,12 +127,21 @@ class MainActivity : ComponentActivity() {
                             hasPermission = { permission ->
                                 ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
                             },
+                            isDefaultDialer = { DefaultDialerUtils.isDefaultDialer(this) },
+                            onRequestDefaultDialer = {
+                                DefaultDialerUtils.createRequestIntent(this)?.let { defaultDialerLauncher.launch(it) }
+                            },
                             isAccessibilityEnabled = ::isAccessibilityServiceEnabled,
                             isBatteryIgnored = ::isIgnoringBatteryOptimizations,
                             requestBatteryOpt = ::requestBatteryOptimizationExemption,
                             openBatterySettings = ::openBatteryOptimizationSettings,
                             openAppSettings = ::openApplicationDetailsSettings,
-                            openAccessibility = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+                            openAccessibility = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
+                            openCallLogFromNotification = openCallLogFromNotification,
+                            onOpenCallLogHandled = {
+                                intent.removeExtra(CallNotificationManager.EXTRA_OPEN_CALL_LOG)
+                                openCallLogFromNotification = false
+                            }
                         )
                     } else {
                         SetupScreen(
@@ -125,6 +150,10 @@ class MainActivity : ComponentActivity() {
                             },
                             onRequestPermissions = { requestPermissionLauncher.launch(setupPermissions) },
                             onOpenAppSettings = { openApplicationDetailsSettings() },
+                            isDefaultDialer = { DefaultDialerUtils.isDefaultDialer(this) },
+                            onRequestDefaultDialer = {
+                                DefaultDialerUtils.createRequestIntent(this)?.let { defaultDialerLauncher.launch(it) }
+                            },
                             isAccessibilityEnabled = { isAccessibilityServiceEnabled() },
                             onOpenAccessibility = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
                             isBatteryOptimizationIgnored = { isIgnoringBatteryOptimizations() },
@@ -138,14 +167,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handlePlaceCallIntent(intent)
+        intentVersion.value++
+    }
+
+    private fun handlePlaceCallIntent(intent: Intent?) {
+        val number = intent?.getStringExtra(CallReminderReceiver.EXTRA_PLACE_CALL) ?: return
+        intent.removeExtra(CallReminderReceiver.EXTRA_PLACE_CALL)
+        CallPlacer.placeCallWithFeedback(this, number)
+    }
+
     private fun promptDefaultDialerIfNeeded() {
-        val telecom = getSystemService(TelecomManager::class.java) ?: return
-        if (telecom.defaultDialerPackage != packageName) {
-            val intent = Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).apply {
-                putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
-            }
-            defaultDialerLauncher.launch(intent)
-        }
+        if (DefaultDialerUtils.isDefaultDialer(this)) return
+        DefaultDialerUtils.createRequestIntent(this)?.let { defaultDialerLauncher.launch(it) }
     }
 
     private fun promptDefaultSmsAppIfNeeded() {

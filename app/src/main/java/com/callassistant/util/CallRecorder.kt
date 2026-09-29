@@ -68,17 +68,17 @@ class CallRecorder(private val context: Context) {
             val saved = prefs.getString("audio_source", null)?.toIntOrNull()
             if (saved != null) {
                 listOf(saved) + listOf(
-                    MediaRecorder.AudioSource.VOICE_CALL,
-                    MediaRecorder.AudioSource.VOICE_RECOGNITION,
                     MediaRecorder.AudioSource.VOICE_COMMUNICATION,
-                    MediaRecorder.AudioSource.MIC
+                    MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                    MediaRecorder.AudioSource.MIC,
+                    MediaRecorder.AudioSource.VOICE_CALL
                 ).filter { it != saved }
             } else {
                 listOf(
-                    MediaRecorder.AudioSource.VOICE_CALL,
-                    MediaRecorder.AudioSource.VOICE_RECOGNITION,
                     MediaRecorder.AudioSource.VOICE_COMMUNICATION,
-                    MediaRecorder.AudioSource.MIC
+                    MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                    MediaRecorder.AudioSource.MIC,
+                    MediaRecorder.AudioSource.VOICE_CALL
                 )
             }
         }

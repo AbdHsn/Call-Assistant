@@ -17,7 +17,7 @@ class MainViewModel @Inject constructor(
 
     val themeMode: StateFlow<ThemeMode> = settingsRepository.themeMode
 
-    private val _selectedRoute = MutableStateFlow<AppRoute>(AppRoute.DialPad)
+    private val _selectedRoute = MutableStateFlow<AppRoute>(AppRoute.CallLog)
     val selectedRoute: StateFlow<AppRoute> = _selectedRoute.asStateFlow()
 
     fun selectRoute(route: AppRoute) {

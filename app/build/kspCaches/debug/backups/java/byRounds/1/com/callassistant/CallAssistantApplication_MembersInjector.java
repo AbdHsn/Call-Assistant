@@ -1,5 +1,6 @@
 package com.callassistant;
 
+import com.callassistant.data.repository.AiModelRepository;
 import com.callassistant.data.repository.SpamRuleRepository;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
@@ -24,24 +25,36 @@ import javax.inject.Provider;
 public final class CallAssistantApplication_MembersInjector implements MembersInjector<CallAssistantApplication> {
   private final Provider<SpamRuleRepository> spamRuleRepositoryProvider;
 
+  private final Provider<AiModelRepository> aiModelRepositoryProvider;
+
   public CallAssistantApplication_MembersInjector(
-      Provider<SpamRuleRepository> spamRuleRepositoryProvider) {
+      Provider<SpamRuleRepository> spamRuleRepositoryProvider,
+      Provider<AiModelRepository> aiModelRepositoryProvider) {
     this.spamRuleRepositoryProvider = spamRuleRepositoryProvider;
+    this.aiModelRepositoryProvider = aiModelRepositoryProvider;
   }
 
   public static MembersInjector<CallAssistantApplication> create(
-      Provider<SpamRuleRepository> spamRuleRepositoryProvider) {
-    return new CallAssistantApplication_MembersInjector(spamRuleRepositoryProvider);
+      Provider<SpamRuleRepository> spamRuleRepositoryProvider,
+      Provider<AiModelRepository> aiModelRepositoryProvider) {
+    return new CallAssistantApplication_MembersInjector(spamRuleRepositoryProvider, aiModelRepositoryProvider);
   }
 
   @Override
   public void injectMembers(CallAssistantApplication instance) {
     injectSpamRuleRepository(instance, spamRuleRepositoryProvider.get());
+    injectAiModelRepository(instance, aiModelRepositoryProvider.get());
   }
 
   @InjectedFieldSignature("com.callassistant.CallAssistantApplication.spamRuleRepository")
   public static void injectSpamRuleRepository(CallAssistantApplication instance,
       SpamRuleRepository spamRuleRepository) {
     instance.spamRuleRepository = spamRuleRepository;
+  }
+
+  @InjectedFieldSignature("com.callassistant.CallAssistantApplication.aiModelRepository")
+  public static void injectAiModelRepository(CallAssistantApplication instance,
+      AiModelRepository aiModelRepository) {
+    instance.aiModelRepository = aiModelRepository;
   }
 }

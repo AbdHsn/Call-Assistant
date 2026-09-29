@@ -1,5 +1,6 @@
 package com.callassistant.ui.phonebook;
 
+import android.content.Context;
 import com.callassistant.data.repository.CallLogRepository;
 import com.callassistant.data.repository.ContactRepository;
 import com.callassistant.data.repository.SpamRuleRepository;
@@ -11,7 +12,7 @@ import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 
 @ScopeMetadata
-@QualifierMetadata
+@QualifierMetadata("dagger.hilt.android.qualifiers.ApplicationContext")
 @DaggerGenerated
 @Generated(
     value = "dagger.internal.codegen.ComponentProcessor",
@@ -25,15 +26,19 @@ import javax.inject.Provider;
     "cast"
 })
 public final class PhoneBookViewModel_Factory implements Factory<PhoneBookViewModel> {
+  private final Provider<Context> contextProvider;
+
   private final Provider<ContactRepository> contactRepositoryProvider;
 
   private final Provider<CallLogRepository> callLogRepositoryProvider;
 
   private final Provider<SpamRuleRepository> spamRuleRepositoryProvider;
 
-  public PhoneBookViewModel_Factory(Provider<ContactRepository> contactRepositoryProvider,
+  public PhoneBookViewModel_Factory(Provider<Context> contextProvider,
+      Provider<ContactRepository> contactRepositoryProvider,
       Provider<CallLogRepository> callLogRepositoryProvider,
       Provider<SpamRuleRepository> spamRuleRepositoryProvider) {
+    this.contextProvider = contextProvider;
     this.contactRepositoryProvider = contactRepositoryProvider;
     this.callLogRepositoryProvider = callLogRepositoryProvider;
     this.spamRuleRepositoryProvider = spamRuleRepositoryProvider;
@@ -41,18 +46,18 @@ public final class PhoneBookViewModel_Factory implements Factory<PhoneBookViewMo
 
   @Override
   public PhoneBookViewModel get() {
-    return newInstance(contactRepositoryProvider.get(), callLogRepositoryProvider.get(), spamRuleRepositoryProvider.get());
+    return newInstance(contextProvider.get(), contactRepositoryProvider.get(), callLogRepositoryProvider.get(), spamRuleRepositoryProvider.get());
   }
 
-  public static PhoneBookViewModel_Factory create(
+  public static PhoneBookViewModel_Factory create(Provider<Context> contextProvider,
       Provider<ContactRepository> contactRepositoryProvider,
       Provider<CallLogRepository> callLogRepositoryProvider,
       Provider<SpamRuleRepository> spamRuleRepositoryProvider) {
-    return new PhoneBookViewModel_Factory(contactRepositoryProvider, callLogRepositoryProvider, spamRuleRepositoryProvider);
+    return new PhoneBookViewModel_Factory(contextProvider, contactRepositoryProvider, callLogRepositoryProvider, spamRuleRepositoryProvider);
   }
 
-  public static PhoneBookViewModel newInstance(ContactRepository contactRepository,
+  public static PhoneBookViewModel newInstance(Context context, ContactRepository contactRepository,
       CallLogRepository callLogRepository, SpamRuleRepository spamRuleRepository) {
-    return new PhoneBookViewModel(contactRepository, callLogRepository, spamRuleRepository);
+    return new PhoneBookViewModel(context, contactRepository, callLogRepository, spamRuleRepository);
   }
 }

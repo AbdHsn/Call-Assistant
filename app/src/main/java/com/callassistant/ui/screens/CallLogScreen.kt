@@ -37,7 +37,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -80,15 +80,19 @@ import com.callassistant.ui.theme.SuccessGreen
 import com.callassistant.permission.Permissions
 import com.callassistant.ui.phonebook.PhoneBookViewModel
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.ui.text.style.TextOverflow
 import com.callassistant.ui.components.AddContactDialog
+import com.callassistant.ui.components.DefaultDialerBanner
 import com.callassistant.ui.components.MessageEmptyState
 import com.callassistant.ui.components.PhoneBookListSkeleton
 import com.callassistant.ui.components.MessageSectionHeader
 import com.callassistant.ui.components.PermissionGuard
 import com.callassistant.ui.components.PhoneBookListDivider
 import com.callassistant.ui.components.PhoneBookSearchRow
+import com.callassistant.ui.components.PhoneBookContactActions
+import com.callassistant.ui.components.PhoneBookOverflowAction
+import com.callassistant.ui.util.ResponsiveScreenContainer
+import com.callassistant.ui.util.rememberListLayoutMetrics
 import com.callassistant.ui.components.PhoneBookSelectionBar
 import com.callassistant.ui.components.PhoneBookTonalActionButton
 import com.callassistant.ui.components.formatThreadListTime
@@ -123,6 +127,7 @@ fun CallLogScreen(
     hasPermission: (String) -> Boolean,
     requestPermissions: () -> Unit,
     onOpenMessage: (String) -> Unit,
+    onOpenDialPad: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     PermissionGuard(
@@ -260,8 +265,12 @@ fun CallLogScreen(
             )
         }
 
+        val listMetrics = rememberListLayoutMetrics(inSelectionMode)
+
         Box(modifier = Modifier.fillMaxSize()) {
+            ResponsiveScreenContainer {
             Column(modifier = Modifier.fillMaxSize()) {
+                DefaultDialerBanner(modifier = Modifier.padding(bottom = 8.dp))
                 PhoneBookSearchRow(
                     query = query,
                     onQueryChange = { query = it },
@@ -286,7 +295,9 @@ fun CallLogScreen(
                     )
                 }
 
+                val missedCallsLastSeenAt = uiState.missedCallsLastSeenAt
                 val onOpenDetail = { number: String ->
+                    viewModel.markAllMissedCallsSeen()
                     selectedDetailNumber = number
                 }
                 val onToggleSelection = { number: String ->
@@ -317,13 +328,14 @@ fun CallLogScreen(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(bottom = 88.dp)
+                        contentPadding = PaddingValues(bottom = listMetrics.fabClearance)
                     ) {
                         if (todayGroups.isNotEmpty()) {
                             item { MessageSectionHeader("Today") }
                             items(todayGroups, key = { it.id }) { group ->
                                 CallLogGroupItem(
                                     group = group,
+                                    missedCallsLastSeenAt = missedCallsLastSeenAt,
                                     inSelectionMode = inSelectionMode,
                                     isSelected = group.number in selectedNumbers,
                                     onSelect = { onToggleSelection(group.number) },
@@ -341,6 +353,7 @@ fun CallLogScreen(
                             items(yesterdayGroups, key = { it.id }) { group ->
                                 CallLogGroupItem(
                                     group = group,
+                                    missedCallsLastSeenAt = missedCallsLastSeenAt,
                                     inSelectionMode = inSelectionMode,
                                     isSelected = group.number in selectedNumbers,
                                     onSelect = { onToggleSelection(group.number) },
@@ -358,6 +371,7 @@ fun CallLogScreen(
                             items(displayedOlderGroups, key = { it.id }) { group ->
                                 CallLogGroupItem(
                                     group = group,
+                                    missedCallsLastSeenAt = missedCallsLastSeenAt,
                                     inSelectionMode = inSelectionMode,
                                     isSelected = group.number in selectedNumbers,
                                     onSelect = { onToggleSelection(group.number) },
@@ -383,14 +397,15 @@ fun CallLogScreen(
                     }
                 }
             }
-            ExtendedFloatingActionButton(
-                onClick = { viewModel.syncCallLogs() },
-                icon = { Icon(Icons.Default.Refresh, contentDescription = null) },
-                text = { Text("Sync") },
+            }
+            FloatingActionButton(
+                onClick = onOpenDialPad,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            )
+            ) {
+                Icon(Icons.Default.Dialpad, contentDescription = "Open dial pad")
+            }
 
             selectedDetailNumber?.let { number ->
                 val matchedContact = contacts.find { PhoneNumberNormalizer.matches(it.phoneNumber, number) }
@@ -423,6 +438,7 @@ fun CallLogScreen(
 @Composable
 private fun CallLogGroupItem(
     group: CallLogGroup,
+    missedCallsLastSeenAt: Long,
     inSelectionMode: Boolean,
     isSelected: Boolean,
     onSelect: () -> Unit,
@@ -434,15 +450,25 @@ private fun CallLogGroupItem(
     onAddAsContact: () -> Unit
 ) {
     val context = LocalContext.current
+    val metrics = rememberListLayoutMetrics(inSelectionMode)
     val mostRecent = group.entries.first()
+    val hasUnseenMissed = group.entries.any {
+        it.type == CallType.MISSED && it.timestamp > missedCallsLastSeenAt
+    }
     val displayName = group.name?.takeIf { it.isNotBlank() }
     val background = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
     } else {
         MaterialTheme.colorScheme.surface
     }
-    val dividerInset = if (inSelectionMode) 16.dp else 82.dp
     val duration = formatDuration(mostRecent.duration)
+    val callMeta = buildString {
+        append("${callTypeLabel(mostRecent.type)}, ${formatThreadListTime(mostRecent.timestamp)}")
+        if (!metrics.showInlineTrailingActions) {
+            if (duration.isNotEmpty()) append(" · $duration")
+            if (mostRecent.blocked) append(" · Blocked")
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -458,23 +484,36 @@ private fun CallLogGroupItem(
                     },
                     onLongClick = onLongClick
                 )
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(
+                    horizontal = metrics.horizontalPadding,
+                    vertical = metrics.itemVerticalPadding
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(metrics.rowGap)
         ) {
             if (inSelectionMode) {
                 Checkbox(
                     checked = isSelected,
-                    onCheckedChange = { onSelect() },
-                    modifier = Modifier.padding(top = 10.dp)
+                    onCheckedChange = { onSelect() }
                 )
             }
 
-            ContactAvatar(
-                name = displayName ?: group.number,
-                photoUri = group.photoUri,
-                size = 52.dp
-            )
+            Box {
+                ContactAvatar(
+                    name = displayName ?: group.number,
+                    photoUri = group.photoUri,
+                    size = metrics.avatarSize
+                )
+                if (hasUnseenMissed && !inSelectionMode) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(ErrorRed)
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -502,11 +541,13 @@ private fun CallLogGroupItem(
                     CallTypeIndicator(type = mostRecent.type)
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "${callTypeLabel(mostRecent.type)}, ${formatThreadListTime(mostRecent.timestamp)}",
+                        text = callMeta,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = if (metrics.showInlineTrailingActions) 1 else 2,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    if (mostRecent.blocked) {
+                    if (mostRecent.blocked && metrics.showInlineTrailingActions) {
                         Text(
                             text = " · Blocked",
                             style = MaterialTheme.typography.labelMedium,
@@ -522,61 +563,35 @@ private fun CallLogGroupItem(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        PhoneBookTonalActionButton(
-                            icon = Icons.Filled.Call,
-                            contentDescription = "Call",
-                            tint = MaterialTheme.colorScheme.primary,
-                            onClick = {
-                                if (hasPermission(Manifest.permission.CALL_PHONE)) {
-                                    context.startActivity(Intent(Intent.ACTION_CALL, telCallUri(group.number)))
-                                } else {
-                                    requestPermissions()
+                    PhoneBookContactActions(
+                        onCall = {
+                            when (com.callassistant.util.CallPlacer.placeCallWithFeedback(context, group.number)) {
+                                com.callassistant.util.CallPlaceResult.NeedPermission -> requestPermissions()
+                                else -> Unit
+                            }
+                        },
+                        onMessage = { onOpenMessage(group.number) },
+                        overflowActions = buildList {
+                            add(
+                                PhoneBookOverflowAction("WhatsApp") {
+                                    openWhatsApp(context, group.number)
                                 }
-                            }
-                        )
-                        PhoneBookTonalActionButton(
-                            icon = Icons.AutoMirrored.Filled.Message,
-                            contentDescription = "Message",
-                            tint = MessageBlue,
-                            onClick = { onOpenMessage(group.number) }
-                        )
-                        Box {
-                            var menuExpanded by remember { mutableStateOf(false) }
-                            IconButton(onClick = { menuExpanded = true }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "More options")
-                            }
-                            DropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("WhatsApp") },
-                                    onClick = {
-                                        menuExpanded = false
-                                        openWhatsApp(context, group.number)
+                            )
+                            add(
+                                PhoneBookOverflowAction("IMO") {
+                                    openImo(context, group.number)
+                                }
+                            )
+                            if (group.name.isNullOrBlank()) {
+                                add(
+                                    PhoneBookOverflowAction("Add contact") {
+                                        onAddAsContact()
                                     }
                                 )
-                                DropdownMenuItem(
-                                    text = { Text("IMO") },
-                                    onClick = {
-                                        menuExpanded = false
-                                        openImo(context, group.number)
-                                    }
-                                )
-                                if (group.name.isNullOrBlank()) {
-                                    DropdownMenuItem(
-                                        text = { Text("Add contact") },
-                                        onClick = {
-                                            menuExpanded = false
-                                            onAddAsContact()
-                                        }
-                                    )
-                                }
                             }
                         }
-                    }
-                    if (duration.isNotEmpty()) {
+                    )
+                    if (metrics.showInlineTrailingActions && duration.isNotEmpty()) {
                         Text(
                             text = duration,
                             style = MaterialTheme.typography.labelSmall,
@@ -587,7 +602,7 @@ private fun CallLogGroupItem(
             }
         }
 
-        PhoneBookListDivider(leadingInset = dividerInset)
+        PhoneBookListDivider(leadingInset = metrics.dividerInset)
     }
 }
 

@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.telephony.TelephonyManager
 import android.view.accessibility.AccessibilityEvent
+import com.callassistant.util.CallRecordingPolicy
 
 class CallRecordingAccessibilityService : AccessibilityService() {
 
@@ -17,14 +18,18 @@ class CallRecordingAccessibilityService : AccessibilityService() {
         if (!isDialerPackage(packageName)) return
 
         val tm = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-        if (tm.callState == TelephonyManager.CALL_STATE_OFFHOOK && !CallRecordingService.isRecording) {
-            CallRecordingService.start(this, "")
+        if (tm.callState == TelephonyManager.CALL_STATE_OFFHOOK &&
+            !CallRecordingService.isRecording &&
+            CallRecordingPolicy.shouldAutoRecord(this, number = "", isIncoming = false)
+        ) {
+            CallRecordingService.startFromBackground(this, "")
         }
     }
 
     override fun onInterrupt() {}
 
     private fun isDialerPackage(pkg: String): Boolean {
+        if (pkg == packageName) return true
         val known = setOf(
             "com.android.dialer",
             "com.google.android.dialer",

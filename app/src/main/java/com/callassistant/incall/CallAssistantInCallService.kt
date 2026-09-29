@@ -1,12 +1,24 @@
 package com.callassistant.incall
 
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.Uri
+import android.os.Build
 import android.provider.ContactsContract
 import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.InCallService
+import com.callassistant.service.CallRecordingService
 import com.callassistant.util.CallNotificationManager
+import com.callassistant.util.CallRecordingPolicy
+import com.callassistant.util.CallPlacer
+import com.callassistant.util.IncomingCallUiHelper
+import com.callassistant.util.MissedCallReadStore
+import com.callassistant.util.UssdDetector
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -33,13 +45,14 @@ class CallAssistantInCallService : InCallService() {
     private var currentCallName: String? = null
     private var currentCallWasIncoming = false
     private var currentCallWasAnswered = false
+    private var inCallUiLaunched = false
+    private var isCallForeground = false
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onCreate() {
         super.onCreate()
         session.muteHandler = { muted -> setMuted(muted) }
-        session.audioRouteHandler = { on ->
-            setAudioRoute(if (on) CallAudioState.ROUTE_SPEAKER else CallAudioState.ROUTE_EARPIECE)
-        }
+        session.audioRouteHandler = { route -> setAudioRoute(route) }
     }
 
     override fun onDestroy() {
@@ -59,14 +72,26 @@ class CallAssistantInCallService : InCallService() {
         currentCallName = null
         currentCallWasIncoming = false
         currentCallWasAnswered = false
+        inCallUiLaunched = false
         session.onCallAdded(call)
         call.registerCallback(callCallback)
+        callAudioState?.let { session.onAudioStateChanged(it) }
         updateCallState(call)
-        startActivity(
-            Intent(this, InCallActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION
-            }
-        )
+    }
+
+    private fun launchInCallActivity() {
+        if (inCallUiLaunched) return
+        inCallUiLaunched = true
+        CallPlacer.launchInCallUi(this)
+    }
+
+    private fun presentIncomingCall(number: String, displayName: String?) {
+        if (IncomingCallUiHelper.shouldLaunchInCallActivityDirectly(this)) {
+            CallNotificationManager.cancelIncomingCallNotification(this)
+            launchInCallActivity()
+        } else {
+            CallNotificationManager.showIncomingCallNotification(this, number, displayName)
+        }
     }
 
     override fun onCallRemoved(call: Call) {
@@ -74,23 +99,34 @@ class CallAssistantInCallService : InCallService() {
         call.unregisterCallback(callCallback)
         if (session.onCallRemoved(call)) {
             if (currentCallWasIncoming && !currentCallWasAnswered && currentCallNumber.isNotBlank()) {
-                CallNotificationManager.showMissedCallNotification(this, currentCallNumber, currentCallName)
+                notifyMissedCall(currentCallNumber, currentCallName)
             }
             CallNotificationManager.cancelIncomingCallNotification(this)
-            CallNotificationManager.cancelOngoingCallNotification(this)
+            stopOngoingCallForeground()
+            CallRecordingService.stop(this)
             currentCallNumber = ""
             currentCallName = null
             currentCallWasIncoming = false
             currentCallWasAnswered = false
+            inCallUiLaunched = false
+        }
+    }
+
+    private fun maybeStartAutoRecording(number: String, isIncoming: Boolean) {
+        if (CallRecordingPolicy.shouldAutoRecord(this, number, isIncoming)) {
+            CallRecordingService.start(this, number, isIncoming)
         }
     }
 
     private fun lookupContactName(number: String): String? {
         if (number.isBlank()) return null
+        // Strip USSD/MMI characters before looking up; they are not part of a contact number
+        val sanitized = number.filter { it.isDigit() || it == '+' }
+        if (sanitized.isBlank()) return null
         return try {
             val uri = Uri.withAppendedPath(
                 ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                Uri.encode(number)
+                Uri.encode(sanitized)
             )
             contentResolver.query(
                 uri,
@@ -102,13 +138,20 @@ class CallAssistantInCallService : InCallService() {
                     if (idx >= 0) cursor.getString(idx)?.takeIf { it.isNotBlank() } else null
                 } else null
             }
-        } catch (e: SecurityException) {
+        } catch (e: Exception) {
             null
         }
     }
 
     private fun updateCallState(call: Call) {
         val number = call.details?.handle?.schemeSpecificPart ?: ""
+        
+        // USSD/MMI codes are handled by the system dialog, not our in-call UI
+        if (UssdDetector.isUssdCode(number)) {
+            // Let the system handle USSD - don't show our UI
+            return
+        }
+        
         val name = call.details?.callerDisplayName?.takeIf { it.isNotBlank() }
             ?: lookupContactName(number)
         currentCallNumber = number
@@ -128,26 +171,74 @@ class CallAssistantInCallService : InCallService() {
 
         when (newState) {
             is CallState.Incoming -> {
-                CallNotificationManager.showIncomingCallNotification(
-                    this,
-                    newState.number,
-                    newState.displayName
-                )
-                CallNotificationManager.cancelOngoingCallNotification(this)
+                presentIncomingCall(newState.number, newState.displayName)
+                stopOngoingCallForeground()
             }
             is CallState.Active, is CallState.Connecting -> {
+                launchInCallActivity()
                 CallNotificationManager.cancelIncomingCallNotification(this)
-                CallNotificationManager.showOngoingCallNotification(
-                    this,
-                    currentCallNumber,
-                    currentCallName
-                )
+                promoteOngoingCallForeground()
+                if (newState is CallState.Active) {
+                    maybeStartAutoRecording(currentCallNumber, currentCallWasIncoming)
+                }
             }
             is CallState.Ended -> {
                 CallNotificationManager.cancelIncomingCallNotification(this)
-                CallNotificationManager.cancelOngoingCallNotification(this)
+                stopOngoingCallForeground()
+                CallRecordingService.stop(this)
             }
             else -> {}
+        }
+    }
+
+    private fun promoteOngoingCallForeground() {
+        if (!hasNotificationPermission()) return
+        val notification = CallNotificationManager.buildOngoingCallNotification(
+            this,
+            currentCallNumber,
+            currentCallName
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                CallNotificationManager.NOTIFICATION_ID_ONGOING_CALL,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            startForeground(CallNotificationManager.NOTIFICATION_ID_ONGOING_CALL, notification)
+        }
+        isCallForeground = true
+    }
+
+    private fun stopOngoingCallForeground() {
+        if (!isCallForeground) {
+            CallNotificationManager.cancelOngoingCallNotification(this)
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        isCallForeground = false
+    }
+
+    private fun hasNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
+    private fun notifyMissedCall(number: String, displayName: String?) {
+        val timestamp = System.currentTimeMillis()
+        MissedCallReadStore.recordMissedCall(this, number, displayName, timestamp)
+        serviceScope.launch(Dispatchers.IO) {
+            MissedCallReadStore.refreshNotification(this@CallAssistantInCallService)
         }
     }
 }

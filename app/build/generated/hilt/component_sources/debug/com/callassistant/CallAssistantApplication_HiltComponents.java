@@ -1,15 +1,18 @@
 package com.callassistant;
 
+import com.callassistant.di.AiModule;
 import com.callassistant.di.AppEntryPoint;
 import com.callassistant.di.AppModule;
 import com.callassistant.di.RepositoryModule;
 import com.callassistant.incall.CallAssistantInCallService_GeneratedInjector;
 import com.callassistant.incall.InCallActivity_GeneratedInjector;
+import com.callassistant.service.AiModelDownloadWorker;
 import com.callassistant.service.CallScreeningServiceImpl_GeneratedInjector;
 import com.callassistant.sms.SmsActivity_GeneratedInjector;
 import com.callassistant.ui.MainViewModel_HiltModules;
 import com.callassistant.ui.MessagesViewModel_HiltModules;
 import com.callassistant.ui.SpamRulesViewModel_HiltModules;
+import com.callassistant.ui.messageai.MessageAiViewModel_HiltModules;
 import com.callassistant.ui.notes.NotesViewModel_HiltModules;
 import com.callassistant.ui.phonebook.PhoneBookViewModel_HiltModules;
 import com.callassistant.ui.recordings.RecordingsViewModel_HiltModules;
@@ -137,6 +140,7 @@ public final class CallAssistantApplication_HiltComponents {
 
   @Component(
       modules = {
+          AiModule.class,
           AppModule.class,
           ApplicationContextModule.class,
           ActivityRetainedCBuilderModule.class,
@@ -148,6 +152,7 @@ public final class CallAssistantApplication_HiltComponents {
   @Singleton
   public abstract static class SingletonC implements CallAssistantApplication_GeneratedInjector,
       AppEntryPoint,
+      AiModelDownloadWorker.AiDownloadEntryPoint,
       FragmentGetContextFix.FragmentGetContextFixEntryPoint,
       HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedComponentBuilderEntryPoint,
       ServiceComponentManager.ServiceComponentBuilderEntryPoint,
@@ -173,6 +178,7 @@ public final class CallAssistantApplication_HiltComponents {
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
           MainViewModel_HiltModules.KeyModule.class,
+          MessageAiViewModel_HiltModules.KeyModule.class,
           MessagesViewModel_HiltModules.KeyModule.class,
           NotesViewModel_HiltModules.KeyModule.class,
           PhoneBookViewModel_HiltModules.KeyModule.class,
@@ -217,6 +223,7 @@ public final class CallAssistantApplication_HiltComponents {
       modules = {
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           MainViewModel_HiltModules.BindsModule.class,
+          MessageAiViewModel_HiltModules.BindsModule.class,
           MessagesViewModel_HiltModules.BindsModule.class,
           NotesViewModel_HiltModules.BindsModule.class,
           PhoneBookViewModel_HiltModules.BindsModule.class,

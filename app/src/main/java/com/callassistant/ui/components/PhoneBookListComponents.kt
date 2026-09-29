@@ -4,15 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,6 +43,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.callassistant.ui.theme.ErrorRed
+import com.callassistant.ui.theme.MessageBlue
+import com.callassistant.ui.util.rememberListLayoutMetrics
 
 @Composable
 fun PhoneBookSearchRow(
@@ -50,10 +56,14 @@ fun PhoneBookSearchRow(
     onSortSelected: (Any) -> Unit = {},
     trailingActions: @Composable () -> Unit = {}
 ) {
+    val metrics = rememberListLayoutMetrics(inSelectionMode = false)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(
+                horizontal = metrics.horizontalPadding,
+                vertical = if (metrics.showInlineTrailingActions) 12.dp else 10.dp
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -152,6 +162,76 @@ fun PhoneBookSelectionBar(
             }
             IconButton(onClick = onCancel) {
                 Icon(Icons.Filled.Clear, contentDescription = "Cancel")
+            }
+        }
+    }
+}
+
+data class PhoneBookOverflowAction(
+    val label: String,
+    val onClick: () -> Unit
+)
+
+@Composable
+fun PhoneBookContactActions(
+    onCall: () -> Unit,
+    onMessage: () -> Unit,
+    overflowActions: List<PhoneBookOverflowAction>,
+    modifier: Modifier = Modifier,
+    showInlineActions: Boolean = rememberListLayoutMetrics(inSelectionMode = false).showInlineTrailingActions
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        PhoneBookTonalActionButton(
+            icon = Icons.Filled.Call,
+            contentDescription = "Call",
+            tint = MaterialTheme.colorScheme.primary,
+            onClick = onCall
+        )
+        if (showInlineActions) {
+            PhoneBookTonalActionButton(
+                icon = Icons.AutoMirrored.Filled.Message,
+                contentDescription = "Message",
+                tint = MessageBlue,
+                onClick = onMessage
+            )
+        }
+        PhoneBookOverflowMenu(
+            actions = buildList {
+                if (!showInlineActions) {
+                    add(PhoneBookOverflowAction("Message", onMessage))
+                }
+                addAll(overflowActions)
+            }
+        )
+    }
+}
+
+@Composable
+private fun PhoneBookOverflowMenu(
+    actions: List<PhoneBookOverflowAction>
+) {
+    if (actions.isEmpty()) return
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            actions.forEach { action ->
+                DropdownMenuItem(
+                    text = { Text(action.label) },
+                    onClick = {
+                        expanded = false
+                        action.onClick()
+                    }
+                )
             }
         }
     }

@@ -22,18 +22,31 @@ class CallSessionManager {
     private val _isMuted = MutableStateFlow(false)
     val isMuted: StateFlow<Boolean> = _isMuted.asStateFlow()
 
+    private val _audioRoute = MutableStateFlow(CallAudioState.ROUTE_EARPIECE)
+    val audioRoute: StateFlow<Int> = _audioRoute.asStateFlow()
+
+    private val _supportedAudioRoutes = MutableStateFlow(CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER)
+    val supportedAudioRoutes: StateFlow<Int> = _supportedAudioRoutes.asStateFlow()
+
+    private val _bluetoothDeviceName = MutableStateFlow<String?>(null)
+    val bluetoothDeviceName: StateFlow<String?> = _bluetoothDeviceName.asStateFlow()
+
     private val _isSpeakerOn = MutableStateFlow(false)
     val isSpeakerOn: StateFlow<Boolean> = _isSpeakerOn.asStateFlow()
 
     internal var muteHandler: ((Boolean) -> Unit)? = null
-    internal var audioRouteHandler: ((Boolean) -> Unit)? = null
+    internal var audioRouteHandler: ((Int) -> Unit)? = null
 
     fun setMuted(muted: Boolean) {
         muteHandler?.invoke(muted)
     }
 
+    fun setAudioRoute(route: Int) {
+        audioRouteHandler?.invoke(route)
+    }
+
     fun setSpeakerOn(on: Boolean) {
-        audioRouteHandler?.invoke(on)
+        setAudioRoute(if (on) CallAudioState.ROUTE_SPEAKER else CallAudioState.ROUTE_EARPIECE)
     }
 
     fun answer() {
@@ -55,7 +68,15 @@ class CallSessionManager {
         }
     }
 
+    internal fun prepareForNewCall() {
+        if (_callState.value is CallState.Ended) {
+            _callState.value = CallState.None
+        }
+        _callConnectTimestamp.value = null
+    }
+
     internal fun onCallAdded(call: Call) {
+        prepareForNewCall()
         activeCall = call
     }
 
@@ -69,6 +90,9 @@ class CallSessionManager {
 
     internal fun onAudioStateChanged(audioState: CallAudioState) {
         _isMuted.value = audioState.isMuted
+        _audioRoute.value = audioState.route
+        _supportedAudioRoutes.value = audioState.supportedRouteMask
+        _bluetoothDeviceName.value = audioState.activeBluetoothDevice?.name
         _isSpeakerOn.value = audioState.route == CallAudioState.ROUTE_SPEAKER
     }
 

@@ -1,0 +1,9 @@
+/home/abdullahbinhasan/Android/Sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /home/abdullahbinhasan/Working/Personal/CallAssistant/app/.cxx/Release/2i1x453m/arm64-v8a \
+  callassistant_llama \
+  ggml \
+  ggml-base \
+  ggml-cpu \
+  llama \
+  llama-common

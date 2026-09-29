@@ -19,6 +19,9 @@ class CallAssistantApplication : Application() {
     @Inject
     lateinit var spamRuleRepository: SpamRuleRepository
 
+    @Inject
+    lateinit var aiModelRepository: com.callassistant.data.repository.AiModelRepository
+
     override fun onCreate() {
         super.onCreate()
         CallNotificationManager.createChannels(this)
@@ -28,6 +31,11 @@ class CallAssistantApplication : Application() {
 
         applicationScope.launch {
             spamRuleRepository.seedDefaultsIfEmpty()
+        }
+
+        applicationScope.launch {
+            aiModelRepository.refreshStatus()
+            aiModelRepository.scheduleSilentDownloadIfNeeded()
         }
     }
 }
